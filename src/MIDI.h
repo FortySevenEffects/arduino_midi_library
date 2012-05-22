@@ -34,7 +34,7 @@
                                             // Please note that the Thru will work only when both COMPILE_MIDI_IN and COMPILE_MIDI_OUT set to 1.
 
 
-#define USE_SERIAL_PORT         Serial1     // Change the number (to Serial1 for example) if you want
+#define MIDI_SERIAL_PORT        Serial1     // Change the number (to Serial1 for example) if you want
                                             // to use a different serial port for MIDI I/O.
 
 
