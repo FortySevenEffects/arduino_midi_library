@@ -30,7 +30,7 @@ then
     cp -r * $lib_path
     
     # Cleanup
-    rm $lib_path/install_mac.sh
+    rm $lib_path/install_mac
     
 else
     echo "Arduino application not found."
