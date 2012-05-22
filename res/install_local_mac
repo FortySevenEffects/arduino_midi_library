@@ -33,7 +33,7 @@ then
     # Copy doc
     mkdir $lib_path/doc
     
-    cp ../doc/* $lib_path/doc
+    cp -r ../doc/* $lib_path/doc
     
 else
     echo "Arduino application not found."
