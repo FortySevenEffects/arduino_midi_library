@@ -1,4 +1,6 @@
 #!/bin/bash
+# Use this script to install the library directy from the git clone.
+
 
 if [[ -d /Applications/Arduino.app ]]
 then

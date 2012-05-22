@@ -1,4 +1,13 @@
 #!/bin/bash
+# 
+# Generate an archive with packaged content for easier delivery.
+# The generated archive contains:
+#   - Source files (MIDI.cpp / MIDI.h)
+#   - Resources (keywords.txt)
+#   - Documentation (Doxygen)
+#   - Examples for Arduino IDE
+#   - Installation scripts
+
 
 # Create a temporary destination folder
 mkdir -p temp/doc
