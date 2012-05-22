@@ -26,4 +26,16 @@ cp -r ../doc/* temp/doc
 # Generate package
 mv temp MIDI
 zip -r MIDI.zip MIDI
-mv MIDI.zip Arduino_MIDI_Library_v.zip
+
+
+# Remove temp folder
+rm -rf MIDI
+
+# Archive generated packaged
+
+if [[ !( -d ../bin ) ]]
+then
+    mkdir ../bin    # Create archives location
+fi
+
+mv MIDI.zip ../bin/Arduino_MIDI_Library.zip
