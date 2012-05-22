@@ -93,20 +93,46 @@ enum kThruFilterMode {
 };
 
 
-/*! The midimsg structure contains decoded data of a MIDI message read from the serial port with read() or thru(). \n */
-struct midimsg {
-    /*! The MIDI channel on which the message was recieved. \n Value goes from 1 to 16. */
+/*! The midimsg structure contains decoded data 
+    of a MIDI message read from the serial port 
+    with read() or thru().
+ */
+struct midimsg
+{
+    
+    /*! The MIDI channel on which the message was recieved.
+     \n Value goes from 1 to 16. 
+     */
     byte channel; 
-    /*! The type of the message (see the define section for types reference) */
+    
+    /*! The type of the message 
+     (see the define section for types reference) 
+     */
     kMIDIType type;
-    /*! The first data byte.\n Value goes from 0 to 127.\n */
+    
+    /*! The first data byte.
+     \n Value goes from 0 to 127.
+     */
     byte data1;
-    /*! The second data byte. If the message is only 2 bytes long, this one is null.\n Value goes from 0 to 127. */
+    
+    /*! The second data byte. 
+     If the message is only 2 bytes long, this one is null.
+     \n Value goes from 0 to 127.
+     */
     byte data2;
-    /*! System Exclusive dedicated byte array. \n Array length is stocked on 16 bits, in data1 (LSB) and data2 (MSB) */
+    
+    /*! System Exclusive dedicated byte array.
+     \n Array length is stocked on 16 bits, 
+     in data1 (LSB) and data2 (MSB)
+     */
     byte sysex_array[MIDI_SYSEX_ARRAY_SIZE];
-    /*! This boolean indicates if the message is valid or not. There is no channel consideration here, validity means the message respects the MIDI norm. */
+    
+    /*! This boolean indicates if the message is valid or not.
+     There is no channel consideration here, 
+     validity means the message respects the MIDI norm.
+     */
     bool valid;
+    
 };
 
 
@@ -116,22 +142,24 @@ struct midimsg {
  See member descriptions to know how to use it,
  or check out the examples supplied with the library.
  */
-class MIDI_Class {
-    
+class MIDI_Class 
+{
     
 public:
+    
+    // =========================================================================
     // Constructor and Destructor
+    
     MIDI_Class();
     ~MIDI_Class();
-    
     
     void begin(const byte inChannel = 1);
     
     
+    // =========================================================================
+    // MIDI Output
     
-    
-    /* ####### OUTPUT COMPILATION BLOCK ####### */    
-#if COMPILE_MIDI_OUT
+#if COMPILE_MIDI_OUT // Start compilation block
     
 public:    
     
@@ -164,12 +192,14 @@ private:
     byte            mRunningStatus_TX;
 #endif // USE_RUNNING_STATUS
     
-#endif    // COMPILE_MIDI_OUT
+#endif // COMPILE_MIDI_OUT
     
     
     
-    /* ####### INPUT COMPILATION BLOCK ####### */
-#if COMPILE_MIDI_IN    
+    // =========================================================================
+    // MIDI Input
+    
+#if COMPILE_MIDI_IN // Start compilation block
     
 public:
     
@@ -199,17 +229,39 @@ public:
      */
     static inline const kMIDIType getTypeFromStatusByte(const byte inStatus) 
     {
-        if ((inStatus < 0x80) 
-            || (inStatus == 0xF4) 
-            || (inStatus == 0xF5) 
-            || (inStatus == 0xF9) 
-            || (inStatus == 0xFD)) return InvalidType; // data bytes and undefined.
+        if ((inStatus  < 0x80) ||
+            (inStatus == 0xF4) ||
+            (inStatus == 0xF5) ||
+            (inStatus == 0xF9) ||
+            (inStatus == 0xFD)) return InvalidType; // data bytes and undefined.
         if (inStatus < 0xF0) return (kMIDIType)(inStatus & 0xF0);    // Channel message, remove channel nibble.
         else return (kMIDIType)inStatus;
     }
     
     
+private:
+    
+    bool input_filter(byte inChannel);
+    bool parse(byte inChannel);
+    void reset_input_attributes();
+    
+    // Attributes
+    byte            mRunningStatus_RX;
+    byte            mInputChannel;
+    
+    byte            mPendingMessage[MIDI_SYSEX_ARRAY_SIZE];
+    unsigned int    mPendingMessageExpectedLenght;
+    unsigned int    mPendingMessageIndex;                    // Extended to unsigned int for larger sysex payloads.
+    
+    midimsg         mMessage;
+    
+    
+    // =========================================================================
+    // Input Callbacks
+    
 #if USE_CALLBACKS
+    
+public:
     
     void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
     void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
@@ -232,26 +284,7 @@ public:
     
     void disconnectCallbackFromType(kMIDIType Type);
     
-#endif // USE_CALLBACKS
-    
-    
 private:
-    
-    bool input_filter(byte inChannel);
-    bool parse(byte inChannel);
-    void reset_input_attributes();
-    
-    // Attributes
-    byte            mRunningStatus_RX;
-    byte            mInputChannel;
-    
-    byte            mPendingMessage[MIDI_SYSEX_ARRAY_SIZE];
-    unsigned int    mPendingMessageExpectedLenght;
-    unsigned int    mPendingMessageIndex;                    // Extended to unsigned int for larger sysex payloads.
-    
-    midimsg            mMessage;
-    
-#if USE_CALLBACKS
     
     void launchCallback();
     
@@ -274,14 +307,15 @@ private:
     void (*mActiveSensingCallback)(void);
     void (*mSystemResetCallback)(void);
     
-#endif // USE_CALLBACKS
-    
+#endif // USE_CALLBACKS    
     
 #endif // COMPILE_MIDI_IN
     
     
-    /* ####### THRU COMPILATION BLOCK ####### */
-#if (COMPILE_MIDI_IN && COMPILE_MIDI_OUT && COMPILE_MIDI_THRU) // Thru
+    // =========================================================================
+    // MIDI Soft Thru
+    
+#if (COMPILE_MIDI_IN && COMPILE_MIDI_OUT && COMPILE_MIDI_THRU)
     
 public:
     
