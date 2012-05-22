@@ -9,6 +9,8 @@ cp ../src/* temp
 
 # Copy resources
 cp keywords.txt temp
+cp install_* temp
+rm temp/install_local_*
 
 # Copy examples
 cp -r examples/* temp/examples
