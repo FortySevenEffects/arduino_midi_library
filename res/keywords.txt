@@ -1,0 +1,105 @@
+#######################################
+# Syntax Coloring Map For Test
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+MIDI	KEYWORD1
+MIDI.h	KEYWORD1
+MIDI_Class	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+send	KEYWORD2
+sendNoteOn	KEYWORD2
+sendNoteOff	KEYWORD2
+sendProgramChange	KEYWORD2
+sendControlChange	KEYWORD2
+sendPitchBend	KEYWORD2
+sendPolyPressure	KEYWORD2
+sendAfterTouch	KEYWORD2
+sendSysEx	KEYWORD2
+sendTimeCodeQuarterFrame	KEYWORD2
+sendSongPosition	KEYWORD2
+sendSongSelect	KEYWORD2
+sendTuneRequest	KEYWORD2
+sendRealTime	KEYWORD2
+begin	KEYWORD2
+read	KEYWORD2
+getType	KEYWORD2
+getChannel	KEYWORD2
+getData1	KEYWORD2
+getData2	KEYWORD2
+getSysExArray	KEYWORD2
+getFilterMode	KEYWORD2
+getThruState	KEYWORD2
+getInputChannel	KEYWORD2
+check	KEYWORD2
+delMsg	KEYWORD2
+delSysEx	KEYWORD2
+setInputChannel	KEYWORD2
+setStatus	KEYWORD2
+turnThruOn	KEYWORD2
+turnThruOff	KEYWORD2
+setThruFilterMode	KEYWORD2
+disconnectCallbackFromType	KEYWORD2
+setHandleNoteOff	KEYWORD2
+setHandleNoteOn	KEYWORD2
+setHandleAfterTouchPoly	KEYWORD2
+setHandleControlChange	KEYWORD2
+setHandleProgramChange	KEYWORD2
+setHandleAfterTouchChannel	KEYWORD2
+setHandlePitchBend	KEYWORD2
+setHandleSystemExclusive	KEYWORD2
+setHandleTimeCodeQuarterFrame	KEYWORD2
+setHandleSongPosition	KEYWORD2
+setHandleSongSelect	KEYWORD2
+setHandleTuneRequest	KEYWORD2
+setHandleClock	KEYWORD2
+setHandleStart	KEYWORD2
+setHandleContinue	KEYWORD2
+setHandleStop	KEYWORD2
+setHandleActiveSensing	KEYWORD2
+setHandleSystemReset	KEYWORD2
+getTypeFromStatusByte	KEYWORD2
+
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+NoteOff	LITERAL1
+NoteOn	LITERAL1
+AfterTouchPoly	LITERAL1
+ControlChange	LITERAL1
+ProgramChange	LITERAL1
+AfterTouchChannel	LITERAL1
+PitchBend	LITERAL1
+SystemExclusive	LITERAL1
+TimeCodeQuarterFrame	LITERAL1
+SongPosition	LITERAL1
+SongSelect	LITERAL1
+TuneRequest	LITERAL1
+Clock	LITERAL1
+Start	LITERAL1
+Stop	LITERAL1
+Continue	LITERAL1
+ActiveSensing	LITERAL1
+SystemReset	LITERAL1
+InvalidType	LITERAL1
+Off	LITERAL1
+Full	LITERAL1
+SameChannel	LITERAL1
+DifferentChannel	LITERAL1
+MIDI_CHANNEL_OMNI	LITERAL1
+MIDI_CHANNEL_OFF	LITERAL1
+MIDI_BAUDRATE	LITERAL1
+MIDI_SYSEX_ARRAY_SIZE	LITERAL1
