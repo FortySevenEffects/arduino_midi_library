@@ -285,31 +285,17 @@ void MIDI_Class::sendAfterTouch(byte Pressure,
 
 /*! \brief Send a Pitch Bend message using a signed integer value.
  \param PitchValue  The amount of bend to send (in a signed integer format), 
-                    between -8192 (maximum downwards bend) 
-                    and 8191 (max upwards bend), center value is 0.
+                    between MIDI_PITCHBEND_MIN and MIDI_PITCHBEND_MAX, 
+                    center value is 0.
  \param Channel     The channel on which the message will be sent (1 to 16).
  */
 void MIDI_Class::sendPitchBend(int PitchValue,
                                byte Channel)
 {
     
-    unsigned int bend = PitchValue + 8192;
-    sendPitchBend(bend,Channel);
+    unsigned int bend = PitchValue - MIDI_PITCHBEND_MIN;
     
-}
-
-
-/*! \brief Send a Pitch Bend message using an unsigned integer value.
- \param PitchValue  The amount of bend to send (in a signed integer format), 
-                    between 0 (maximum downwards bend) 
-                    and 16383 (max upwards bend), center value is 8192.
- \param Channel     The channel on which the message will be sent (1 to 16).
- */
-void MIDI_Class::sendPitchBend(unsigned int PitchValue,
-                               byte Channel)
-{
-    
-    send(PitchBend,(PitchValue & 0x7F),(PitchValue >> 7) & 0x7F,Channel);
+    send(PitchBend,(bend & 0x7F),(bend >> 7) & 0x7F,Channel);
     
 }
 
@@ -1032,7 +1018,7 @@ void MIDI_Class::launchCallback()
             
             // Continuous controllers
         case ControlChange:         if (mControlChangeCallback != NULL)         mControlChangeCallback(mMessage.channel,mMessage.data1,mMessage.data2);    break;
-        case PitchBend:             if (mPitchBendCallback != NULL)             mPitchBendCallback(mMessage.channel,(int)((mMessage.data1 & 0x7F) | ((mMessage.data2 & 0x7F)<< 7)) - 8192);    break; // TODO: check this
+        case PitchBend:             if (mPitchBendCallback != NULL)             mPitchBendCallback(mMessage.channel,(int)((mMessage.data1 & 0x7F) | ((mMessage.data2 & 0x7F)<< 7)) + MIDI_PITCHBEND_MIN); break; // TODO: check this
         case AfterTouchPoly:        if (mAfterTouchPolyCallback != NULL)        mAfterTouchPolyCallback(mMessage.channel,mMessage.data1,mMessage.data2);    break;
         case AfterTouchChannel:     if (mAfterTouchChannelCallback != NULL)     mAfterTouchChannelCallback(mMessage.channel,mMessage.data1);    break;
             

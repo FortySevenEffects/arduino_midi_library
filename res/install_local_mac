@@ -1,4 +1,6 @@
 #!/bin/bash
+# Use this script to install the library directy from the git clone.
+
 
 if [[ -d /Applications/Arduino.app ]]
 then
@@ -31,7 +33,7 @@ then
     # Copy doc
     mkdir $lib_path/doc
     
-    cp ../doc/* $lib_path/doc
+    cp -r ../doc/* $lib_path/doc
     
 else
     echo "Arduino application not found."

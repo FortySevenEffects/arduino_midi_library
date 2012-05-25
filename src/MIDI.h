@@ -60,6 +60,10 @@
 
 #define MIDI_SYSEX_ARRAY_SIZE   255         // Maximum size is 65535 bytes.
 
+#define MIDI_PITCHBEND_MIN      -8192
+#define MIDI_PITCHBEND_MAX      8191
+
+
 
 /*! Enumeration of MIDI types */
 enum kMIDIType {
@@ -168,7 +172,6 @@ public:
     void sendProgramChange(byte ProgramNumber,byte Channel);
     void sendControlChange(byte ControlNumber, byte ControlValue,byte Channel);
     void sendPitchBend(int PitchValue,byte Channel);
-    void sendPitchBend(unsigned int PitchValue,byte Channel);
     void sendPitchBend(double PitchValue,byte Channel);
     void sendPolyPressure(byte NoteNumber,byte Pressure,byte Channel);
     void sendAfterTouch(byte Pressure,byte Channel);
