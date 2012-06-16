@@ -9,7 +9,8 @@
  */
 
 #include "MIDI.h"
-#include "Serial.h"
+#include "core.h"
+#include "hardware_Serial.h"
 #include <stdlib.h>
 
 
@@ -21,7 +22,7 @@ MIDI_Class MIDI;
 MIDI_Class::MIDI_Class()
 { 
     
-#if USE_CALLBACKS
+#if COMPILE_MIDI_IN && USE_CALLBACKS
     
     // Initialise callbacks to NULL pointer
     mNoteOffCallback                = NULL;
@@ -310,8 +311,7 @@ void MIDI_Class::sendPitchBend(double PitchValue,
                                byte Channel)
 {
     
-    unsigned int pitchval = (PitchValue+1.f)*8192;
-    if (pitchval > 16383) pitchval = 16383;        // overflow protection
+    int pitchval = PitchValue * MIDI_PITCHBEND_MAX;
     sendPitchBend(pitchval,Channel);
     
 }
@@ -528,16 +528,16 @@ bool MIDI_Class::read(const byte inChannel)
 // Private method: MIDI parser
 bool MIDI_Class::parse(byte inChannel)
 { 
+    const byte bytes_available = MIDI_SERIAL_PORT.available();
     
-    const int bytes_available = MIDI_SERIAL_PORT.available();
-    
-    if (bytes_available <= 0) {
+    if (bytes_available == 0)
         // No data available.
         return false;
-    }
     
     // If the buffer is full -> Don't Panic! Call the Vogons to destroy it.
-    if (bytes_available == UART_BUFFER_SIZE) { Serial << "Overflow, call the Vogons!!" << endl;
+    if (bytes_available == UART::bufferSize) 
+    { 
+        PRINT_DEBUG("MIDI Overflow");
         MIDI_SERIAL_PORT.flush();
     }    
     else {
@@ -1184,5 +1184,3 @@ void MIDI_Class::thru_filter(byte inChannel)
 
 
 #endif // Thru
-
-

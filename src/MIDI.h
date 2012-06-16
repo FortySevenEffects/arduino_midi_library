@@ -8,11 +8,10 @@
  *  license     GPL Forty Seven Effects - 2011
  */
 
-#ifndef LIB_MIDI_H_
-#define LIB_MIDI_H_
+#ifndef _FSE_LIB_MIDI_H_
+#define _FSE_LIB_MIDI_H_
 
-#include "Types.h"                            // Include all the types we need.
-
+#include "core_Types.h"                     // Include all the types we need.
 
 /*  
     ###############################################################
@@ -58,7 +57,7 @@
 #define MIDI_CHANNEL_OMNI       0
 #define MIDI_CHANNEL_OFF        17          // and over
 
-#define MIDI_SYSEX_ARRAY_SIZE   255         // Maximum size is 65535 bytes.
+#define MIDI_SYSEX_ARRAY_SIZE   128         // Maximum size is 65535 bytes.
 
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
@@ -66,7 +65,8 @@
 
 
 /*! Enumeration of MIDI types */
-enum kMIDIType {
+enum kMIDIType 
+{
     NoteOff               = 0x80,    ///< Note Off
     NoteOn                = 0x90,    ///< Note On
     AfterTouchPoly        = 0xA0,    ///< Polyphonic AfterTouch
@@ -146,7 +146,7 @@ struct midimsg
  See member descriptions to know how to use it,
  or check out the examples supplied with the library.
  */
-class MIDI_Class 
+class MIDI_Class
 {
     
 public:
@@ -252,9 +252,9 @@ private:
     byte            mRunningStatus_RX;
     byte            mInputChannel;
     
-    byte            mPendingMessage[MIDI_SYSEX_ARRAY_SIZE];
+    byte            mPendingMessage[3];             // SysEx are dumped into mMessage directly.
     unsigned int    mPendingMessageExpectedLenght;
-    unsigned int    mPendingMessageIndex;                    // Extended to unsigned int for larger sysex payloads.
+    unsigned int    mPendingMessageIndex;           // Extended to unsigned int for larger SysEx payloads.
     
     midimsg         mMessage;
     
@@ -339,7 +339,7 @@ private:
     void thru_filter(byte inChannel);
     
     bool                mThruActivated;
-    kThruFilterMode        mThruFilterMode;
+    kThruFilterMode     mThruFilterMode;
     
 #endif // Thru
     
@@ -347,4 +347,5 @@ private:
 
 extern MIDI_Class MIDI;
 
-#endif // LIB_MIDI_H_
+
+#endif // _FSE_LIB_MIDI_H_
