@@ -534,31 +534,226 @@ bool MIDI_Class::parse(byte inChannel)
         // No data available.
         return false;
     
-    // If the buffer is full -> Don't Panic! Call the Vogons to destroy it.
-    if (bytes_available == UART::bufferSize) 
-    { 
-        PRINT_DEBUG("MIDI Overflow");
-        MIDI_SERIAL_PORT.flush();
-    }    
-    else {
+    
+    /* Parsing algorithm:
+     Get a byte from the serial buffer.
+     * If there is no pending message to be recomposed, start a new one.
+     - Find type and channel (if pertinent)
+     - Look for other bytes in buffer, call parser recursively, until the message is assembled or the buffer is empty.
+     * Else, add the extracted byte to the pending message, and check validity. When the message is done, store it.
+     */
+    
+    
+    const byte extracted = MIDI_SERIAL_PORT.read();
+    
+    if (mPendingMessageIndex == 0) { // Start a new pending message
+        mPendingMessage[0] = extracted;
         
-        /* Parsing algorithm:
-         Get a byte from the serial buffer.
-         * If there is no pending message to be recomposed, start a new one.
-         - Find type and channel (if pertinent)
-         - Look for other bytes in buffer, call parser recursively, until the message is assembled or the buffer is empty.
-         * Else, add the extracted byte to the pending message, and check validity. When the message is done, store it.
-         */
+        // Check for running status first
+        switch (getTypeFromStatusByte(mRunningStatus_RX)) {
+                // Only these types allow Running Status:
+            case NoteOff:
+            case NoteOn:
+            case AfterTouchPoly:
+            case ControlChange:
+            case ProgramChange:
+            case AfterTouchChannel:
+            case PitchBend:    
+                
+                // If the status byte is not received, prepend it to the pending message
+                if (extracted < 0x80) {
+                    mPendingMessage[0] = mRunningStatus_RX;
+                    mPendingMessage[1] = extracted;
+                    mPendingMessageIndex = 1;
+                }
+                // Else: well, we received another status byte, so the running status does not apply here.
+                // It will be updated upon completion of this message.
+                
+                break;
+                
+            default:
+                // No running status
+                break;
+        }
         
         
-        const byte extracted = MIDI_SERIAL_PORT.read();
+        switch (getTypeFromStatusByte(mPendingMessage[0])) {
+                
+                // 1 byte messages
+            case Start:
+            case Continue:
+            case Stop:
+            case Clock:
+            case ActiveSensing:
+            case SystemReset:
+            case TuneRequest:
+                // Handle the message type directly here.
+                mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
+                mMessage.channel = 0;
+                mMessage.data1 = 0;
+                mMessage.data2 = 0;
+                mMessage.valid = true;
+                
+                // \fix Running Status broken when receiving Clock messages.
+                // Do not reset all input attributes, Running Status must remain unchanged.
+                //reset_input_attributes(); 
+                
+                // We still need to reset these
+                mPendingMessageIndex = 0;
+                mPendingMessageExpectedLenght = 0;
+                
+                return true;
+                break;
+                
+                // 2 bytes messages
+            case ProgramChange:
+            case AfterTouchChannel:
+            case TimeCodeQuarterFrame:
+            case SongSelect:
+                mPendingMessageExpectedLenght = 2;
+                break;
+                
+                // 3 bytes messages
+            case NoteOn:
+            case NoteOff:
+            case ControlChange:
+            case PitchBend:
+            case AfterTouchPoly:
+            case SongPosition:
+                mPendingMessageExpectedLenght = 3;
+                break;
+                
+            case SystemExclusive:
+                mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE; // As the message can be any lenght between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
+                mRunningStatus_RX = InvalidType;
+                break;
+                
+            case InvalidType:
+            default:
+                // This is obviously wrong. Let's get the hell out'a here.
+                reset_input_attributes();
+                return false;
+                break;
+        }
         
-        if (mPendingMessageIndex == 0) { // Start a new pending message
-            mPendingMessage[0] = extracted;
+        // Then update the index of the pending message.
+        mPendingMessageIndex++;
+        
+#if USE_1BYTE_PARSING
+        // Message is not complete.
+        return false;
+#else
+        // Call the parser recursively
+        // to parse the rest of the message.
+        return parse(inChannel);
+#endif
+        
+    }
+    else { 
+        
+        // First, test if this is a status byte
+        if (extracted >= 0x80) {
             
-            // Check for running status first
-            switch (getTypeFromStatusByte(mRunningStatus_RX)) {
-                    // Only these types allow Running Status:
+            // Reception of status bytes in the middle of an uncompleted message
+            // are allowed only for interleaved Real Time message or EOX
+            switch (extracted) {
+                case Clock:
+                case Start:
+                case Continue:
+                case Stop:
+                case ActiveSensing:
+                case SystemReset:
+                    
+                    /*
+                     This is tricky. Here we will have to extract the one-byte message,
+                     pass it to the structure for being read outside the MIDI class,
+                     and recompose the message it was interleaved into.
+                     
+                     Oh, and without killing the running status.. 
+                     
+                     This is done by leaving the pending message as is, it will be completed on next calls.
+                     */
+                    
+                    mMessage.type = (kMIDIType)extracted;
+                    mMessage.data1 = 0;
+                    mMessage.data2 = 0;
+                    mMessage.channel = 0;
+                    mMessage.valid = true;
+                    return true;
+                    
+                    break;
+                    
+                    // End of Exclusive
+                case 0xF7:
+                    if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive) {
+                        
+                        // Store System Exclusive array in midimsg structure
+                        for (byte i=0;i<MIDI_SYSEX_ARRAY_SIZE;i++) {
+                            mMessage.sysex_array[i] = mPendingMessage[i];
+                        }
+                        
+                        mMessage.type = SystemExclusive;
+                        
+                        // Get length
+                        mMessage.data1 = (mPendingMessageIndex+1) & 0xFF;    
+                        mMessage.data2 = (mPendingMessageIndex+1) >> 8;
+                        
+                        mMessage.channel = 0;
+                        mMessage.valid = true;
+                        
+                        reset_input_attributes();
+                        
+                        return true;
+                    }
+                    else {
+                        // Well well well.. error.
+                        reset_input_attributes();
+                        return false;
+                    }
+                    
+                    break;
+                default:
+                    break;
+            }
+            
+            
+            
+        }
+        
+        
+        // Add extracted data byte to pending message
+        mPendingMessage[mPendingMessageIndex] = extracted;
+        
+        
+        // Now we are going to check if we have reached the end of the message
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1)) {
+            
+            // "FML" case: fall down here with an overflown SysEx..
+            // This means we received the last possible data byte that can fit the buffer.
+            // If this happens, try increasing MIDI_SYSEX_ARRAY_SIZE.
+            if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive) {
+                reset_input_attributes();
+                return false;
+            }
+            
+            
+            mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
+            mMessage.channel = (mPendingMessage[0] & 0x0F)+1; // Don't check if it is a Channel Message
+            
+            mMessage.data1 = mPendingMessage[1];
+            
+            // Save data2 only if applicable
+            if (mPendingMessageExpectedLenght == 3)    mMessage.data2 = mPendingMessage[2];
+            else mMessage.data2 = 0;
+            
+            // Reset local variables
+            mPendingMessageIndex = 0;
+            mPendingMessageExpectedLenght = 0;
+            
+            mMessage.valid = true;
+            
+            // Activate running status (if enabled for the received type)
+            switch (mMessage.type) {
                 case NoteOff:
                 case NoteOn:
                 case AfterTouchPoly:
@@ -566,83 +761,18 @@ bool MIDI_Class::parse(byte inChannel)
                 case ProgramChange:
                 case AfterTouchChannel:
                 case PitchBend:    
-                    
-                    // If the status byte is not received, prepend it to the pending message
-                    if (extracted < 0x80) {
-                        mPendingMessage[0] = mRunningStatus_RX;
-                        mPendingMessage[1] = extracted;
-                        mPendingMessageIndex = 1;
-                    }
-                    // Else: well, we received another status byte, so the running status does not apply here.
-                    // It will be updated upon completion of this message.
-                    
+                    // Running status enabled: store it from received message
+                    mRunningStatus_RX = mPendingMessage[0];
                     break;
                     
                 default:
                     // No running status
-                    break;
-            }
-            
-            
-            switch (getTypeFromStatusByte(mPendingMessage[0])) {
-                    
-                    // 1 byte messages
-                case Start:
-                case Continue:
-                case Stop:
-                case Clock:
-                case ActiveSensing:
-                case SystemReset:
-                case TuneRequest:
-                    // Handle the message type directly here.
-                    mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                    mMessage.channel = 0;
-                    mMessage.data1 = 0;
-                    mMessage.data2 = 0;
-                    mMessage.valid = true;
-                    
-                    // \fix Running Status broken when receiving Clock messages.
-                    // Do not reset all input attributes, Running Status must remain unchanged.
-                    //reset_input_attributes(); 
-                    
-                    // We still need to reset these
-                    mPendingMessageIndex = 0;
-                    mPendingMessageExpectedLenght = 0;
-                    
-                    return true;
-                    break;
-                    
-                    // 2 bytes messages
-                case ProgramChange:
-                case AfterTouchChannel:
-                case TimeCodeQuarterFrame:
-                case SongSelect:
-                    mPendingMessageExpectedLenght = 2;
-                    break;
-                    
-                    // 3 bytes messages
-                case NoteOn:
-                case NoteOff:
-                case ControlChange:
-                case PitchBend:
-                case AfterTouchPoly:
-                case SongPosition:
-                    mPendingMessageExpectedLenght = 3;
-                    break;
-                    
-                case SystemExclusive:
-                    mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE; // As the message can be any lenght between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
                     mRunningStatus_RX = InvalidType;
                     break;
-                    
-                case InvalidType:
-                default:
-                    // This is obviously wrong. Let's get the hell out'a here.
-                    reset_input_attributes();
-                    return false;
-                    break;
             }
-            
+            return true;
+        }
+        else {
             // Then update the index of the pending message.
             mPendingMessageIndex++;
             
@@ -654,145 +784,6 @@ bool MIDI_Class::parse(byte inChannel)
             // to parse the rest of the message.
             return parse(inChannel);
 #endif
-            
-        }
-        else { 
-            
-            // First, test if this is a status byte
-            if (extracted >= 0x80) {
-                
-                // Reception of status bytes in the middle of an uncompleted message
-                // are allowed only for interleaved Real Time message or EOX
-                switch (extracted) {
-                    case Clock:
-                    case Start:
-                    case Continue:
-                    case Stop:
-                    case ActiveSensing:
-                    case SystemReset:
-                        
-                        /*
-                         This is tricky. Here we will have to extract the one-byte message,
-                         pass it to the structure for being read outside the MIDI class,
-                         and recompose the message it was interleaved into.
-                         
-                         Oh, and without killing the running status.. 
-                         
-                         This is done by leaving the pending message as is, it will be completed on next calls.
-                         */
-                        
-                        mMessage.type = (kMIDIType)extracted;
-                        mMessage.data1 = 0;
-                        mMessage.data2 = 0;
-                        mMessage.channel = 0;
-                        mMessage.valid = true;
-                        return true;
-                        
-                        break;
-                        
-                        // End of Exclusive
-                    case 0xF7:
-                        if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive) {
-                            
-                            // Store System Exclusive array in midimsg structure
-                            for (byte i=0;i<MIDI_SYSEX_ARRAY_SIZE;i++) {
-                                mMessage.sysex_array[i] = mPendingMessage[i];
-                            }
-                            
-                            mMessage.type = SystemExclusive;
-                            
-                            // Get length
-                            mMessage.data1 = (mPendingMessageIndex+1) & 0xFF;    
-                            mMessage.data2 = (mPendingMessageIndex+1) >> 8;
-                            
-                            mMessage.channel = 0;
-                            mMessage.valid = true;
-                            
-                            reset_input_attributes();
-                            
-                            return true;
-                        }
-                        else {
-                            // Well well well.. error.
-                            reset_input_attributes();
-                            return false;
-                        }
-                        
-                        break;
-                    default:
-                        break;
-                }
-                
-                
-                
-            }
-            
-            
-            // Add extracted data byte to pending message
-            mPendingMessage[mPendingMessageIndex] = extracted;
-            
-            
-            // Now we are going to check if we have reached the end of the message
-            if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1)) {
-                
-                // "FML" case: fall down here with an overflown SysEx..
-                // This means we received the last possible data byte that can fit the buffer.
-                // If this happens, try increasing MIDI_SYSEX_ARRAY_SIZE.
-                if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive) {
-                    reset_input_attributes();
-                    return false;
-                }
-                
-                
-                mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = (mPendingMessage[0] & 0x0F)+1; // Don't check if it is a Channel Message
-                
-                mMessage.data1 = mPendingMessage[1];
-                
-                // Save data2 only if applicable
-                if (mPendingMessageExpectedLenght == 3)    mMessage.data2 = mPendingMessage[2];
-                else mMessage.data2 = 0;
-                
-                // Reset local variables
-                mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
-                
-                mMessage.valid = true;
-                
-                // Activate running status (if enabled for the received type)
-                switch (mMessage.type) {
-                    case NoteOff:
-                    case NoteOn:
-                    case AfterTouchPoly:
-                    case ControlChange:
-                    case ProgramChange:
-                    case AfterTouchChannel:
-                    case PitchBend:    
-                        // Running status enabled: store it from received message
-                        mRunningStatus_RX = mPendingMessage[0];
-                        break;
-                        
-                    default:
-                        // No running status
-                        mRunningStatus_RX = InvalidType;
-                        break;
-                }
-                return true;
-            }
-            else {
-                // Then update the index of the pending message.
-                mPendingMessageIndex++;
-                
-#if USE_1BYTE_PARSING
-                // Message is not complete.
-                return false;
-#else
-                // Call the parser recursively
-                // to parse the rest of the message.
-                return parse(inChannel);
-#endif
-                
-            }
             
         }
         
