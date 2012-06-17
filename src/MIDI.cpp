@@ -12,19 +12,18 @@
 #include <stdlib.h>
 #include "Arduino.h"            // If using an old (pre-1.0) version of Arduino,
                                 // use WConstants.h instead of Arduino.h
-#include "HardwareSerial.h"
-
-
-#if USE_SOFTWARE_SERIAL
+#if MIDI_USE_SOFTWARE_SERIAL
 
 // Note: Make sure the following relative path is correct.
 #include "../SoftwareSerial/SoftwareSerial.h"
-SoftwareSerial softSerialClass(SOFTSERIAL_RX_PIN,SOFTSERIAL_TX_PIN);
-
+SoftwareSerial softSerialClass(MIDI_SOFTSERIAL_RX_PIN,
+                               MIDI_SOFTSERIAL_TX_PIN);
 #undef  MIDI_SERIAL_PORT
 #define MIDI_SERIAL_PORT softSerialClass
 
-#endif // USE_SOFTWARE_SERIAL
+#else
+#include "HardwareSerial.h"
+#endif // MIDI_USE_SOFTWARE_SERIAL
 
 
 /*! \brief Main instance (the class comes pre-instantiated). */

@@ -36,12 +36,6 @@
 
 #define MIDI_SERIAL_PORT        Serial      // Change the number (to Serial1 for example) if you want
                                             // to use a different serial port for MIDI I/O.
-
-#define USE_SOFTWARE_SERIAL     0           // Set to 1 to use SoftwareSerial instead of native serial ports.
-#define SOFTSERIAL_RX_PIN       1           // This pin number will be used for MIDI Input
-#define SOFTSERIAL_TX_PIN       2           // This pin number will be used for MIDI Output.
-
-
 #define USE_RUNNING_STATUS      1           // Running status enables short messages when sending multiple values
                                             // of the same type and channel.
                                             // Set to 0 if you have troubles controlling your hardware.
@@ -65,6 +59,18 @@
 
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
+
+
+#ifndef MIDI_USE_SOFTWARE_SERIAL
+#define MIDI_USE_SOFTWARE_SERIAL 0
+#else
+  #if MIDI_USE_SOFTWARE_SERIAL
+    #if !defined(MIDI_SOFTSERIAL_RX_PIN) || !defined(MIDI_SOFTSERIAL_TX_PIN)
+    #error You need to define some pins to enable MIDI with software serial.
+    #endif
+  #endif
+#endif
+
 
 
 
