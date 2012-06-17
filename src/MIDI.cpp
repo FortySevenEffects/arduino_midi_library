@@ -324,8 +324,7 @@ void MIDI_Class::sendPitchBend(double PitchValue,
                                byte Channel)
 {
     
-    unsigned int pitchval = (PitchValue+1.f)*8192;
-    if (pitchval > 16383) pitchval = 16383;        // overflow protection
+    int pitchval = PitchValue * MIDI_PITCHBEND_MAX;
     sendPitchBend(pitchval,Channel);
     
 }
