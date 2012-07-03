@@ -15,16 +15,16 @@
 
 
 /*  
- ###############################################################
- #                                                             #
- #    CONFIGURATION AREA                                       #
- #                                                             #
- #    Here are a few settings you can change to customize      #
- #    the library for your own project. You can for example    #
- #    choose to compile only parts of it so you gain flash     #
- #    space and optimise the speed of your sketch.             #
- #                                                             #
- ###############################################################
+    ###############################################################
+    #                                                             #
+    #    CONFIGURATION AREA                                       #
+    #                                                             #
+    #    Here are a few settings you can change to customize      #
+    #    the library for your own project. You can for example    #
+    #    choose to compile only parts of it so you gain flash     #
+    #    space and optimise the speed of your sketch.             #
+    #                                                             #
+    ###############################################################
  */
 
 
@@ -56,6 +56,7 @@
 // END OF CONFIGURATION AREA 
 // (do not modify anything under this line unless you know what you are doing)
 
+
 #define MIDI_BAUDRATE           31250
 
 #define MIDI_CHANNEL_OMNI       0
@@ -76,7 +77,8 @@ typedef uint16_t word;
 
 
 /*! Enumeration of MIDI types */
-enum kMIDIType {
+enum kMIDIType 
+{
     NoteOff               = 0x80,    ///< Note Off
     NoteOn                = 0x90,    ///< Note On
     AfterTouchPoly        = 0xA0,    ///< Polyphonic AfterTouch
@@ -98,7 +100,6 @@ enum kMIDIType {
     InvalidType           = 0x00     ///< For notifying errors
 };
 
-
 /*! Enumeration of Thru filter modes */
 enum kThruFilterMode {
     Off                   = 0,  ///< Thru disabled (nothing passes through).
@@ -106,6 +107,74 @@ enum kThruFilterMode {
     SameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
     DifferentChannel      = 3   ///< All the messages but the ones on the Input Channel will be sent back.
 };
+
+
+enum eMIDICCNumber
+{
+    // High resolution Continuous Controllers MSB (+32 for LSB) ----------------
+    BankSelect                  = 0,
+    ModulationWheel             = 1,
+    BreathController            = 2,
+    // CC3 undefined
+    FootController              = 4,
+    PortamentoTime              = 5,
+    DataEntry                   = 6,
+    ChannelVolume               = 7,
+    Balance                     = 8,
+    // CC9 undefined
+    Pan                         = 10,
+    ExpressionController        = 11,
+    EffectControl1              = 12,
+    EffectControl2              = 13,
+    // CC14 undefined
+    // CC15 undefined
+    GeneralPurposeController1   = 16,
+    GeneralPurposeController2   = 17,
+    GeneralPurposeController3   = 18,
+    GeneralPurposeController4   = 19,
+    
+    // Switches ----------------------------------------------------------------
+    Sustain                     = 64,
+    Portamento                  = 65,
+    Sostenuto                   = 66,
+    SoftPedal                   = 67,
+    Legato                      = 68,
+    Hold2                       = 69,
+    
+    // Low resolution continuous controllers -----------------------------------
+    SoundController1            = 70,   ///< Synth: Sound Variation   FX: Exciter On/Off
+    SoundController2            = 71,   ///< Synth: Harmonic Content  FX: Compressor On/Off
+    SoundController3            = 72,   ///< Synth: Release Time      FX: Distortion On/Off
+    SoundController4            = 73,   ///< Synth: Attack Time       FX: EQ On/Off
+    SoundController5            = 74,   ///< Synth: Brightness        FX: Expander On/Off
+    SoundController6            = 75,   ///< Synth: Decay Time        FX: Reverb On/Off
+    SoundController7            = 76,   ///< Synth: Vibrato Rate      FX: Delay On/Off
+    SoundController8            = 77,   ///< Synth: Vibrato Depth     FX: Pitch Transpose On/Off
+    SoundController9            = 78,   ///< Synth: Vibrato Delay     FX: Flange/Chorus On/Off
+    SoundController10           = 79,   ///< Synth: Undefined         FX: Special Effects On/Off
+    GeneralPurposeController5   = 80,
+    GeneralPurposeController6   = 81,
+    GeneralPurposeController7   = 82,
+    GeneralPurposeController8   = 83,
+    PortamentoControl           = 84,
+    // CC85 to CC90 undefined
+    Effects1                    = 91,   ///< Reverb send level
+    Effects2                    = 92,   ///< Tremolo depth
+    Effects3                    = 93,   ///< Chorus send level
+    Effects4                    = 94,   ///< Celeste depth
+    Effects5                    = 95,   ///< Phaser depth
+    
+    // Channel Mode messages ---------------------------------------------------
+    AllSoundOff                 = 120,
+    ResetAllControllers         = 121,
+    LocalControl                = 122,
+    AllNotesOff                 = 123,
+    OmniModeOff                 = 124,
+    OmniModeOn                  = 125,
+    MonoModeOn                  = 126,
+    PolyModeOn                  = 127
+};
+
 
 
 /*! The midimsg structure contains decoded data 
@@ -157,7 +226,7 @@ struct midimsg
  See member descriptions to know how to use it,
  or check out the examples supplied with the library.
  */
-class MIDI_Class 
+class MIDI_Class
 {
     
 public:
@@ -263,9 +332,9 @@ private:
     byte            mRunningStatus_RX;
     byte            mInputChannel;
     
-    byte            mPendingMessage[MIDI_SYSEX_ARRAY_SIZE];
+    byte            mPendingMessage[3];             // SysEx are dumped into mMessage directly.
     unsigned int    mPendingMessageExpectedLenght;
-    unsigned int    mPendingMessageIndex;                    // Extended to unsigned int for larger sysex payloads.
+    unsigned int    mPendingMessageIndex;           // Extended to unsigned int for larger SysEx payloads.
     
     midimsg         mMessage;
     
@@ -350,7 +419,7 @@ private:
     void thru_filter(byte inChannel);
     
     bool                mThruActivated;
-    kThruFilterMode        mThruFilterMode;
+    kThruFilterMode     mThruFilterMode;
     
 #endif // Thru
     
