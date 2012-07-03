@@ -2,7 +2,7 @@
  *  @file       midi_Settings.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Settings
- *  @version    3.5
+ *  @version    4.0
  *  @author     Francois Best 
  *  @date       24/02/11
  *  license     GPL Forty Seven Effects - 2011
