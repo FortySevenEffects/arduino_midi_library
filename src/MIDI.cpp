@@ -528,8 +528,6 @@ bool MIDI_Class::parse(byte inChannel)
             case ProgramChange:
             case AfterTouchChannel:
             case PitchBend:
-            case ProgramChange:
-            case AfterTouchChannel:
                 
                 // If the status byte is not received, prepend it 
                 // to the pending message
