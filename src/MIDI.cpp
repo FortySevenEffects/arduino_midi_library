@@ -21,7 +21,6 @@ MIDI_Class MIDI;
 /*! \brief Default constructor for MIDI_Class. */
 MIDI_Class::MIDI_Class()
 { 
-    
 #if COMPILE_MIDI_IN && USE_CALLBACKS
     
     // Initialise callbacks to NULL pointer
@@ -45,7 +44,6 @@ MIDI_Class::MIDI_Class()
     mSystemResetCallback            = NULL;
     
 #endif
-    
 }
 
 
@@ -67,20 +65,14 @@ MIDI_Class::~MIDI_Class()
  */
 void MIDI_Class::begin(const byte inChannel)
 {
-    
     // Initialise the Serial port
     MIDI_SERIAL_PORT.begin(MIDI_BAUDRATE);
     
-    
-#if COMPILE_MIDI_OUT
-    
-#if USE_RUNNING_STATUS
+#if COMPILE_MIDI_OUT && USE_RUNNING_STATUS
     
     mRunningStatus_TX = InvalidType;
-    
-#endif // USE_RUNNING_STATUS
-    
-#endif // COMPILE_MIDI_OUT
+
+#endif // COMPILE_MIDI_OUT && USE_RUNNING_STATUS
     
     
 #if COMPILE_MIDI_IN
@@ -119,9 +111,7 @@ void MIDI_Class::begin(const byte inChannel)
 const byte MIDI_Class::genstatus(const kMIDIType inType,
                                  const byte inChannel) const
 {
-    
     return ((byte)inType | ((inChannel-1) & 0x0F));
-    
 }
 
 
@@ -141,9 +131,11 @@ void MIDI_Class::send(kMIDIType type,
                       byte data2,
                       byte channel)
 {
-    
     // Then test if channel is valid
-    if (channel >= MIDI_CHANNEL_OFF || channel == MIDI_CHANNEL_OMNI || type < NoteOff) {
+    if (channel >= MIDI_CHANNEL_OFF  || 
+        channel == MIDI_CHANNEL_OMNI || 
+        type < NoteOff)
+    {
         
 #if USE_RUNNING_STATUS    
         mRunningStatus_TX = InvalidType;
@@ -152,9 +144,8 @@ void MIDI_Class::send(kMIDIType type,
         return; // Don't send anything
     }
     
-    if (type <= PitchBend) {
-        // Channel messages
-        
+    if (type <= PitchBend)  // Channel messages
+    {
         // Protection: remove MSBs on data
         data1 &= 0x7F;
         data2 &= 0x7F;
@@ -163,7 +154,8 @@ void MIDI_Class::send(kMIDIType type,
         
 #if USE_RUNNING_STATUS
         // Check Running Status
-        if (mRunningStatus_TX != statusbyte) {
+        if (mRunningStatus_TX != statusbyte)
+        {
             // New message, memorise and send header
             mRunningStatus_TX = statusbyte;
             MIDI_SERIAL_PORT.write(mRunningStatus_TX);
@@ -175,16 +167,13 @@ void MIDI_Class::send(kMIDIType type,
         
         // Then send data
         MIDI_SERIAL_PORT.write(data1);
-        if (type != ProgramChange && type != AfterTouchChannel) {
+        if (type != ProgramChange && type != AfterTouchChannel)
             MIDI_SERIAL_PORT.write(data2);
-        }
+        
         return;
     }
-    if (type >= TuneRequest && type <= SystemReset) {
-        // System Real-time and 1 byte.
-        sendRealTime(type);
-    }
-    
+    if (type >= TuneRequest && type <= SystemReset)
+        sendRealTime(type); // System Real-time and 1 byte.
 }
 
 
@@ -201,17 +190,18 @@ void MIDI_Class::sendNoteOn(byte NoteNumber,
                             byte Velocity,
                             byte Channel)
 { 
-    
     send(NoteOn,NoteNumber,Velocity,Channel);
-    
 }
 
 
-/*! \brief Send a Note Off message (a real Note Off, not a Note On with null velocity)
+/*! \brief Send a Note Off message
  \param NoteNumber  Pitch value in the MIDI format (0 to 127). 
  \param Velocity    Release velocity (0 to 127).
  \param Channel     The channel on which the message will be sent (1 to 16).
  
+ Note: you can send NoteOn with zero velocity to make a NoteOff, this is based
+ on the Running Status principle, to avoid sending status messages and thus
+ sending only NoteOn data. This method will always send a real NoteOff message.
  Take a look at the values, names and frequencies of notes here: 
  http://www.phys.unsw.edu.au/jw/notes.html
  */
@@ -219,9 +209,7 @@ void MIDI_Class::sendNoteOff(byte NoteNumber,
                              byte Velocity,
                              byte Channel)
 {
-    
-    send(NoteOff,NoteNumber,Velocity,Channel);
-    
+    send(NoteOff,NoteNumber,Velocity,Channel);   
 }
 
 
@@ -232,9 +220,7 @@ void MIDI_Class::sendNoteOff(byte NoteNumber,
 void MIDI_Class::sendProgramChange(byte ProgramNumber,
                                    byte Channel)
 {
-    
     send(ProgramChange,ProgramNumber,0,Channel);
-    
 }
 
 
@@ -250,13 +236,11 @@ void MIDI_Class::sendControlChange(byte ControlNumber,
                                    byte ControlValue,
                                    byte Channel)
 {
-    
     send(ControlChange,ControlNumber,ControlValue,Channel);
-    
 }
 
 
-/*! \brief Send a Polyphonic AfterTouch message (applies to only one specified note)
+/*! \brief Send a Polyphonic AfterTouch message (applies to a specified note)
  \param NoteNumber  The note to apply AfterTouch to (0 to 127).
  \param Pressure    The amount of AfterTouch to apply (0 to 127).
  \param Channel     The channel on which the message will be sent (1 to 16). 
@@ -265,9 +249,7 @@ void MIDI_Class::sendPolyPressure(byte NoteNumber,
                                   byte Pressure,
                                   byte Channel)
 {
-    
     send(AfterTouchPoly,NoteNumber,Pressure,Channel);
-    
 }
 
 
@@ -278,9 +260,7 @@ void MIDI_Class::sendPolyPressure(byte NoteNumber,
 void MIDI_Class::sendAfterTouch(byte Pressure,
                                 byte Channel)
 {
-    
     send(AfterTouchChannel,Pressure,0,Channel);
-    
 }
 
 
@@ -293,11 +273,8 @@ void MIDI_Class::sendAfterTouch(byte Pressure,
 void MIDI_Class::sendPitchBend(int PitchValue,
                                byte Channel)
 {
-    
-    unsigned int bend = PitchValue - MIDI_PITCHBEND_MIN;
-    
+    const unsigned int bend = PitchValue - MIDI_PITCHBEND_MIN;
     send(PitchBend,(bend & 0x7F),(bend >> 7) & 0x7F,Channel);
-    
 }
 
 
@@ -310,10 +287,8 @@ void MIDI_Class::sendPitchBend(int PitchValue,
 void MIDI_Class::sendPitchBend(double PitchValue,
                                byte Channel)
 {
-    
-    int pitchval = PitchValue * MIDI_PITCHBEND_MAX;
+    const int pitchval = PitchValue * MIDI_PITCHBEND_MAX;
     sendPitchBend(pitchval,Channel);
-    
 }
 
 
@@ -330,34 +305,24 @@ void MIDI_Class::sendSysEx(int length,
                            const byte *const array,
                            bool ArrayContainsBoundaries)
 {
-    
-    if (ArrayContainsBoundaries == false) {
-        
+    if (ArrayContainsBoundaries == false)
+    {
         MIDI_SERIAL_PORT.write(0xF0);
         
-        for (int i=0;i<length;++i) {
-            
+        for (int i=0;i<length;++i)
             MIDI_SERIAL_PORT.write(array[i]);
-            
-        }
         
         MIDI_SERIAL_PORT.write(0xF7);
-        
     }
-    else {
-        
-        for (int i=0;i<length;++i) {
-            
+    else
+    {
+        for (int i=0;i<length;++i)
             MIDI_SERIAL_PORT.write(array[i]);
-            
-        }
-        
     }
     
 #if USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
-    
 }
 
 
@@ -368,9 +333,7 @@ void MIDI_Class::sendSysEx(int length,
  */
 void MIDI_Class::sendTuneRequest()
 {
-    
     sendRealTime(TuneRequest);
-    
 }
 
 
@@ -382,28 +345,25 @@ void MIDI_Class::sendTuneRequest()
  */
 void MIDI_Class::sendTimeCodeQuarterFrame(byte TypeNibble, byte ValuesNibble)
 {
-    
-    byte data = ( ((TypeNibble & 0x07) << 4) | (ValuesNibble & 0x0F) );
+    const byte data = ( ((TypeNibble & 0x07) << 4) | (ValuesNibble & 0x0F) );
     sendTimeCodeQuarterFrame(data);
-    
 }
 
 
 /*! \brief Send a MIDI Time Code Quarter Frame. 
  
  See MIDI Specification for more information.
- \param data     if you want to encode directly the nibbles in your program, you can send the byte here.
+ \param data     if you want to encode directly the nibbles in your program, 
+ you can send the byte here.
  */
 void MIDI_Class::sendTimeCodeQuarterFrame(byte data)
 {
-    
     MIDI_SERIAL_PORT.write((byte)TimeCodeQuarterFrame);
     MIDI_SERIAL_PORT.write(data);
     
 #if USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
-    
 }
 
 
@@ -412,7 +372,6 @@ void MIDI_Class::sendTimeCodeQuarterFrame(byte data)
  */
 void MIDI_Class::sendSongPosition(unsigned int Beats)
 {
-    
     MIDI_SERIAL_PORT.write((byte)SongPosition);
     MIDI_SERIAL_PORT.write(Beats & 0x7F);
     MIDI_SERIAL_PORT.write((Beats >> 7) & 0x7F);
@@ -420,21 +379,18 @@ void MIDI_Class::sendSongPosition(unsigned int Beats)
 #if USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
-    
 }
 
 
 /*! \brief Send a Song Select message */
 void MIDI_Class::sendSongSelect(byte SongNumber)
 {
-    
     MIDI_SERIAL_PORT.write((byte)SongSelect);
     MIDI_SERIAL_PORT.write(SongNumber & 0x7F);
     
 #if USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
-    
 }
 
 
@@ -447,7 +403,8 @@ void MIDI_Class::sendSongSelect(byte SongNumber)
  */
 void MIDI_Class::sendRealTime(kMIDIType Type)
 {
-    switch (Type) {
+    switch (Type) 
+    {
         case TuneRequest: // Not really real-time, but one byte anyway.
         case Clock:
         case Start:
@@ -462,12 +419,12 @@ void MIDI_Class::sendRealTime(kMIDIType Type)
             break;
     }
     
-    // Do not cancel Running Status for real-time messages as they can be interleaved within any message.
-    // Though, TuneRequest can be sent here, and as it is a System Common message, it must reset Running Status.
+    // Do not cancel Running Status for real-time messages as they can be 
+    // interleaved within any message. Though, TuneRequest can be sent here, 
+    // and as it is a System Common message, it must reset Running Status.
 #if USE_RUNNING_STATUS
     if (Type == TuneRequest) mRunningStatus_TX = InvalidType;
 #endif
-    
 }
 
 #endif // COMPILE_MIDI_OUT
@@ -489,9 +446,7 @@ void MIDI_Class::sendRealTime(kMIDIType Type)
  */
 bool MIDI_Class::read()
 {
-    
     return read(mInputChannel);
-    
 }
 
 
@@ -500,12 +455,13 @@ bool MIDI_Class::read()
  */
 bool MIDI_Class::read(const byte inChannel)
 {
+    if (inChannel >= MIDI_CHANNEL_OFF)
+        return false; // MIDI Input disabled.
     
-    if (inChannel >= MIDI_CHANNEL_OFF) return false; // MIDI Input disabled.
-    
-    if (parse(inChannel)) {
-        
-        if (input_filter(inChannel)) {
+    if (parse(inChannel))
+    {
+        if (input_filter(inChannel))
+        {
             
 #if (COMPILE_MIDI_OUT && COMPILE_MIDI_THRU)
             thru_filter(inChannel);
@@ -514,14 +470,11 @@ bool MIDI_Class::read(const byte inChannel)
 #if USE_CALLBACKS
             launchCallback();
 #endif
-            
             return true;
         }
-        
     }
     
     return false;
-    
 }
 
 
@@ -538,19 +491,23 @@ bool MIDI_Class::parse(byte inChannel)
     /* Parsing algorithm:
      Get a byte from the serial buffer.
      * If there is no pending message to be recomposed, start a new one.
-     - Find type and channel (if pertinent)
-     - Look for other bytes in buffer, call parser recursively, until the message is assembled or the buffer is empty.
-     * Else, add the extracted byte to the pending message, and check validity. When the message is done, store it.
+        - Find type and channel (if pertinent)
+        - Look for other bytes in buffer, call parser recursively, 
+          until the message is assembled or the buffer is empty.
+     * Else, add the extracted byte to the pending message, and check validity. 
+     When the message is done, store it.
      */
-    
     
     const byte extracted = MIDI_SERIAL_PORT.read();
     
-    if (mPendingMessageIndex == 0) { // Start a new pending message
+    if (mPendingMessageIndex == 0) 
+    { 
+        // Start a new pending message
         mPendingMessage[0] = extracted;
         
         // Check for running status first
-        switch (getTypeFromStatusByte(mRunningStatus_RX)) {
+        switch (getTypeFromStatusByte(mRunningStatus_RX))
+        {
                 // Only these types allow Running Status:
             case NoteOff:
             case NoteOn:
@@ -560,13 +517,16 @@ bool MIDI_Class::parse(byte inChannel)
             case AfterTouchChannel:
             case PitchBend:    
                 
-                // If the status byte is not received, prepend it to the pending message
-                if (extracted < 0x80) {
+                // If the status byte is not received, prepend it 
+                // to the pending message
+                if (extracted < 0x80)
+                {
                     mPendingMessage[0] = mRunningStatus_RX;
                     mPendingMessage[1] = extracted;
                     mPendingMessageIndex = 1;
                 }
-                // Else: well, we received another status byte, so the running status does not apply here.
+                // Else: well, we received another status byte,
+                // so the running status does not apply here.
                 // It will be updated upon completion of this message.
                 
                 break;
@@ -577,8 +537,8 @@ bool MIDI_Class::parse(byte inChannel)
         }
         
         
-        switch (getTypeFromStatusByte(mPendingMessage[0])) {
-                
+        switch (getTypeFromStatusByte(mPendingMessage[0]))
+        {
                 // 1 byte messages
             case Start:
             case Continue:
@@ -624,7 +584,9 @@ bool MIDI_Class::parse(byte inChannel)
                 break;
                 
             case SystemExclusive:
-                mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE; // As the message can be any lenght between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
+                // The message can be any lenght 
+                // between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
+                mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE; 
                 mRunningStatus_RX = InvalidType;
                 break;
                 
@@ -649,14 +611,15 @@ bool MIDI_Class::parse(byte inChannel)
 #endif
         
     }
-    else { 
-        
+    else
+    { 
         // First, test if this is a status byte
-        if (extracted >= 0x80) {
-            
+        if (extracted >= 0x80)
+        {
             // Reception of status bytes in the middle of an uncompleted message
             // are allowed only for interleaved Real Time message or EOX
-            switch (extracted) {
+            switch (extracted)
+            {
                 case Clock:
                 case Start:
                 case Continue:
@@ -664,15 +627,12 @@ bool MIDI_Class::parse(byte inChannel)
                 case ActiveSensing:
                 case SystemReset:
                     
-                    /*
-                     This is tricky. Here we will have to extract the one-byte message,
-                     pass it to the structure for being read outside the MIDI class,
-                     and recompose the message it was interleaved into.
-                     
-                     Oh, and without killing the running status.. 
-                     
-                     This is done by leaving the pending message as is, it will be completed on next calls.
-                     */
+                    // Here we will have to extract the one-byte message, 
+                    // pass it to the structure for being read outside
+                    // the MIDI class, and recompose the message it was 
+                    // interleaved into. Oh, and without killing the running status.. 
+                    // This is done by leaving the pending message as is, 
+                    // it will be completed on next calls.
                     
                     mMessage.type = (kMIDIType)extracted;
                     mMessage.data1 = 0;
@@ -685,27 +645,25 @@ bool MIDI_Class::parse(byte inChannel)
                     
                     // End of Exclusive
                 case 0xF7:
-                    if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive) {
-                        
+                    if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive)
+                    {
                         // Store System Exclusive array in midimsg structure
-                        for (byte i=0;i<MIDI_SYSEX_ARRAY_SIZE;i++) {
+                        for (byte i=0;i<MIDI_SYSEX_ARRAY_SIZE;i++)
                             mMessage.sysex_array[i] = mPendingMessage[i];
-                        }
                         
                         mMessage.type = SystemExclusive;
                         
                         // Get length
                         mMessage.data1 = (mPendingMessageIndex+1) & 0xFF;    
                         mMessage.data2 = (mPendingMessageIndex+1) >> 8;
-                        
                         mMessage.channel = 0;
                         mMessage.valid = true;
                         
                         reset_input_attributes();
-                        
                         return true;
                     }
-                    else {
+                    else
+                    {
                         // Well well well.. error.
                         reset_input_attributes();
                         return false;
@@ -715,36 +673,34 @@ bool MIDI_Class::parse(byte inChannel)
                 default:
                     break;
             }
-            
-            
-            
         }
-        
         
         // Add extracted data byte to pending message
         mPendingMessage[mPendingMessageIndex] = extracted;
         
-        
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1)) {
-            
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
+        {
             // "FML" case: fall down here with an overflown SysEx..
-            // This means we received the last possible data byte that can fit the buffer.
-            // If this happens, try increasing MIDI_SYSEX_ARRAY_SIZE.
-            if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive) {
+            // This means we received the last possible data byte that can fit 
+            // the buffer. If this happens, try increasing MIDI_SYSEX_ARRAY_SIZE.
+            if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive)
+            {
                 reset_input_attributes();
                 return false;
             }
             
-            
             mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-            mMessage.channel = (mPendingMessage[0] & 0x0F)+1; // Don't check if it is a Channel Message
+            // Don't check if it is a Channel Message
+            mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
             
             mMessage.data1 = mPendingMessage[1];
             
             // Save data2 only if applicable
-            if (mPendingMessageExpectedLenght == 3)    mMessage.data2 = mPendingMessage[2];
-            else mMessage.data2 = 0;
+            if (mPendingMessageExpectedLenght == 3)
+                mMessage.data2 = mPendingMessage[2];
+            else 
+                mMessage.data2 = 0;
             
             // Reset local variables
             mPendingMessageIndex = 0;
@@ -753,7 +709,8 @@ bool MIDI_Class::parse(byte inChannel)
             mMessage.valid = true;
             
             // Activate running status (if enabled for the received type)
-            switch (mMessage.type) {
+            switch (mMessage.type)
+            {
                 case NoteOff:
                 case NoteOn:
                 case AfterTouchPoly:
@@ -772,7 +729,8 @@ bool MIDI_Class::parse(byte inChannel)
             }
             return true;
         }
-        else {
+        else
+        {
             // Then update the index of the pending message.
             mPendingMessageIndex++;
             
@@ -784,9 +742,7 @@ bool MIDI_Class::parse(byte inChannel)
             // to parse the rest of the message.
             return parse(inChannel);
 #endif
-            
         }
-        
     }
     
     // What are our chances to fall here?
@@ -797,45 +753,41 @@ bool MIDI_Class::parse(byte inChannel)
 // Private method: check if the received message is on the listened channel
 bool MIDI_Class::input_filter(byte inChannel)
 {
+    // This method handles recognition of channel 
+    // (to know if the message is destinated to the Arduino)
     
-    
-    // This method handles recognition of channel (to know if the message is destinated to the Arduino)
-    
-    
-    if (mMessage.type == InvalidType) return false;
-    
+    if (mMessage.type == InvalidType)
+        return false;
     
     // First, check if the received message is Channel
-    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend) {
-        
+    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
+    {
         // Then we need to know if we listen to it
-        if ((mMessage.channel == mInputChannel) || (mInputChannel == MIDI_CHANNEL_OMNI)) {
+        if ((mMessage.channel == mInputChannel) || 
+            (mInputChannel == MIDI_CHANNEL_OMNI))
+        {
             return true;
-            
         }
-        else {
+        else 
+        {
             // We don't listen to this channel
             return false;
         }
-        
     }
-    else {
-        
+    else 
+    {
         // System messages are always received
         return true;
     }
-    
 }
 
 
 // Private method: reset input attributes
 void MIDI_Class::reset_input_attributes()
 {
-    
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
     mRunningStatus_RX = InvalidType;
-    
 }
 
 
@@ -846,9 +798,7 @@ void MIDI_Class::reset_input_attributes()
  */
 kMIDIType MIDI_Class::getType() const
 {
-    
     return mMessage.type;
-    
 }
 
 
@@ -859,27 +809,21 @@ kMIDIType MIDI_Class::getType() const
  */
 byte MIDI_Class::getChannel() const
 {
-    
     return mMessage.channel;
-    
 }
 
 
 /*! \brief Get the first data byte of the last received message. */
 byte MIDI_Class::getData1() const
 {
-    
     return mMessage.data1;
-    
 }
 
 
 /*! \brief Get the second data byte of the last received message. */
 byte MIDI_Class::getData2() const
 { 
-    
     return mMessage.data2;
-    
 }
 
 
@@ -889,9 +833,7 @@ byte MIDI_Class::getData2() const
  */
 const byte * MIDI_Class::getSysExArray() const
 { 
-    
     return mMessage.sysex_array;
-    
 }
 
 /*! \brief Get the lenght of the System Exclusive array.
@@ -901,20 +843,15 @@ const byte * MIDI_Class::getSysExArray() const
  */
 unsigned int MIDI_Class::getSysExArrayLength() const
 {
-    
-    unsigned int coded_size = ((unsigned int)(mMessage.data2) << 8) | mMessage.data1;
-    
-    return (coded_size > MIDI_SYSEX_ARRAY_SIZE) ? MIDI_SYSEX_ARRAY_SIZE : coded_size;
-    
+    const unsigned int size = ((unsigned)(mMessage.data2) << 8) | mMessage.data1;
+    return (size > MIDI_SYSEX_ARRAY_SIZE) ? MIDI_SYSEX_ARRAY_SIZE : size;
 }
 
 
 /*! \brief Check if a valid message is stored in the structure. */
 bool MIDI_Class::check() const
 { 
-    
     return mMessage.valid;
-    
 }
 
 
@@ -926,9 +863,7 @@ bool MIDI_Class::check() const
  */
 void MIDI_Class::setInputChannel(const byte Channel)
 { 
-    
     mInputChannel = Channel;
-    
 }
 
 
@@ -962,8 +897,8 @@ void MIDI_Class::setHandleSystemReset(void (*fptr)(void))                       
  */
 void MIDI_Class::disconnectCallbackFromType(kMIDIType Type)
 {
-    
-    switch (Type) {
+    switch (Type)
+    {
         case NoteOff:               mNoteOffCallback = NULL;                break;
         case NoteOn:                mNoteOnCallback = NULL;                 break;
         case AfterTouchPoly:        mAfterTouchPolyCallback = NULL;         break;
@@ -985,17 +920,15 @@ void MIDI_Class::disconnectCallbackFromType(kMIDIType Type)
         default:
             break;
     }
-    
 }
 
 
 // Private - launch callback function based on received type.
 void MIDI_Class::launchCallback()
 {
-    
     // The order is mixed to allow frequent messages to trigger their callback faster.
-    
-    switch (mMessage.type) {
+    switch (mMessage.type)
+    {
             // Notes
         case NoteOff:               if (mNoteOffCallback != NULL)               mNoteOffCallback(mMessage.channel,mMessage.data1,mMessage.data2);   break;
         case NoteOn:                if (mNoteOnCallback != NULL)                mNoteOnCallback(mMessage.channel,mMessage.data1,mMessage.data2);    break;
@@ -1027,7 +960,6 @@ void MIDI_Class::launchCallback()
         default:
             break;
     }
-    
 }
 
 
@@ -1050,31 +982,27 @@ void MIDI_Class::launchCallback()
  */
 void MIDI_Class::setThruFilterMode(kThruFilterMode inThruFilterMode)
 { 
-    
     mThruFilterMode = inThruFilterMode;
-    if (mThruFilterMode != Off) mThruActivated = true;
-    else mThruActivated = false;
-    
+    if (mThruFilterMode != Off) 
+        mThruActivated = true;
+    else 
+        mThruActivated = false;
 }
 
 
 /*! \brief Setter method: turn message mirroring on. */
 void MIDI_Class::turnThruOn(kThruFilterMode inThruFilterMode)
 { 
-    
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
-    
 }
 
 
 /*! \brief Setter method: turn message mirroring off. */
 void MIDI_Class::turnThruOff()
 {
-    
     mThruActivated = false; 
     mThruFilterMode = Off;
-    
 }
 
 
@@ -1093,45 +1021,60 @@ void MIDI_Class::thru_filter(byte inChannel)
      */
     
     // If the feature is disabled, don't do anything.
-    if (!mThruActivated || (mThruFilterMode == Off)) return;
+    if (!mThruActivated || (mThruFilterMode == Off))
+        return;
     
     
     // First, check if the received message is Channel
-    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend) {
-        
-        const bool filter_condition = ((mMessage.channel == mInputChannel) || (mInputChannel == MIDI_CHANNEL_OMNI));
+    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
+    {
+        const bool filter_condition = ((mMessage.channel == mInputChannel) || 
+                                       (mInputChannel == MIDI_CHANNEL_OMNI));
         
         // Now let's pass it to the output
-        switch (mThruFilterMode) {
+        switch (mThruFilterMode)
+        {
             case Full:
-                send(mMessage.type,mMessage.data1,mMessage.data2,mMessage.channel);
+                send(mMessage.type,
+                     mMessage.data1,
+                     mMessage.data2,
+                     mMessage.channel);
                 return;
                 break;
             case SameChannel:
-                if (filter_condition) {
-                    send(mMessage.type,mMessage.data1,mMessage.data2,mMessage.channel);
+                if (filter_condition)
+                {
+                    send(mMessage.type,
+                         mMessage.data1,
+                         mMessage.data2,
+                         mMessage.channel);
                     return;
                 }
                 break;
             case DifferentChannel:
-                if (!filter_condition) {
-                    send(mMessage.type,mMessage.data1,mMessage.data2,mMessage.channel);
+                if (!filter_condition)
+                {
+                    send(mMessage.type,
+                         mMessage.data1,
+                         mMessage.data2,
+                         mMessage.channel);
                     return;
                 }
                 break;
             case Off:
                 // Do nothing. 
-                // Technically it's impossible to get there because the case was already tested earlier.
+                // Technically it's impossible to get there because 
+                // the case was already tested earlier.
                 break;
             default:
                 break;
         }
-        
     }
-    else {
-        
+    else
+    {
         // Send the message to the output
-        switch (mMessage.type) {
+        switch (mMessage.type)
+        {
                 // Real Time and 1 byte
             case Clock:
             case Start:
@@ -1166,12 +1109,8 @@ void MIDI_Class::thru_filter(byte inChannel)
                 break;
             default:
                 break;
-                
         }
-        
     }
-    
 }
-
 
 #endif // Thru
