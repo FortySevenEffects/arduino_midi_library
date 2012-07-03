@@ -527,7 +527,9 @@ bool MIDI_Class::parse(byte inChannel)
             case ControlChange:
             case ProgramChange:
             case AfterTouchChannel:
-            case PitchBend:    
+            case PitchBend:
+            case ProgramChange:
+            case AfterTouchChannel:
                 
                 // If the status byte is not received, prepend it 
                 // to the pending message
@@ -540,9 +542,25 @@ bool MIDI_Class::parse(byte inChannel)
                 // Else: well, we received another status byte,
                 // so the running status does not apply here.
                 // It will be updated upon completion of this message.
-                
+            
+                if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
+                {
+                    mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
+                    mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
+                    mMessage.data1 = mPendingMessage[1];
+                    
+                    // Save data2 only if applicable
+                    if (mPendingMessageExpectedLenght == 3)
+                        mMessage.data2 = mPendingMessage[2];
+                    else 
+                        mMessage.data2 = 0;
+                    
+                    mPendingMessageIndex = 0;
+                    mPendingMessageExpectedLenght = 0;
+                    mMessage.valid = true;
+                    return true;
+                }
                 break;
-                
             default:
                 // No running status
                 break;
