@@ -12,7 +12,8 @@
 #define LIB_MIDI_H_
 
 #include <inttypes.h> 
-
+#include "midi_Settings.h"
+#include "midi_Defs.h"
 
 /*  
     ###############################################################
