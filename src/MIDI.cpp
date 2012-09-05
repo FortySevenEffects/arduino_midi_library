@@ -2,7 +2,7 @@
  *  @file       MIDI.cpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino
- *  @version    3.2
+ *  @version    4.0
  *  @author     Francois Best 
  *  @date       24/02/11
  *  license     GPL Forty Seven Effects - 2011
@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "Arduino.h"            // If using an old (pre-1.0) version of Arduino,
                                 // use WConstants.h instead of Arduino.h
+
 #if MIDI_USE_SOFTWARE_SERIAL
 
 // Note: Make sure the following relative path is correct.
@@ -26,14 +27,17 @@ SoftwareSerial softSerialClass(MIDI_SOFTSERIAL_RX_PIN,
 #endif // MIDI_USE_SOFTWARE_SERIAL
 
 
-/*! \brief Main instance (the class comes pre-instantiated). */
-MIDI_Class MIDI;
+#if MIDI_AUTO_INSTANCIATE
+midi::MidiInterface MIDI;
+#endif
 
 
-/*! \brief Default constructor for MIDI_Class. */
-MIDI_Class::MIDI_Class()
+BEGIN_MIDI_NAMESPACE
+
+/*! \brief Default constructor for MidiInterface. */
+MidiInterface::MidiInterface()
 { 
-#if COMPILE_MIDI_IN && USE_CALLBACKS
+#if MIDI_BUILD_INPUT && USE_CALLBACKS
     
     // Initialise callbacks to NULL pointer
     mNoteOffCallback                = NULL;
@@ -59,11 +63,11 @@ MIDI_Class::MIDI_Class()
 }
 
 
-/*! \brief Default destructor for MIDI_Class.
+/*! \brief Default destructor for MidiInterface.
  
  This is not really useful for the Arduino, as it is never called...
  */
-MIDI_Class::~MIDI_Class()
+MidiInterface::~MidiInterface()
 {
     
 }
@@ -75,19 +79,19 @@ MIDI_Class::~MIDI_Class()
  - Input channel set to 1 if no value is specified
  - Full thru mirroring
  */
-void MIDI_Class::begin(const byte inChannel)
+void MidiInterface::begin(const byte inChannel)
 {
     // Initialise the Serial port
     MIDI_SERIAL_PORT.begin(MIDI_BAUDRATE);
     
-#if COMPILE_MIDI_OUT && USE_RUNNING_STATUS
+#if MIDI_BUILD_OUTPUT && MIDI_USE_RUNNING_STATUS
     
     mRunningStatus_TX = InvalidType;
 
-#endif // COMPILE_MIDI_OUT && USE_RUNNING_STATUS
+#endif // MIDI_BUILD_OUTPUT && MIDI_USE_RUNNING_STATUS
     
     
-#if COMPILE_MIDI_IN
+#if MIDI_BUILD_INPUT
     
     mInputChannel = inChannel;
     mRunningStatus_RX = InvalidType;
@@ -100,10 +104,10 @@ void MIDI_Class::begin(const byte inChannel)
     mMessage.data1 = 0;
     mMessage.data2 = 0;
     
-#endif // COMPILE_MIDI_IN
+#endif // MIDI_BUILD_INPUT
     
     
-#if (COMPILE_MIDI_IN && COMPILE_MIDI_OUT && COMPILE_MIDI_THRU) // Thru
+#if (MIDI_BUILD_INPUT && MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU) // Thru
     
     mThruFilterMode = Full;
     mThruActivated = true;
@@ -117,14 +121,7 @@ void MIDI_Class::begin(const byte inChannel)
 // MIDI Output
 // =============================================================================
 
-#if COMPILE_MIDI_OUT
-
-// Private method for generating a status byte from channel and type
-const byte MIDI_Class::genstatus(const kMIDIType inType,
-                                 const byte inChannel) const
-{
-    return ((byte)inType | ((inChannel-1) & 0x0F));
-}
+#if MIDI_BUILD_OUTPUT
 
 
 /*! \brief Generate and send a MIDI message from the values given.
@@ -138,7 +135,7 @@ const byte MIDI_Class::genstatus(const kMIDIType inType,
  This is an internal method, use it only if you need to send raw data
  from your code, at your own risks.
  */
-void MIDI_Class::send(kMIDIType type,
+void MidiInterface::send(MidiType type,
                       byte data1,
                       byte data2,
                       byte channel)
@@ -149,7 +146,7 @@ void MIDI_Class::send(kMIDIType type,
         type < NoteOff)
     {
         
-#if USE_RUNNING_STATUS    
+#if MIDI_USE_RUNNING_STATUS    
         mRunningStatus_TX = InvalidType;
 #endif 
         
@@ -164,7 +161,7 @@ void MIDI_Class::send(kMIDIType type,
         
         byte statusbyte = genstatus(type,channel);
         
-#if USE_RUNNING_STATUS
+#if MIDI_USE_RUNNING_STATUS
         // Check Running Status
         if (mRunningStatus_TX != statusbyte)
         {
@@ -198,7 +195,7 @@ void MIDI_Class::send(kMIDIType type,
  Take a look at the values, names and frequencies of notes here: 
  http://www.phys.unsw.edu.au/jw/notes.html
  */
-void MIDI_Class::sendNoteOn(byte NoteNumber,
+void MidiInterface::sendNoteOn(byte NoteNumber,
                             byte Velocity,
                             byte Channel)
 { 
@@ -217,7 +214,7 @@ void MIDI_Class::sendNoteOn(byte NoteNumber,
  Take a look at the values, names and frequencies of notes here: 
  http://www.phys.unsw.edu.au/jw/notes.html
  */
-void MIDI_Class::sendNoteOff(byte NoteNumber,
+void MidiInterface::sendNoteOff(byte NoteNumber,
                              byte Velocity,
                              byte Channel)
 {
@@ -229,7 +226,7 @@ void MIDI_Class::sendNoteOff(byte NoteNumber,
  \param ProgramNumber   The Program to select (0 to 127).
  \param Channel         The channel on which the message will be sent (1 to 16).
  */
-void MIDI_Class::sendProgramChange(byte ProgramNumber,
+void MidiInterface::sendProgramChange(byte ProgramNumber,
                                    byte Channel)
 {
     send(ProgramChange,ProgramNumber,0,Channel);
@@ -244,7 +241,7 @@ void MIDI_Class::sendProgramChange(byte ProgramNumber,
  See the detailed controllers numbers & description here: 
  http://www.somascape.org/midi/tech/spec.html#ctrlnums
  */
-void MIDI_Class::sendControlChange(byte ControlNumber,
+void MidiInterface::sendControlChange(byte ControlNumber,
                                    byte ControlValue,
                                    byte Channel)
 {
@@ -257,7 +254,7 @@ void MIDI_Class::sendControlChange(byte ControlNumber,
  \param Pressure    The amount of AfterTouch to apply (0 to 127).
  \param Channel     The channel on which the message will be sent (1 to 16). 
  */
-void MIDI_Class::sendPolyPressure(byte NoteNumber,
+void MidiInterface::sendPolyPressure(byte NoteNumber,
                                   byte Pressure,
                                   byte Channel)
 {
@@ -269,7 +266,7 @@ void MIDI_Class::sendPolyPressure(byte NoteNumber,
  \param Pressure    The amount of AfterTouch to apply to all notes.
  \param Channel     The channel on which the message will be sent (1 to 16). 
  */
-void MIDI_Class::sendAfterTouch(byte Pressure,
+void MidiInterface::sendAfterTouch(byte Pressure,
                                 byte Channel)
 {
     send(AfterTouchChannel,Pressure,0,Channel);
@@ -282,7 +279,7 @@ void MIDI_Class::sendAfterTouch(byte Pressure,
                     center value is 0.
  \param Channel     The channel on which the message will be sent (1 to 16).
  */
-void MIDI_Class::sendPitchBend(int PitchValue,
+void MidiInterface::sendPitchBend(int PitchValue,
                                byte Channel)
 {
     const unsigned int bend = PitchValue - MIDI_PITCHBEND_MIN;
@@ -296,7 +293,7 @@ void MIDI_Class::sendPitchBend(int PitchValue,
                     and +1.0f (max upwards bend), center value is 0.0f.
  \param Channel     The channel on which the message will be sent (1 to 16).
  */
-void MIDI_Class::sendPitchBend(double PitchValue,
+void MidiInterface::sendPitchBend(double PitchValue,
                                byte Channel)
 {
     const int pitchval = PitchValue * MIDI_PITCHBEND_MAX;
@@ -313,7 +310,7 @@ void MIDI_Class::sendPitchBend(double PitchValue,
  default value for ArrayContainsBoundaries is set to 'false' for compatibility
  with previous versions of the library.
  */
-void MIDI_Class::sendSysEx(int length,
+void MidiInterface::sendSysEx(int length,
                            const byte *const array,
                            bool ArrayContainsBoundaries)
 {
@@ -332,7 +329,7 @@ void MIDI_Class::sendSysEx(int length,
             MIDI_SERIAL_PORT.write(array[i]);
     }
     
-#if USE_RUNNING_STATUS
+#if MIDI_USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
 }
@@ -343,7 +340,7 @@ void MIDI_Class::sendSysEx(int length,
  When a MIDI unit receives this message,
  it should tune its oscillators (if equipped with any).
  */
-void MIDI_Class::sendTuneRequest()
+void MidiInterface::sendTuneRequest()
 {
     sendRealTime(TuneRequest);
 }
@@ -355,7 +352,7 @@ void MIDI_Class::sendTuneRequest()
  \param ValuesNibble    MTC data
  See MIDI Specification for more information.
  */
-void MIDI_Class::sendTimeCodeQuarterFrame(byte TypeNibble, byte ValuesNibble)
+void MidiInterface::sendTimeCodeQuarterFrame(byte TypeNibble, byte ValuesNibble)
 {
     const byte data = ( ((TypeNibble & 0x07) << 4) | (ValuesNibble & 0x0F) );
     sendTimeCodeQuarterFrame(data);
@@ -368,12 +365,12 @@ void MIDI_Class::sendTimeCodeQuarterFrame(byte TypeNibble, byte ValuesNibble)
  \param data     if you want to encode directly the nibbles in your program, 
  you can send the byte here.
  */
-void MIDI_Class::sendTimeCodeQuarterFrame(byte data)
+void MidiInterface::sendTimeCodeQuarterFrame(byte data)
 {
     MIDI_SERIAL_PORT.write((byte)TimeCodeQuarterFrame);
     MIDI_SERIAL_PORT.write(data);
     
-#if USE_RUNNING_STATUS
+#if MIDI_USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
 }
@@ -382,25 +379,25 @@ void MIDI_Class::sendTimeCodeQuarterFrame(byte data)
 /*! \brief Send a Song Position Pointer message.
  \param Beats    The number of beats since the start of the song.
  */
-void MIDI_Class::sendSongPosition(unsigned int Beats)
+void MidiInterface::sendSongPosition(unsigned int Beats)
 {
     MIDI_SERIAL_PORT.write((byte)SongPosition);
     MIDI_SERIAL_PORT.write(Beats & 0x7F);
     MIDI_SERIAL_PORT.write((Beats >> 7) & 0x7F);
     
-#if USE_RUNNING_STATUS
+#if MIDI_USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
 }
 
 
 /*! \brief Send a Song Select message */
-void MIDI_Class::sendSongSelect(byte SongNumber)
+void MidiInterface::sendSongSelect(byte SongNumber)
 {
     MIDI_SERIAL_PORT.write((byte)SongSelect);
     MIDI_SERIAL_PORT.write(SongNumber & 0x7F);
     
-#if USE_RUNNING_STATUS
+#if MIDI_USE_RUNNING_STATUS
     mRunningStatus_TX = InvalidType;
 #endif
 }
@@ -411,9 +408,9 @@ void MIDI_Class::sendSongSelect(byte SongNumber)
  \param Type    The available Real Time types are: 
                 Start, Stop, Continue, Clock, ActiveSensing and SystemReset.
  You can also send a Tune Request with this method.
- @see kMIDIType
+ @see MidiType
  */
-void MIDI_Class::sendRealTime(kMIDIType Type)
+void MidiInterface::sendRealTime(MidiType Type)
 {
     switch (Type) 
     {
@@ -434,19 +431,19 @@ void MIDI_Class::sendRealTime(kMIDIType Type)
     // Do not cancel Running Status for real-time messages as they can be 
     // interleaved within any message. Though, TuneRequest can be sent here, 
     // and as it is a System Common message, it must reset Running Status.
-#if USE_RUNNING_STATUS
+#if MIDI_USE_RUNNING_STATUS
     if (Type == TuneRequest) mRunningStatus_TX = InvalidType;
 #endif
 }
 
-#endif // COMPILE_MIDI_OUT
+#endif // MIDI_BUILD_OUTPUT
 
 
 // =============================================================================
 // MIDI Input
 // =============================================================================
 
-#if COMPILE_MIDI_IN
+#if MIDI_BUILD_INPUT
 
 /*! \brief Read a MIDI message from the serial port
  using the main input channel (see setInputChannel() for reference).
@@ -456,7 +453,7 @@ void MIDI_Class::sendRealTime(kMIDIType Type)
  If the Thru is enabled and the messages matches the filter,
  it is sent back on the MIDI output.
  */
-bool MIDI_Class::read()
+bool MidiInterface::read()
 {
     return read(mInputChannel);
 }
@@ -465,7 +462,7 @@ bool MIDI_Class::read()
 /*! \brief Reading/thru-ing method, the same as read()
  with a given input channel to read on. 
  */
-bool MIDI_Class::read(const byte inChannel)
+bool MidiInterface::read(const byte inChannel)
 {
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
@@ -475,7 +472,7 @@ bool MIDI_Class::read(const byte inChannel)
         if (input_filter(inChannel))
         {
             
-#if (COMPILE_MIDI_OUT && COMPILE_MIDI_THRU)
+#if (MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU)
             thru_filter(inChannel);
 #endif
             
@@ -491,7 +488,7 @@ bool MIDI_Class::read(const byte inChannel)
 
 
 // Private method: MIDI parser
-bool MIDI_Class::parse(byte inChannel)
+bool MidiInterface::parse(byte inChannel)
 { 
     const byte bytes_available = MIDI_SERIAL_PORT.available();
     
@@ -662,7 +659,7 @@ bool MIDI_Class::parse(byte inChannel)
                     // This is done by leaving the pending message as is, 
                     // it will be completed on next calls.
                     
-                    mMessage.type = (kMIDIType)extracted;
+                    mMessage.type = (MidiType)extracted;
                     mMessage.data1 = 0;
                     mMessage.data2 = 0;
                     mMessage.channel = 0;
@@ -779,7 +776,7 @@ bool MIDI_Class::parse(byte inChannel)
 
 
 // Private method: check if the received message is on the listened channel
-bool MIDI_Class::input_filter(byte inChannel)
+bool MidiInterface::input_filter(byte inChannel)
 {
     // This method handles recognition of channel 
     // (to know if the message is destinated to the Arduino)
@@ -811,7 +808,7 @@ bool MIDI_Class::input_filter(byte inChannel)
 
 
 // Private method: reset input attributes
-void MIDI_Class::reset_input_attributes()
+void MidiInterface::reset_input_attributes()
 {
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
@@ -819,102 +816,30 @@ void MIDI_Class::reset_input_attributes()
 }
 
 
-// Getters
-/*! \brief Get the last received message's type
- 
- Returns an enumerated type. @see kMIDIType
- */
-kMIDIType MIDI_Class::getType() const
-{
-    return mMessage.type;
-}
 
 
-/*! \brief Get the channel of the message stored in the structure.
- 
- \return Channel range is 1 to 16. 
- For non-channel messages, this will return 0.
- */
-byte MIDI_Class::getChannel() const
-{
-    return mMessage.channel;
-}
-
-
-/*! \brief Get the first data byte of the last received message. */
-byte MIDI_Class::getData1() const
-{
-    return mMessage.data1;
-}
-
-
-/*! \brief Get the second data byte of the last received message. */
-byte MIDI_Class::getData2() const
-{ 
-    return mMessage.data2;
-}
-
-
-/*! \brief Get the System Exclusive byte array. 
- 
- @see getSysExArrayLength to get the array's length in bytes.
- */
-const byte * MIDI_Class::getSysExArray() const
-{ 
-    return mMessage.sysex_array;
-}
-
-/*! \brief Get the lenght of the System Exclusive array.
- 
- It is coded using data1 as LSB and data2 as MSB.
- \return The array's length, in bytes.
- */
-unsigned int MIDI_Class::getSysExArrayLength() const
-{
-    const unsigned int size = ((unsigned)(mMessage.data2) << 8) | mMessage.data1;
-    return (size > MIDI_SYSEX_ARRAY_SIZE) ? MIDI_SYSEX_ARRAY_SIZE : size;
-}
-
-
-/*! \brief Check if a valid message is stored in the structure. */
-bool MIDI_Class::check() const
-{ 
-    return mMessage.valid;
-}
-
-
-// Setters
-/*! \brief Set the value for the input MIDI channel 
- \param Channel the channel value. Valid values are 1 to 16, 
- MIDI_CHANNEL_OMNI if you want to listen to all channels,
- and MIDI_CHANNEL_OFF to disable MIDI input.
- */
-void MIDI_Class::setInputChannel(const byte Channel)
-{ 
-    mInputChannel = Channel;
-}
 
 
 #if USE_CALLBACKS
 
-void MIDI_Class::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))         { mNoteOffCallback = fptr; }
-void MIDI_Class::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOnCallback = fptr; }
-void MIDI_Class::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))  { mAfterTouchPolyCallback = fptr; }
-void MIDI_Class::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))    { mControlChangeCallback = fptr; }
-void MIDI_Class::setHandleProgramChange(void (*fptr)(byte channel, byte number))                { mProgramChangeCallback = fptr; }
-void MIDI_Class::setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure))          { mAfterTouchChannelCallback = fptr; }
-void MIDI_Class::setHandlePitchBend(void (*fptr)(byte channel, int bend))                       { mPitchBendCallback = fptr; }
-void MIDI_Class::setHandleSystemExclusive(void (*fptr)(byte * array, byte size))                { mSystemExclusiveCallback = fptr; }
-void MIDI_Class::setHandleTimeCodeQuarterFrame(void (*fptr)(byte data))                         { mTimeCodeQuarterFrameCallback = fptr; }
-void MIDI_Class::setHandleSongPosition(void (*fptr)(unsigned int beats))                        { mSongPositionCallback = fptr; }
-void MIDI_Class::setHandleSongSelect(void (*fptr)(byte songnumber))                             { mSongSelectCallback = fptr; }
-void MIDI_Class::setHandleTuneRequest(void (*fptr)(void))                                       { mTuneRequestCallback = fptr; }
-void MIDI_Class::setHandleClock(void (*fptr)(void))                                             { mClockCallback = fptr; }
-void MIDI_Class::setHandleStart(void (*fptr)(void))                                             { mStartCallback = fptr; }
-void MIDI_Class::setHandleContinue(void (*fptr)(void))                                          { mContinueCallback = fptr; }
-void MIDI_Class::setHandleStop(void (*fptr)(void))                                              { mStopCallback = fptr; }
-void MIDI_Class::setHandleActiveSensing(void (*fptr)(void))                                     { mActiveSensingCallback = fptr; }
-void MIDI_Class::setHandleSystemReset(void (*fptr)(void))                                       { mSystemResetCallback = fptr; }
+void MidiInterface::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))         { mNoteOffCallback = fptr; }
+void MidiInterface::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOnCallback = fptr; }
+void MidiInterface::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))  { mAfterTouchPolyCallback = fptr; }
+void MidiInterface::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))    { mControlChangeCallback = fptr; }
+void MidiInterface::setHandleProgramChange(void (*fptr)(byte channel, byte number))                { mProgramChangeCallback = fptr; }
+void MidiInterface::setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure))          { mAfterTouchChannelCallback = fptr; }
+void MidiInterface::setHandlePitchBend(void (*fptr)(byte channel, int bend))                       { mPitchBendCallback = fptr; }
+void MidiInterface::setHandleSystemExclusive(void (*fptr)(byte * array, byte size))                { mSystemExclusiveCallback = fptr; }
+void MidiInterface::setHandleTimeCodeQuarterFrame(void (*fptr)(byte data))                         { mTimeCodeQuarterFrameCallback = fptr; }
+void MidiInterface::setHandleSongPosition(void (*fptr)(unsigned int beats))                        { mSongPositionCallback = fptr; }
+void MidiInterface::setHandleSongSelect(void (*fptr)(byte songnumber))                             { mSongSelectCallback = fptr; }
+void MidiInterface::setHandleTuneRequest(void (*fptr)(void))                                       { mTuneRequestCallback = fptr; }
+void MidiInterface::setHandleClock(void (*fptr)(void))                                             { mClockCallback = fptr; }
+void MidiInterface::setHandleStart(void (*fptr)(void))                                             { mStartCallback = fptr; }
+void MidiInterface::setHandleContinue(void (*fptr)(void))                                          { mContinueCallback = fptr; }
+void MidiInterface::setHandleStop(void (*fptr)(void))                                              { mStopCallback = fptr; }
+void MidiInterface::setHandleActiveSensing(void (*fptr)(void))                                     { mActiveSensingCallback = fptr; }
+void MidiInterface::setHandleSystemReset(void (*fptr)(void))                                       { mSystemResetCallback = fptr; }
 
 
 /*! \brief Detach an external function from the given type.
@@ -923,7 +848,7 @@ void MIDI_Class::setHandleSystemReset(void (*fptr)(void))                       
  \param Type        The type of message to unbind. 
  When a message of this type is received, no function will be called.
  */
-void MIDI_Class::disconnectCallbackFromType(kMIDIType Type)
+void MidiInterface::disconnectCallbackFromType(MidiType Type)
 {
     switch (Type)
     {
@@ -952,7 +877,7 @@ void MIDI_Class::disconnectCallbackFromType(kMIDIType Type)
 
 
 // Private - launch callback function based on received type.
-void MIDI_Class::launchCallback()
+void MidiInterface::launchCallback()
 {
     // The order is mixed to allow frequent messages to trigger their callback faster.
     switch (mMessage.type)
@@ -994,49 +919,18 @@ void MIDI_Class::launchCallback()
 #endif // USE_CALLBACKS
 
 
-#endif // COMPILE_MIDI_IN
+#endif // MIDI_BUILD_INPUT
 
 
 // =============================================================================
 // MIDI Soft Thru
 // =============================================================================
 
-#if (COMPILE_MIDI_IN && COMPILE_MIDI_OUT && COMPILE_MIDI_THRU)
-
-/*! \brief Set the filter for thru mirroring
- \param inThruFilterMode a filter mode
- 
- @see kThruFilterMode
- */
-void MIDI_Class::setThruFilterMode(kThruFilterMode inThruFilterMode)
-{ 
-    mThruFilterMode = inThruFilterMode;
-    if (mThruFilterMode != Off) 
-        mThruActivated = true;
-    else 
-        mThruActivated = false;
-}
-
-
-/*! \brief Setter method: turn message mirroring on. */
-void MIDI_Class::turnThruOn(kThruFilterMode inThruFilterMode)
-{ 
-    mThruActivated = true;
-    mThruFilterMode = inThruFilterMode;
-}
-
-
-/*! \brief Setter method: turn message mirroring off. */
-void MIDI_Class::turnThruOff()
-{
-    mThruActivated = false; 
-    mThruFilterMode = Off;
-}
-
+#if (MIDI_BUILD_INPUT && MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU)
 
 // This method is called upon reception of a message 
 // and takes care of Thru filtering and sending.
-void MIDI_Class::thru_filter(byte inChannel)
+void MidiInterface::thru_filter(byte inChannel)
 {
     
     /*
@@ -1142,3 +1036,5 @@ void MIDI_Class::thru_filter(byte inChannel)
 }
 
 #endif // Thru
+
+END_MIDI_NAMESPACE

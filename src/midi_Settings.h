@@ -27,23 +27,25 @@ BEGIN_MIDI_NAMESPACE
 // (MIDI in, out, thru), or to 0 to disable the feature and save space.
 // Note that the Thru can only work if in and out are enabled.
 
-#define MIDI_BUILD_INPUT            1
-#define MIDI_BUILD_OUTPUT           1
-#define MIDI_BUILD_THRU             1
+#define MIDI_BUILD_INPUT                1
+#define MIDI_BUILD_OUTPUT               1
+#define MIDI_BUILD_THRU                 1
+
+// Create a MIDI object automatically on the port defined with MIDI_SERIAL_PORT.
+#define MIDI_AUTO_INSTANCIATE           1
 
 // -----------------------------------------------------------------------------
 // Serial port configuration
 
-// Change the number (to Serial1 for example) 
-// if you want to use a different serial port for MIDI I/O.
-#define MIDI_SERIAL_PORT            Serial 
+// Set the default port to use for MIDI.
+#define MIDI_SERIAL_PORT                Serial
 
 // Software serial options
-#define MIDI_USE_SOFTWARE_SERIAL    0
+#define MIDI_USE_SOFTWARE_SERIAL        0
 
 #if MIDI_USE_SOFTWARE_SERIAL
-    #define MIDI_SOFTSERIAL_RX_PIN  1   // Pin number to use for MIDI Input
-    #define MIDI_SOFTSERIAL_TX_PIN  2   // Pin number to use for MIDI Output.
+    #define MIDI_SOFTSERIAL_RX_PIN      1   // Pin number to use for MIDI Input
+    #define MIDI_SOFTSERIAL_TX_PIN      2   // Pin number to use for MIDI Output
 #endif
 
 // -----------------------------------------------------------------------------
@@ -52,11 +54,10 @@ BEGIN_MIDI_NAMESPACE
 // Running status enables short messages when sending multiple values
 // of the same type and channel.
 // Set to 0 if you have troubles controlling your hardware.
-#define MIDI_USE_RUNNING_STATUS     1
-#define MIDI_USE_1BYTE_PARSING      1
+#define MIDI_USE_RUNNING_STATUS         1
+#define MIDI_USE_1BYTE_PARSING          1
 
-
-#define MIDI_BAUDRATE               31250
-#define MIDI_SYSEX_ARRAY_SIZE       255         // Maximum size is 65535 bytes.
+#define MIDI_BAUDRATE                   31250
+#define MIDI_SYSEX_ARRAY_SIZE           255     // Maximum size is 65535 bytes.
 
 END_MIDI_NAMESPACE

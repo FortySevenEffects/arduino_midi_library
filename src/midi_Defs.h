@@ -2,7 +2,7 @@
  *  @file       midi_Defs.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Definitions
- *  @version    3.5
+ *  @version    4.0
  *  @author     Francois Best 
  *  @date       24/02/11
  *  license     GPL Forty Seven Effects - 2011
@@ -15,23 +15,31 @@
 
 BEGIN_MIDI_NAMESPACE
 
+// -----------------------------------------------------------------------------
+
 #define MIDI_CHANNEL_OMNI       0
-#define MIDI_CHANNEL_OFF        17          // and over
+#define MIDI_CHANNEL_OFF        17 // and over
 
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
 
+// -----------------------------------------------------------------------------
+// Type definitions
 
-/*! Type definition for practical use 
-    (because "unsigned char" is a bit long to write.. )
- */
 typedef uint8_t  byte;
 typedef uint16_t word;
 
+typedef byte StatusByte;
+typedef byte DataByte;
+typedef byte Channel;
+typedef byte FilterMode;
+
+// -----------------------------------------------------------------------------
 
 /*! Enumeration of MIDI types */
-enum kMIDIType 
+enum MidiType 
 {
+    InvalidType           = 0x00,    ///< For notifying errors
     NoteOff               = 0x80,    ///< Note Off
     NoteOn                = 0x90,    ///< Note On
     AfterTouchPoly        = 0xA0,    ///< Polyphonic AfterTouch
@@ -50,19 +58,22 @@ enum kMIDIType
     Stop                  = 0xFC,    ///< System Real Time - Stop
     ActiveSensing         = 0xFE,    ///< System Real Time - Active Sensing
     SystemReset           = 0xFF,    ///< System Real Time - System Reset
-    InvalidType           = 0x00     ///< For notifying errors
 };
 
+// -----------------------------------------------------------------------------
+
 /*! Enumeration of Thru filter modes */
-enum kThruFilterMode {
+enum MidiFilterMode 
+{
     Off                   = 0,  ///< Thru disabled (nothing passes through).
     Full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
     SameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
-    DifferentChannel      = 3   ///< All the messages but the ones on the Input Channel will be sent back.
+    DifferentChannel      = 3,  ///< All the messages but the ones on the Input Channel will be sent back.
 };
 
+// -----------------------------------------------------------------------------
 
-enum eMIDICCNumber
+enum MidiControlChangeNumber
 {
     // High resolution Continuous Controllers MSB (+32 for LSB) ----------------
     BankSelect                  = 0,
@@ -92,7 +103,7 @@ enum eMIDICCNumber
     Sostenuto                   = 66,
     SoftPedal                   = 67,
     Legato                      = 68,
-    Hold2                       = 69,
+    Hold                        = 69,
     
     // Low resolution continuous controllers -----------------------------------
     SoundController1            = 70,   ///< Synth: Sound Variation   FX: Exciter On/Off
@@ -129,40 +140,41 @@ enum eMIDICCNumber
 };
 
 
+// -----------------------------------------------------------------------------
 
 /*! The midimsg structure contains decoded data 
     of a MIDI message read from the serial port 
     with read() or thru().
  */
-struct midimsg
+struct Message
 {
     
     /*! The MIDI channel on which the message was recieved.
      \n Value goes from 1 to 16. 
      */
-    byte channel; 
+    Channel channel; 
     
     /*! The type of the message 
-     (see the define section for types reference) 
+     (see the MidiType enum for types reference)
      */
-    kMIDIType type;
+    MidiType type;
     
     /*! The first data byte.
      \n Value goes from 0 to 127.
      */
-    byte data1;
+    DataByte data1;
     
     /*! The second data byte. 
      If the message is only 2 bytes long, this one is null.
      \n Value goes from 0 to 127.
      */
-    byte data2;
+    DataByte data2;
     
     /*! System Exclusive dedicated byte array.
      \n Array length is stocked on 16 bits, 
      in data1 (LSB) and data2 (MSB)
      */
-    byte sysex_array[MIDI_SYSEX_ARRAY_SIZE];
+    DataByte sysex_array[MIDI_SYSEX_ARRAY_SIZE];
     
     /*! This boolean indicates if the message is valid or not.
      There is no channel consideration here, 
@@ -171,6 +183,5 @@ struct midimsg
     bool valid;
     
 };
-
 
 END_MIDI_NAMESPACE
