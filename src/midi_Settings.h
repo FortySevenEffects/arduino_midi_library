@@ -31,6 +31,8 @@ BEGIN_MIDI_NAMESPACE
 #define MIDI_BUILD_OUTPUT               1
 #define MIDI_BUILD_THRU                 1
 
+#define MIDI_USE_CALLBACKS              1
+
 // Create a MIDI object automatically on the port defined with MIDI_SERIAL_PORT.
 #define MIDI_AUTO_INSTANCIATE           1
 

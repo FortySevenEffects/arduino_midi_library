@@ -8,18 +8,21 @@
  *  license     GPL Forty Seven Effects - 2011
  */
 
-#ifndef LIB_MIDI_H_
-#define LIB_MIDI_H_
+#pragma once
 
 #include <inttypes.h> 
 #include "midi_Settings.h"
 #include "midi_Defs.h"
+#include <stdlib.h>
+#include "Arduino.h"
+
+// -----------------------------------------------------------------------------
 
 BEGIN_MIDI_NAMESPACE
 
 /*! \brief The main class for MIDI handling.
  */
-//template<typename Uart>
+template<typename Uart>
 class MidiInterface
 {
 public:
@@ -28,7 +31,6 @@ public:
     
 public:
     void begin(byte inChannel = 1);
-    
     
     // -------------------------------------------------------------------------
     // MIDI Output
@@ -131,7 +133,7 @@ private:
     // =========================================================================
     // Input Callbacks
     
-#if USE_CALLBACKS
+#if MIDI_USE_CALLBACKS
     
 public:
     
@@ -179,7 +181,7 @@ private:
     void (*mActiveSensingCallback)(void);
     void (*mSystemResetCallback)(void);
     
-#endif // USE_CALLBACKS    
+#endif // MIDI_USE_CALLBACKS    
     
 #endif // MIDI_BUILD_INPUT
     
@@ -219,8 +221,12 @@ private:
 
 END_MIDI_NAMESPACE
 
+// -----------------------------------------------------------------------------
+
 #if MIDI_AUTO_INSTANCIATE
-extern midi::MidiInterface MIDI;
+extern MIDI_NAMESPACE::MidiInterface MIDI;
 #endif
+
+// -----------------------------------------------------------------------------
 
 #include "midi_Inline.hpp"
