@@ -6,8 +6,8 @@
 // see documentation here: 
 // http://arduinomidilib.sourceforge.net/class_m_i_d_i___class.html
 
-void HandleNoteOn(byte channel, byte pitch, byte velocity) { 
-
+void HandleNoteOn(byte channel, byte pitch, byte velocity)
+{
   // Do whatever you want when you receive a Note On.
   
   if (velocity == 0) {
@@ -33,4 +33,7 @@ void loop() {
   MIDI.read();
   
   // There is no need to check if there are messages incoming if they are bound to a Callback function.
+  // The attached method will be called automatically when the corresponding message has been received.
 }
+
+
