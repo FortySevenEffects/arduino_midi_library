@@ -1,0 +1,37 @@
+#!/bin/bash
+# This script installs the Arduino MIDI Library into the Arduino application, 
+# so that every sketch can include it directly, without having to copy anything.
+#
+# To install the library, run this script by double-clicking it,
+# it should be directly executable and seen as such by Mac OS X.
+# If not, open a terminal, cd to the script location, and run ./install_mac
+# 
+# Open the Arduino IDE, and you're ready to go!
+
+# The script assumes the Arduino application
+# is installed in the default location.
+
+if [[ -d /Applications/Arduino.app ]]
+then
+    
+    # Define locations
+    lib_path=/Applications/Arduino.app/Contents/Resources/Java/libraries/MIDI
+    
+    if [[ -d $lib_path ]]
+    then
+        # Remove old lib
+        rm -rf $lib_path
+    fi
+    
+    # Create folder
+    mkdir $lib_path
+    
+    # Install contents
+    cp -r * $lib_path
+    
+    # Cleanup
+    rm $lib_path/install_mac
+    
+else
+    echo "Arduino application not found."
+fi
