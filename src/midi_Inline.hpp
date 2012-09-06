@@ -143,14 +143,14 @@ void MidiInterface::sendSysEx(unsigned int inLength,
     {
         MIDI_SERIAL_PORT.write(0xF0);
         
-        for (int i=0;i<inLength;++i)
+        for (unsigned int i=0;i<inLength;++i)
             MIDI_SERIAL_PORT.write(inArray[i]);
         
         MIDI_SERIAL_PORT.write(0xF7);
     }
     else
     {
-        for (int i=0;i<inLength;++i)
+        for (unsigned int i=0;i<inLength;++i)
             MIDI_SERIAL_PORT.write(inArray[i]);
     }
     

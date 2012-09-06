@@ -33,6 +33,7 @@
                                            MIDI_SOFTSERIAL_TX_PIN);
 #       else
 #           error Todo: implement SoftwareSerial for avr core.
+#       endif
 #       undef  MIDI_SERIAL_PORT
 #       define MIDI_SERIAL_PORT softSerialClass
 #   else
