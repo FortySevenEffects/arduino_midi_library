@@ -12,7 +12,12 @@
 
 #include "midi_Settings.h"
 #include "midi_Defs.h"
-#include "Arduino.h"
+
+#ifdef FSE_AVR
+#   include "hardware_Serial.h"
+#else
+#   include "Arduino.h"
+#endif
 
 // -----------------------------------------------------------------------------
 

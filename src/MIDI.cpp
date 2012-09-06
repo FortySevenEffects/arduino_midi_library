@@ -27,13 +27,20 @@
 
 #if MIDI_AUTO_INSTANCIATE
 #   if MIDI_USE_SOFTWARE_SERIAL
-#       include "../SoftwareSerial/SoftwareSerial.h"
-        SoftwareSerial softSerialClass(MIDI_SOFTSERIAL_RX_PIN,
-                                       MIDI_SOFTSERIAL_TX_PIN);
+#       ifndef FSE_AVR
+#           include "../SoftwareSerial/SoftwareSerial.h"
+            SoftwareSerial softSerialClass(MIDI_SOFTSERIAL_RX_PIN,
+                                           MIDI_SOFTSERIAL_TX_PIN);
+#       else
+#           error Todo: implement SoftwareSerial for avr core.
 #       undef  MIDI_SERIAL_PORT
 #       define MIDI_SERIAL_PORT softSerialClass
 #   else
-#       include "HardwareSerial.h"
+#       ifdef FSE_AVR
+#           include <hardware_Serial.h>
+#       else
+#           include "HardwareSerial.h"
+#       endif
 #   endif // MIDI_USE_SOFTWARE_SERIAL
 
     MIDI_NAMESPACE::MidiInterface MIDI;

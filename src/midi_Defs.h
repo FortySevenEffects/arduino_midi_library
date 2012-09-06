@@ -10,8 +10,17 @@
 
 #pragma once
 
-#include <inttypes.h> 
 #include "midi_Namespace.h"
+
+// -----------------------------------------------------------------------------
+
+#ifdef FSE_AVR
+#   include <core_Types.h>
+#else
+#   include <inttypes.h>
+#endif
+
+// -----------------------------------------------------------------------------
 
 BEGIN_MIDI_NAMESPACE
 
@@ -26,8 +35,9 @@ BEGIN_MIDI_NAMESPACE
 // -----------------------------------------------------------------------------
 // Type definitions
 
+#ifndef FSE_AVR
 typedef uint8_t  byte;
-typedef uint16_t word;
+#endif
 
 typedef byte StatusByte;
 typedef byte DataByte;
