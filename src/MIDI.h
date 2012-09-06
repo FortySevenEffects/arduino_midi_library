@@ -10,10 +10,8 @@
 
 #pragma once
 
-#include <inttypes.h> 
 #include "midi_Settings.h"
 #include "midi_Defs.h"
-#include <stdlib.h>
 #include "Arduino.h"
 
 // -----------------------------------------------------------------------------
