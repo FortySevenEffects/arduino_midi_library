@@ -22,7 +22,6 @@ BEGIN_MIDI_NAMESPACE
 
 /*! \brief The main class for MIDI handling.
  */
-template<typename Uart>
 class MidiInterface
 {
 public:
@@ -30,7 +29,7 @@ public:
     ~MidiInterface();
     
 public:
-    void begin(byte inChannel = 1);
+    void begin(Channel inChannel = 1);
     
     // -------------------------------------------------------------------------
     // MIDI Output
@@ -38,44 +37,45 @@ public:
 #if MIDI_BUILD_OUTPUT
     
 public:
-    void sendNoteOn(byte inNoteNumber,
-                    byte inVelocity,
-                    Channel inChannel);
-    
-    void sendNoteOff(byte inNoteNumber,
-                     byte inVelocity,
-                     Channel inChannel);
-    
-    void sendProgramChange(byte inProgramNumber,
+    inline void sendNoteOn(DataByte inNoteNumber,
+                           DataByte inVelocity,
                            Channel inChannel);
     
-    void sendControlChange(byte inControlNumber,
-                           byte inControlValue, 
-                           Channel inChannel);
+    inline void sendNoteOff(DataByte inNoteNumber,
+                            DataByte inVelocity,
+                            Channel inChannel);
     
-    void sendPitchBend(int inPitchValue,    Channel inChannel);
-    void sendPitchBend(double inPitchValue, Channel inChannel);
+    inline void sendProgramChange(DataByte inProgramNumber,
+                                  Channel inChannel);
     
-    void sendPolyPressure(byte inNoteNumber,
-                          byte inPressure,
-                          Channel inChannel);
+    inline void sendControlChange(DataByte inControlNumber,
+                                  DataByte inControlValue, 
+                                  Channel inChannel);
     
-    void sendAfterTouch(byte inPressure,
-                        Channel inChannel);
+    inline void sendPitchBend(int inPitchValue,    Channel inChannel);
+    inline void sendPitchBend(double inPitchValue, Channel inChannel);
     
-    void sendSysEx(unsigned int inLength, 
-                   const byte* inArray,
-                   bool inArrayContainsBoundaries = false);    
+    inline void sendPolyPressure(DataByte inNoteNumber,
+                                 DataByte inPressure,
+                                 Channel inChannel);
     
-    void sendTimeCodeQuarterFrame(byte inTypeNibble, 
-                                  byte inValuesNibble);
-    void sendTimeCodeQuarterFrame(byte inData);
+    inline void sendAfterTouch(DataByte inPressure,
+                               Channel inChannel);
     
-    void sendSongPosition(unsigned int inBeats);
-    void sendSongSelect(byte inSongNumber);
-    void sendTuneRequest();
-    void sendRealTime(MidiType inType);
+    inline void sendSysEx(unsigned int inLength, 
+                          const byte* inArray,
+                          bool inArrayContainsBoundaries = false);    
     
+    inline void sendTimeCodeQuarterFrame(DataByte inTypeNibble, 
+                                         DataByte inValuesNibble);
+    inline void sendTimeCodeQuarterFrame(DataByte inData);
+    
+    inline void sendSongPosition(unsigned int inBeats);
+    inline void sendSongSelect(DataByte inSongNumber);
+    inline void sendTuneRequest();
+    inline void sendRealTime(MidiType inType);
+    
+public:
     void send(MidiType inType,
               DataByte inData1,
               DataByte inData2,
@@ -114,49 +114,46 @@ public:
     static inline MidiType getTypeFromStatusByte(const byte inStatus);
     
 private:
+    bool inputFilter(Channel inChannel);
+    bool parse(Channel inChannel);
+    void resetInput();
     
-    bool input_filter(byte inChannel);
-    bool parse(byte inChannel);
-    void reset_input_attributes();
+private:
+    StatusByte mRunningStatus_RX;
+    Channel    mInputChannel;
     
-    // Attributes
-    byte            mRunningStatus_RX;
-    byte            mInputChannel;
-    
-    byte            mPendingMessage[3];             // SysEx are dumped into mMessage directly.
-    unsigned int    mPendingMessageExpectedLenght;
-    unsigned int    mPendingMessageIndex;           // Extended to unsigned int for larger SysEx payloads.
-    
-    midimsg         mMessage;
+    byte         mPendingMessage[3];             // SysEx are dumped into mMessage directly.
+    unsigned int mPendingMessageExpectedLenght;
+    unsigned int mPendingMessageIndex;           // Extended to unsigned int for larger SysEx payloads.
+    Message mMessage;
     
     
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // Input Callbacks
     
 #if MIDI_USE_CALLBACKS
     
 public:
+    inline void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
+    inline void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
+    inline void setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure));
+    inline void setHandleControlChange(void (*fptr)(byte channel, byte number, byte value));
+    inline void setHandleProgramChange(void (*fptr)(byte channel, byte number));
+    inline void setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure));
+    inline void setHandlePitchBend(void (*fptr)(byte channel, int bend));
+    inline void setHandleSystemExclusive(void (*fptr)(byte * array, byte size));
+    inline void setHandleTimeCodeQuarterFrame(void (*fptr)(byte data));
+    inline void setHandleSongPosition(void (*fptr)(unsigned int beats));
+    inline void setHandleSongSelect(void (*fptr)(byte songnumber));
+    inline void setHandleTuneRequest(void (*fptr)(void));
+    inline void setHandleClock(void (*fptr)(void));
+    inline void setHandleStart(void (*fptr)(void));
+    inline void setHandleContinue(void (*fptr)(void));
+    inline void setHandleStop(void (*fptr)(void));
+    inline void setHandleActiveSensing(void (*fptr)(void));
+    inline void setHandleSystemReset(void (*fptr)(void));
     
-    void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
-    void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
-    void setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure));
-    void setHandleControlChange(void (*fptr)(byte channel, byte number, byte value));
-    void setHandleProgramChange(void (*fptr)(byte channel, byte number));
-    void setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure));
-    void setHandlePitchBend(void (*fptr)(byte channel, int bend));
-    void setHandleSystemExclusive(void (*fptr)(byte * array, byte size));
-    void setHandleTimeCodeQuarterFrame(void (*fptr)(byte data));
-    void setHandleSongPosition(void (*fptr)(unsigned int beats));
-    void setHandleSongSelect(void (*fptr)(byte songnumber));
-    void setHandleTuneRequest(void (*fptr)(void));
-    void setHandleClock(void (*fptr)(void));
-    void setHandleStart(void (*fptr)(void));
-    void setHandleContinue(void (*fptr)(void));
-    void setHandleStop(void (*fptr)(void));
-    void setHandleActiveSensing(void (*fptr)(void));
-    void setHandleSystemReset(void (*fptr)(void));
-    
-    void disconnectCallbackFromType(MidiType Type);
+    inline void disconnectCallbackFromType(MidiType inType);
     
 private:
     
@@ -186,10 +183,10 @@ private:
 #endif // MIDI_BUILD_INPUT
     
     
-    // =========================================================================
+    // -------------------------------------------------------------------------
     // MIDI Soft Thru
     
-#if (MIDI_BUILD_INPUT && MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU)
+#if MIDI_BUILD_THRU
     
 public:
     inline MidiFilterMode getFilterMode() const;
@@ -201,21 +198,21 @@ public:
     
     
 private:
+    void thruFilter(byte inChannel);
     
-    void thru_filter(byte inChannel);
-    
+private:
     bool            mThruActivated  : 1;
     MidiFilterMode  mThruFilterMode : 7;
     
-#endif // Thru
+#endif // MIDI_BUILD_THRU
     
-    
-    
-    // Attributes
+
 #if MIDI_USE_RUNNING_STATUS
-    StatusByte mRunningStatus_TX;
-#endif // MIDI_USE_RUNNING_STATUS
     
+private:
+    StatusByte mRunningStatus_TX;
+    
+#endif // MIDI_USE_RUNNING_STATUS
     
 };
 
@@ -224,8 +221,8 @@ END_MIDI_NAMESPACE
 // -----------------------------------------------------------------------------
 
 #if MIDI_AUTO_INSTANCIATE
-extern MIDI_NAMESPACE::MidiInterface MIDI;
-#endif
+    extern MIDI_NAMESPACE::MidiInterface MIDI;
+#endif // MIDI_AUTO_INSTANCIATE
 
 // -----------------------------------------------------------------------------
 
