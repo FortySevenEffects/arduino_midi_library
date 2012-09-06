@@ -19,8 +19,9 @@ then
     mkdir $lib_path
     
     # Copy sources
-    cp ../src/MIDI.cpp $lib_path
-    cp ../src/MIDI.h   $lib_path
+    cp ../src/MIDI.cpp  $lib_path
+    cp ../src/MIDI.h    $lib_path
+    cp ../src/midi_*    $lib_path
     
     # Copy resources
     cp ../res/keywords.txt $lib_path

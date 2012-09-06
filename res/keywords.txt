@@ -8,7 +8,7 @@
 
 MIDI	KEYWORD1
 MIDI.h	KEYWORD1
-MIDI_Class	KEYWORD1
+MidiInterface	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -75,6 +75,9 @@ getTypeFromStatusByte	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
+
+# Namespace, considering it as a literal
+midi	LITERAL1
 
 NoteOff	LITERAL1
 NoteOn	LITERAL1
