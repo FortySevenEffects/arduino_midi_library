@@ -1,4 +1,7 @@
-There is nothing in this branch.
+MIDI Library for Arduino (and other AVR platforms)
 
-Please checkout the branch dedicated to your target board to get the code.
+The latest stable release is available on the old SourceForge account:
+https://sourceforge.net/projects/arduinomidilib/
 
+Documentation for the latest stable release is available here:
+http://arduinomidilib.sourceforge.net/
