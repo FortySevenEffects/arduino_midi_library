@@ -79,9 +79,6 @@ public:
               DataByte inData2,
               Channel inChannel);
    
-public:
-	static byte decodeSysEx(const byte* inSysEx, byte* outData, byte inLenght);
-	
 private:
     inline StatusByte getStatus(MidiType inType,
                                 Channel inChannel) const;
@@ -113,7 +110,6 @@ public:
     
 public:
     static inline MidiType getTypeFromStatusByte(const byte inStatus);
-    static byte encodeSysEx(const byte* inData, byte* outSysEx, byte inLenght);
 	
 private:
     bool inputFilter(Channel inChannel);
@@ -219,6 +215,11 @@ private:
 private:
     SerialPort& mSerial;
 };
+
+// -----------------------------------------------------------------------------
+
+byte encodeSysEx(const byte* inData, byte* outSysEx, byte inLenght);
+byte decodeSysEx(const byte* inSysEx, byte* outData, byte inLenght);
 
 END_MIDI_NAMESPACE
 
