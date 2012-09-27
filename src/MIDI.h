@@ -13,22 +13,17 @@
 #include "midi_Settings.h"
 #include "midi_Defs.h"
 
-#ifdef FSE_AVR
-#   include "hardware_Serial.h"
-#else
-#   include "Arduino.h"
-#endif
-
 // -----------------------------------------------------------------------------
 
 BEGIN_MIDI_NAMESPACE
 
 /*! \brief The main class for MIDI handling.
  */
+template<class SerialPort>
 class MidiInterface
 {
 public:
-    MidiInterface();
+    MidiInterface(SerialPort& inSerial);
     ~MidiInterface();
     
 public:
@@ -221,6 +216,8 @@ private:
     
 #endif // MIDI_USE_RUNNING_STATUS
     
+private:
+    SerialPort& mSerial;
 };
 
 END_MIDI_NAMESPACE
@@ -228,7 +225,7 @@ END_MIDI_NAMESPACE
 // -----------------------------------------------------------------------------
 
 #if MIDI_AUTO_INSTANCIATE
-    extern MIDI_NAMESPACE::MidiInterface MIDI;
+    extern MIDI_NAMESPACE::MidiInterface<MIDI_SERIAL_CLASS> MIDI;
 #endif // MIDI_AUTO_INSTANCIATE
 
 // -----------------------------------------------------------------------------

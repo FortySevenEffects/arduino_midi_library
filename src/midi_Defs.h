@@ -194,4 +194,9 @@ struct Message
     
 };
 
+// -----------------------------------------------------------------------------
+
+#define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
+    midi::MidiInterface<Type> Name((Type&)SerialPort);
+
 END_MIDI_NAMESPACE

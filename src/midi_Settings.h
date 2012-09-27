@@ -12,8 +12,6 @@
 
 #include "midi_Namespace.h"
 
-BEGIN_MIDI_NAMESPACE
-
 // -----------------------------------------------------------------------------
 
 // Here are a few settings you can change to customize
@@ -33,21 +31,26 @@ BEGIN_MIDI_NAMESPACE
 
 #define MIDI_USE_CALLBACKS              1
 
+// -----------------------------------------------------------------------------
+
 // Create a MIDI object automatically on the port defined with MIDI_SERIAL_PORT.
-#define MIDI_AUTO_INSTANCIATE           1
+// You can turn this off by adding #define MIDI_AUTO_INSTANCIATE 0 just before
+// including <MIDI.h> in your sketch.
+#ifndef MIDI_AUTO_INSTANCIATE
+#   ifndef FSE_AVR
+#       define MIDI_AUTO_INSTANCIATE    1
+#   endif
+#endif
 
 // -----------------------------------------------------------------------------
-// Serial port configuration
+// Default serial port configuration (if MIDI_AUTO_INSTANCIATE is set)
 
 // Set the default port to use for MIDI.
-#define MIDI_SERIAL_PORT                Serial
-
-// Software serial options
-#define MIDI_USE_SOFTWARE_SERIAL        0
-
-#if MIDI_USE_SOFTWARE_SERIAL
-    #define MIDI_SOFTSERIAL_RX_PIN      1   // Pin number to use for MIDI Input
-    #define MIDI_SOFTSERIAL_TX_PIN      2   // Pin number to use for MIDI Output
+#if MIDI_AUTO_INSTANCIATE
+#   define MIDI_DEFAULT_SERIAL_PORT     Serial
+#   define MIDI_SERIAL_CLASS            HardwareSerial
+#   include "Arduino.h"
+#   include "HardwareSerial.h"
 #endif
 
 // -----------------------------------------------------------------------------
@@ -61,5 +64,9 @@ BEGIN_MIDI_NAMESPACE
 
 #define MIDI_BAUDRATE                   31250
 #define MIDI_SYSEX_ARRAY_SIZE           255     // Maximum size is 65535 bytes.
+
+// -----------------------------------------------------------------------------
+
+BEGIN_MIDI_NAMESPACE
 
 END_MIDI_NAMESPACE
