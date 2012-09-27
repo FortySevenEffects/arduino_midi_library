@@ -14,9 +14,9 @@ MIDI_CREATE_INSTANCE(SoftwareSerial, softSerial, midiB);
 
 void setup()
 {
-  // Initiate MIDI communications, listen to all channels
-  midiA.begin(MIDI_CHANNEL_OMNI);
-  midiB.begin(MIDI_CHANNEL_OMNI);
+    // Initiate MIDI communications, listen to all channels
+    midiA.begin(MIDI_CHANNEL_OMNI);
+    midiB.begin(MIDI_CHANNEL_OMNI);
 }
 
 void loop()
@@ -41,5 +41,3 @@ void loop()
                    midiB.getChannel());
     }
 }
-
-
