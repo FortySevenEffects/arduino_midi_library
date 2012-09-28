@@ -1,23 +1,8 @@
 /*!
  \mainpage Arduino MIDI Library
  
- \tableofcontents
- 
- 
- \page howtodoc How to use this documentation
-
-  You can browse the classes 
- 
- \page howtolib How to use the library
- 
- \section howtolib_section_callbacks Using callbacks
- 
- Callbacks can simplify the reception of input messages.
- 
- 
- 
- \page 
- 
+ See the documentation of the main class, MidiInterface, or browse the modules
+ using the toolbar above.
  */
 
 // -----------------------------------------------------------------------------
@@ -38,5 +23,28 @@
  Status.
  </em>
  \n
+ */
+
+/*!
+ \example MIDI_Callbacks.ino 
+ This example shows how to use callbacks for easier MIDI input handling. \n
+ */
+
+/*!
+ \example MIDI_Bench.ino
+ \example MIDI_DualMerger.ino
+ \example MIDI_Input.ino
+ */
+
+// -----------------------------------------------------------------------------
+
+/*! \defgroup output   MIDI Output
+ */
+/*! \defgroup input    MIDI Input
+ */
+/*! \defgroup callbacks Callbacks 
+ \ingroup input   
+ */
+/*! \defgroup thru     MIDI Thru
  */
 
