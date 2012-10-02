@@ -225,8 +225,8 @@ END_MIDI_NAMESPACE
 
 // -----------------------------------------------------------------------------
 
-#if MIDI_AUTO_INSTANCIATE
-    extern MIDI_NAMESPACE::MidiInterface<MIDI_SERIAL_CLASS> MIDI;
+#if MIDI_AUTO_INSTANCIATE && defined(ARDUINO)
+    extern MIDI_NAMESPACE::MidiInterface<MIDI_DEFAULT_SERIAL_CLASS> MIDI;
 #endif // MIDI_AUTO_INSTANCIATE
 
 // -----------------------------------------------------------------------------

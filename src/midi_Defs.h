@@ -14,7 +14,9 @@
 
 // -----------------------------------------------------------------------------
 
-#ifdef FSE_AVR
+#if defined(ARDUINO)
+#   include <inttypes.h>
+#elif defined(FSE_AVR)
 #   include <core_Types.h>
 #else
 #   include <inttypes.h>

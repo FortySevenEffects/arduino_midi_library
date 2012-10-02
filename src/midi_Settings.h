@@ -23,7 +23,7 @@
 
 // Compilation flags. Set them to 1 to build the associated feature
 // (MIDI in, out, thru), or to 0 to disable the feature and save space.
-// Note that the Thru can only work if in and out are enabled.
+// Note that thru can work only if input and output are enabled.
 
 #define MIDI_BUILD_INPUT                1
 #define MIDI_BUILD_OUTPUT               1
@@ -37,8 +37,10 @@
 // You can turn this off by adding #define MIDI_AUTO_INSTANCIATE 0 just before
 // including <MIDI.h> in your sketch.
 #ifndef MIDI_AUTO_INSTANCIATE
-#   ifndef FSE_AVR
+#   ifdef ARDUINO
 #       define MIDI_AUTO_INSTANCIATE    1
+#   else
+#       define MIDI_AUTO_INSTANCIATE    0   ///< @see MIDI_CREATE_INSTANCE
 #   endif
 #endif
 
@@ -47,10 +49,14 @@
 
 // Set the default port to use for MIDI.
 #if MIDI_AUTO_INSTANCIATE
-#   define MIDI_DEFAULT_SERIAL_PORT     Serial
-#   define MIDI_SERIAL_CLASS            HardwareSerial
-#   include "Arduino.h"
-#   include "HardwareSerial.h"
+#   ifdef ARDUINO
+#       define MIDI_DEFAULT_SERIAL_PORT     Serial
+#       define MIDI_DEFAULT_SERIAL_CLASS    HardwareSerial
+#       include "Arduino.h"
+#       include "HardwareSerial.h"
+#   else
+#       error Auto-instanciation disabled. Use MIDI_CREATE_INSTANCE macro.
+#   endif
 #endif
 
 // -----------------------------------------------------------------------------
