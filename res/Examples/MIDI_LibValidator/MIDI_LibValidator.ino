@@ -43,11 +43,12 @@ LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 
 BEGIN_MIDI_NAMESPACE
 
+template<class SerialClass>
 class TestFixture
 {
 public:
     typedef const char* String;
-    typedef bool (*Functor) (void);
+    typedef bool (*Functor) (MidiInterface<SerialClass>&);
     
 public:
     TestFixture(String inTestName, 
@@ -75,11 +76,11 @@ private:
 
 // -----------------------------------------------------------------------------
 
-template<class SerialPort>
+template<class SerialClass>
 class MidiTester
 {
 public:
-    explicit MidiTester(MidiInterface<SerialPort>& inInstance)
+    explicit MidiTester(MidiInterface<SerialClass>& inInstance)
         : mInstance(inInstance)
     {
     }
@@ -89,7 +90,7 @@ public:
     }
     
 public:
-    inline bool performTestFixture(TestFixture* inFixture)
+    inline bool performTestFixture(TestFixture<SerialClass>* inFixture)
     {
         if (inFixture != 0)
         {
@@ -108,7 +109,7 @@ public:
     }
     
 public:
-    inline void registerTest(TestFixture* inFixture)
+    inline void registerTest(TestFixture<SerialClass>* inFixture)
     {
         mTests[mNumActiveTests++] = inFixture;
     }
@@ -132,15 +133,17 @@ public:
     }
     
 private:
-    MidiInterface<SerialPort>& mInstance;
-    TestFixture* mTests[NUM_TESTS];
+    MidiInterface<SerialClass>& mInstance;
+    TestFixture<SerialClass>* mTests[NUM_TESTS];
     unsigned mNumActiveTests;
 };
 
 // -----------------------------------------------------------------------------
 
-bool testNoteOn()
+template<class SerialClass>
+bool testNoteOn(midi::MidiInterface<SerialClass>& inMidi)
 {
+    inMidi.sendNoteOn(12, 42);
     return true;
 }
 
@@ -175,9 +178,15 @@ void setupLEDs()
 }
 
 template<class SerialClass>
-void setupTester(MidiTester<SerialClass>& inTester)
+void setupTester(midi::MidiTester<SerialClass>& inTester)
 {
     inTester.registerTest(new midi::TestFixture("Note On", midi::testNoteOn));
+}
+
+void setupTesters()
+{
+    setupTester<HardwareSerial>(testerHW);
+    setupTester<SoftwareSerial>(testerSW);
 }
 
 // -----------------------------------------------------------------------------
