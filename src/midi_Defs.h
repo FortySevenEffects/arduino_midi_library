@@ -85,6 +85,10 @@ enum MidiFilterMode
 
 // -----------------------------------------------------------------------------
 
+/*! \brief Enumeration of Control Change command numbers.
+ See the detailed controllers numbers & description here: 
+ http://www.somascape.org/midi/tech/spec.html#ctrlnums
+ */
 enum MidiControlChangeNumber
 {
     // High resolution Continuous Controllers MSB (+32 for LSB) ----------------
@@ -154,9 +158,8 @@ enum MidiControlChangeNumber
 
 // -----------------------------------------------------------------------------
 
-/*! The midimsg structure contains decoded data 
-    of a MIDI message read from the serial port 
-    with read() or thru().
+/*! The midimsg structure contains decoded data of a MIDI message 
+    read from the serial port with read()
  */
 struct Message
 {

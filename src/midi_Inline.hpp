@@ -220,9 +220,7 @@ void MidiInterface<SerialPort>::sendProgramChange(DataByte inProgramNumber,
  \param inControlNumber The controller number (0 to 127). 
  \param inControlValue  The value for the specified controller (0 to 127).
  \param inChannel       The channel on which the message will be sent (1 to 16). 
- 
- See the detailed controllers numbers & description here: 
- http://www.somascape.org/midi/tech/spec.html#ctrlnums
+ @see MidiControlChangeNumber
  */
 template<class SerialPort>
 void MidiInterface<SerialPort>::sendControlChange(DataByte inControlNumber,
