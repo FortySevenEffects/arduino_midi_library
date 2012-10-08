@@ -2,7 +2,10 @@
  \mainpage Arduino MIDI Library
  
  See the documentation of the main class, MidiInterface, or browse the modules
- using the toolbar above.
+ using the sidebar on the left.
+ \n
+ The documentation for the latests stable version is available here:
+ http://arduinomidilib.sourceforge.net/a00001.html
  */
 
 // -----------------------------------------------------------------------------
