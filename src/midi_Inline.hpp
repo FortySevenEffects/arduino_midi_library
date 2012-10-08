@@ -497,16 +497,14 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
         // No data available.
         return false;
     
-    
-    /* Parsing algorithm:
-     Get a byte from the serial buffer.
-     * If there is no pending message to be recomposed, start a new one.
-     - Find type and channel (if pertinent)
-     - Look for other bytes in buffer, call parser recursively, 
-     until the message is assembled or the buffer is empty.
-     * Else, add the extracted byte to the pending message, and check validity. 
-     When the message is done, store it.
-     */
+    // Parsing algorithm:
+    // Get a byte from the serial buffer.
+    // If there is no pending message to be recomposed, start a new one.
+    //  - Find type and channel (if pertinent)
+    //  - Look for other bytes in buffer, call parser recursively, 
+    //    until the message is assembled or the buffer is empty.
+    // Else, add the extracted byte to the pending message, and check validity. 
+    // When the message is done, store it.
     
     const byte extracted = mSerial.read();
     
