@@ -1,140 +1,92 @@
 
 #include "midi_ValidatorTester.h"
 #include "midi_ValidatorInstances.h"
-/*
-// -----------------------------------------------------------------------------
-
-BEGIN_MIDI_NAMESPACE
-
-template<class SerialClass>
-class TestFixture
-{
-public:
-    typedef const char* String;
-    typedef bool (*Functor) (MidiInterface<SerialClass>&);
-    
-public:
-    TestFixture(String inTestName, 
-                Functor inFunctor)
-        : mTestName(inTestName)
-        , mFunctor(inFunctor)
-    {
-    }
-    
-public:
-    inline bool operator() (void)
-    {
-        return mFunctor();
-    }
-    
-    inline String getName() const
-    {
-        return mTestName;
-    }
-    
-private:
-    String mTestName;
-    Functor mFunctor;
-};
+#include "midi_ValidatorTests.h"
 
 // -----------------------------------------------------------------------------
 
 template<class SerialClass>
-class MidiTester
+class Tester
 {
+public: 
+    typedef bool (*Functor) (MIDI_CLASS(SerialClass)&);
+    
 public:
-    explicit MidiTester(MidiInterface<SerialClass>& inInstance)
-        : mInstance(inInstance)
+    explicit Tester(MIDI_CLASS(SerialClass)& inInstance)
+        : mMidiInstance(inInstance)
+        , mProgress(0)
     {
     }
     
-    virtual ~MidiTester()
+    void setup()
     {
+        mProgress = 0;
+        mMidiInstance.begin(MIDI_CHANNEL_OMNI);
+        mMidiInstance.turnThruOff();
     }
     
 public:
-    inline bool performTestFixture(TestFixture<SerialClass>* inFixture)
+    inline bool performTest(Functor inTestMethod)
     {
-        if (inFixture != 0)
+        if (inTestMethod != 0)
         {
-            return (*inFixture)();
+            const bool result = expect((*inTestMethod)(mMidiInstance));
+            setProgressBar(++mProgress, NUM_TESTS);
+            return result;
         }
         return false;
     }
     
     inline bool expect(bool inCondition) const
     {
+        Serial.print(testNames[mProgress]);
+        Serial.print(": ");
         if (inCondition == false)
+        {
+            Serial.println("Failed! /!\\");
             blinkFail();
+        }
         else
+        {
+            Serial.println("Passed.");
             blinkPass();
+        }
         return inCondition;
     }
     
-public:
-    inline void registerTest(TestFixture<SerialClass>* inFixture)
+    bool run()
     {
-        mTests[mNumActiveTests++] = inFixture;
-    }
-    
-    bool runTests()
-    {
-        for (unsigned i = 0; i < mNumActiveTests; ++i)
-        {
-            if (mTests[i] != 0)
-            {
-                if (expect(performTestFixture(mTests[i]) == false))
-                {
-                    // \todo Display message
-                    // \todo Store error number and continue.
-                    return false;
-                }
-            }
-            setProgressBar(i, mNumActiveTests);
-        }
-        return true;
+        performTest(testNoteOn);
+        performTest(testNoteOff);
+        performTest(testControlChange);
+        performTest(testProgramChange);
     }
     
 private:
-    MidiInterface<SerialClass>& mInstance;
-    TestFixture<SerialClass>* mTests[NUM_TESTS];
-    unsigned mNumActiveTests;
+    MIDI_CLASS(SerialClass)& mMidiInstance;
+    unsigned mProgress;
 };
 
 // -----------------------------------------------------------------------------
 
-template<class SerialClass>
-bool testNoteOn(MIDI_CLASS(SerialClass)& inMidi)
-{
-    inMidi.sendNoteOn(12, 42);
-    return true;
-}
+Tester<HardwareSerial> testerHW(midiHW);
+Tester<SoftwareSerial> testerSW(midiSW);
 
 // -----------------------------------------------------------------------------
 
-END_MIDI_NAMESPACE
-
-midi::MidiTester<HardwareSerial> testerHW(midiHW);
-midi::MidiTester<SoftwareSerial> testerSW(midiSW);
-
-// -----------------------------------------------------------------------------
-
-template<class SerialClass>
-void setupTester(MIDI_CLASS(SerialClass)& inTester)
-{
-    inTester.registerTest(new midi::TestFixture("Note On", midi::testNoteOn));
-}
-
-// -----------------------------------------------------------------------------
-*/
 void setupTesters()
 {
-    //setupTester<HardwareSerial>(testerHW);
-    //setupTester<SoftwareSerial>(testerSW);
+    testerHW.setup();
+    testerSW.setup();
 }
 
-void launchTests()
+bool launchTests()
 {
-    //testerHW.runTests();
-    //testerSW.runTests();
+    Serial.println("Testing HW:");
+    if (testerHW.run() == false)
+        return false;
+    Serial.println("Testing SW:");
+    if (testerSW.run() == false)
+        return false;
+    return true;
 }

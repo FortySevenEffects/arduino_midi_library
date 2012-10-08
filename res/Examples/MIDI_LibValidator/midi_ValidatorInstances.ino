@@ -15,20 +15,3 @@ SoftwareSerial softSerial(2, 3);
 
 // \todo Create instance for USB if available
 
-// -----------------------------------------------------------------------------
-
-template<class SerialClass>
-void setupMidiInstance(MIDI_CLASS(SerialClass)& inInstance)
-{
-    inInstance.begin(MIDI_CHANNEL_OMNI);
-    inInstance.turnThruOff();
-}
-
-// -----------------------------------------------------------------------------
-
-void setupMidiInstances()
-{
-    setupMidiInstance<HardwareSerial>(midiHW);
-    setupMidiInstance<SoftwareSerial>(midiSW);
-}
-

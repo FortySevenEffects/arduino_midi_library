@@ -16,7 +16,6 @@ void setup()
     setupSerialDebug();
     setupLCD();
     setupLEDs();
-    setupMidiInstances();
     setupTesters();
 }
 
@@ -24,5 +23,14 @@ void setup()
 
 void loop()
 {
-    launchTests();
+    if (launchTests() == true)
+    {
+    	setLedsFinal(true);
+    	Serial.println("All tests passed.");
+    }
+    else
+    {
+    	setLedsFinal(false);
+    	Serial.println("Some tests failed!");
+    }
 }

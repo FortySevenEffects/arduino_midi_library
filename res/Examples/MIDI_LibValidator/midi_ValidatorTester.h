@@ -1,4 +1,7 @@
 #pragma once
 
 void setupTesters();
-void launchTests();
+bool launchTests();
+
+
+
