@@ -301,14 +301,14 @@ void MidiInterface<SerialPort>::sendSysEx(unsigned int inLength,
     {
         mSerial.write(0xF0);
         
-        for (unsigned int i=0;i<inLength;++i)
+        for (unsigned int i = 0; i < inLength; ++i)
             mSerial.write(inArray[i]);
         
         mSerial.write(0xF7);
     }
     else
     {
-        for (unsigned int i=0;i<inLength;++i)
+        for (unsigned int i = 0; i < inLength; ++i)
             mSerial.write(inArray[i]);
     }
     
@@ -560,7 +560,6 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
                 break;
         }
         
-        
         switch (getTypeFromStatusByte(mPendingMessage[0]))
         {
                 // 1 byte messages
@@ -612,6 +611,7 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
                 // between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
                 mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE; 
                 mRunningStatus_RX = InvalidType;
+                mMessage.sysexArray[0] = SystemExclusive;
                 break;
                 
             case InvalidType:
@@ -669,17 +669,16 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
                     
                     // End of Exclusive
                 case 0xF7:
-                    if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive)
+                    if (mMessage.sysexArray[0] == SystemExclusive)
                     {
-                        // Store System Exclusive array in midimsg structure
-                        for (byte i=0;i<MIDI_SYSEX_ARRAY_SIZE;i++)
-                            mMessage.sysex_array[i] = mPendingMessage[i];
+                        // Store the last byte (EOX)
+                        mMessage.sysexArray[mPendingMessageIndex++] = 0xF7;
                         
                         mMessage.type = SystemExclusive;
                         
                         // Get length
-                        mMessage.data1 = (mPendingMessageIndex+1) & 0xFF;    
-                        mMessage.data2 = (mPendingMessageIndex+1) >> 8;
+                        mMessage.data1 = mPendingMessageIndex & 0xFF;    
+                        mMessage.data2 = mPendingMessageIndex >> 8;
                         mMessage.channel = 0;
                         mMessage.valid = true;
                         
@@ -700,7 +699,10 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
         }
         
         // Add extracted data byte to pending message
-        mPendingMessage[mPendingMessageIndex] = extracted;
+        if (mPendingMessage[0] == SystemExclusive)
+            mMessage.sysexArray[mPendingMessageIndex] = extracted;
+        else
+            mPendingMessage[mPendingMessageIndex] = extracted;
         
         // Now we are going to check if we have reached the end of the message
         if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
@@ -708,7 +710,7 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit 
             // the buffer. If this happens, try increasing MIDI_SYSEX_ARRAY_SIZE.
-            if (getTypeFromStatusByte(mPendingMessage[0]) == SystemExclusive)
+            if (mPendingMessage[0] == SystemExclusive)
             {
                 resetInput();
                 return false;
@@ -858,7 +860,7 @@ DataByte MidiInterface<SerialPort>::getData2() const
 template<class SerialPort>
 const byte* MidiInterface<SerialPort>::getSysExArray() const
 { 
-    return mMessage.sysex_array;
+    return mMessage.sysexArray;
 }
 
 /*! \brief Get the lenght of the System Exclusive array.
@@ -1005,7 +1007,7 @@ void MidiInterface<SerialPort>::launchCallback()
         case AfterTouchChannel:     if (mAfterTouchChannelCallback != 0)     mAfterTouchChannelCallback(mMessage.channel,mMessage.data1);    break;
             
         case ProgramChange:         if (mProgramChangeCallback != 0)         mProgramChangeCallback(mMessage.channel,mMessage.data1);    break;
-        case SystemExclusive:       if (mSystemExclusiveCallback != 0)       mSystemExclusiveCallback(mMessage.sysex_array,mMessage.data1);    break;
+        case SystemExclusive:       if (mSystemExclusiveCallback != 0)       mSystemExclusiveCallback(mMessage.sysexArray,mMessage.data1);    break;
             
             // Occasional messages
         case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != 0)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
@@ -1164,7 +1166,7 @@ void MidiInterface<SerialPort>::thruFilter(Channel inChannel)
                 
             case SystemExclusive:
                 // Send SysEx (0xF0 and 0xF7 are included in the buffer)
-                sendSysEx(mMessage.data1,mMessage.sysex_array,true); 
+                sendSysEx(mMessage.data1,mMessage.sysexArray,true); 
                 return;
                 break;
                 

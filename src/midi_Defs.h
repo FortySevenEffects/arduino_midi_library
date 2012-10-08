@@ -189,7 +189,7 @@ struct Message
      \n Array length is stocked on 16 bits, 
      in data1 (LSB) and data2 (MSB)
      */
-    DataByte sysex_array[MIDI_SYSEX_ARRAY_SIZE];
+    DataByte sysexArray[MIDI_SYSEX_ARRAY_SIZE];
     
     /*! This boolean indicates if the message is valid or not.
      There is no channel consideration here, 
