@@ -514,50 +514,39 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
         mPendingMessage[0] = extracted;
         
         // Check for running status first
-        switch (getTypeFromStatusByte(mRunningStatus_RX))
+        if (isChannelMessage(getTypeFromStatusByte(mRunningStatus_RX)))
         {
-                // Only these types allow Running Status:
-            case NoteOff:
-            case NoteOn:
-            case AfterTouchPoly:
-            case ControlChange:
-            case ProgramChange:
-            case AfterTouchChannel:
-            case PitchBend:
+            // Only these types allow Running Status
                 
-                // If the status byte is not received, prepend it 
-                // to the pending message
-                if (extracted < 0x80)
-                {
-                    mPendingMessage[0] = mRunningStatus_RX;
-                    mPendingMessage[1] = extracted;
-                    mPendingMessageIndex = 1;
-                }
-                // Else: well, we received another status byte,
-                // so the running status does not apply here.
-                // It will be updated upon completion of this message.
+            // If the status byte is not received, prepend it 
+            // to the pending message
+            if (extracted < 0x80)
+            {
+                mPendingMessage[0] = mRunningStatus_RX;
+                mPendingMessage[1] = extracted;
+                mPendingMessageIndex = 1;
+            }
+            // Else: well, we received another status byte,
+            // so the running status does not apply here.
+            // It will be updated upon completion of this message.
+            
+            if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
+            {
+                mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
+                mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
+                mMessage.data1 = mPendingMessage[1];
                 
-                if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
-                {
-                    mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                    mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
-                    mMessage.data1 = mPendingMessage[1];
-                    
-                    // Save data2 only if applicable
-                    if (mPendingMessageExpectedLenght == 3)
-                        mMessage.data2 = mPendingMessage[2];
-                    else 
-                        mMessage.data2 = 0;
-                    
-                    mPendingMessageIndex = 0;
-                    mPendingMessageExpectedLenght = 0;
-                    mMessage.valid = true;
-                    return true;
-                }
-                break;
-            default:
-                // No running status
-                break;
+                // Save data2 only if applicable
+                if (mPendingMessageExpectedLenght == 3)
+                    mMessage.data2 = mPendingMessage[2];
+                else 
+                    mMessage.data2 = 0;
+                
+                mPendingMessageIndex = 0;
+                mPendingMessageExpectedLenght = 0;
+                mMessage.valid = true;
+                return true;
+            }
         }
         
         switch (getTypeFromStatusByte(mPendingMessage[0]))
@@ -717,8 +706,11 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
             }
             
             mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-            // Don't check if it is a Channel Message
-            mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
+            
+            if (isChannelMessage(mMessage.type))
+                mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
+            else
+                mMessage.channel = 0;
             
             mMessage.data1 = mPendingMessage[1];
             
@@ -908,7 +900,7 @@ void MidiInterface<SerialPort>::setInputChannel(Channel inChannel)
  made public so you can handle MidiTypes more easily.
  */
 template<class SerialPort>
-MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(const byte inStatus) 
+MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(byte inStatus) 
 {
     if ((inStatus  < 0x80) ||
         (inStatus == 0xF4) ||
@@ -917,6 +909,18 @@ MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(const byte inStatus)
         (inStatus == 0xFD)) return InvalidType; // data bytes and undefined.
     if (inStatus < 0xF0) return (MidiType)(inStatus & 0xF0);    // Channel message, remove channel nibble.
     else return (MidiType)inStatus;
+}
+
+template<class SerialPort>
+bool MidiInterface<SerialPort>::isChannelMessage(MidiType inType)
+{
+    return (inType == NoteOff           ||
+            inType == NoteOn            ||
+            inType == ControlChange     ||
+            inType == AfterTouchPoly    ||
+            inType == AfterTouchChannel ||
+            inType == PitchBend         ||
+            inType == ProgramChange);
 }
 
 // -----------------------------------------------------------------------------

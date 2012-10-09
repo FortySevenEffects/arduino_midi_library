@@ -109,8 +109,9 @@ public:
     inline void setInputChannel(Channel inChannel);
     
 public:
-    static inline MidiType getTypeFromStatusByte(const byte inStatus);
-	
+    static inline MidiType getTypeFromStatusByte(byte inStatus);
+	static inline bool isChannelMessage(MidiType inType);
+    
 private:
     bool inputFilter(Channel inChannel);
     bool parse(Channel inChannel);
