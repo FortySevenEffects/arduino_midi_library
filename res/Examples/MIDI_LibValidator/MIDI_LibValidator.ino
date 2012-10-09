@@ -17,6 +17,7 @@ void setup()
     setupLCD();
     setupLEDs();
     setupTesters();
+    Serial.println("Tester ready");
 }
 
 // -----------------------------------------------------------------------------
@@ -33,4 +34,5 @@ void loop()
     	setLedsFinal(false);
     	Serial.println("Some tests failed!");
     }
+    while (true);
 }

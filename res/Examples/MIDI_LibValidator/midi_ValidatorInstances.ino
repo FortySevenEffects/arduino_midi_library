@@ -3,7 +3,7 @@
 
 // -----------------------------------------------------------------------------
 
-SoftwareSerial softSerial(2, 3);
+SoftwareSerial softSerial(10, 11);
 
 #if defined(__AVR_ATmega32U4__) // Leonardo uses Serial1 as hardware serial.
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,       midiHW);
@@ -15,3 +15,9 @@ SoftwareSerial softSerial(2, 3);
 
 // \todo Create instance for USB if available
 
+
+void setupMidi()
+{
+    while (!softSerial.isListening())
+        softSerial.listen();
+}

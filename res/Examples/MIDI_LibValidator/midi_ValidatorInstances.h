@@ -6,3 +6,5 @@
 
 extern midi::MidiInterface<HardwareSerial> midiHW;
 extern midi::MidiInterface<SoftwareSerial> midiSW;
+
+void setupMidi();

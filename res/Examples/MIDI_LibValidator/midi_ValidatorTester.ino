@@ -43,12 +43,12 @@ public:
         Serial.print(": ");
         if (inCondition == false)
         {
-            Serial.println("Failed! /!\\");
+            Serial.println("Failed /!\\");
             blinkFail();
         }
         else
         {
-            Serial.println("Passed.");
+            Serial.println("Passed");
             blinkPass();
         }
         return inCondition;
@@ -56,10 +56,26 @@ public:
     
     bool run()
     {
-        performTest(testNoteOn);
-        performTest(testNoteOff);
-        performTest(testControlChange);
-        performTest(testProgramChange);
+        bool result = true;
+        result &= performTest(testNoteOn);
+        result &= performTest(testNoteOff);
+        result &= performTest(testControlChange);
+        result &= performTest(testProgramChange);
+        result &= performTest(testAftertouchMono);
+        result &= performTest(testAftertouchPoly);
+        result &= performTest(testPitchBend);
+        result &= performTest(testSysEx);
+        result &= performTest(testClock);
+        result &= performTest(testStart);
+        result &= performTest(testStop);
+        result &= performTest(testContinue);
+        result &= performTest(testActiveSensing);
+        result &= performTest(testTimeCode);
+        result &= performTest(testSongSelect);
+        result &= performTest(testSongPosition);
+        result &= performTest(testTuneRequest);
+        result &= performTest(testSystemReset);
+        return result;
     }
     
 private:
@@ -78,6 +94,7 @@ void setupTesters()
 {
     testerHW.setup();
     testerSW.setup();
+    setupMidi();
 }
 
 bool launchTests()
@@ -85,8 +102,8 @@ bool launchTests()
     Serial.println("Testing HW:");
     if (testerHW.run() == false)
         return false;
-    Serial.println("Testing SW:");
+    /*Serial.println("Testing SW:");
     if (testerSW.run() == false)
-        return false;
+        return false;*/
     return true;
 }
