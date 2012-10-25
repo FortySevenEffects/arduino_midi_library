@@ -50,8 +50,12 @@
 // Set the default port to use for MIDI.
 #if MIDI_AUTO_INSTANCIATE
 #   ifdef ARDUINO
-#       define MIDI_DEFAULT_SERIAL_PORT     Serial
-#       define MIDI_DEFAULT_SERIAL_CLASS    HardwareSerial
+#       ifdef USBCON
+#           define MIDI_DEFAULT_SERIAL_PORT     Serial1 // For Leonardo
+#       else
+#           define MIDI_DEFAULT_SERIAL_PORT     Serial  // For other Arduinos
+#       endif
+#       define MIDI_DEFAULT_SERIAL_CLASS        HardwareSerial
 #       include "Arduino.h"
 #       include "HardwareSerial.h"
 #   else
