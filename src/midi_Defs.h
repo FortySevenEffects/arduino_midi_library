@@ -11,18 +11,7 @@
 #pragma once
 
 #include "midi_Namespace.h"
-
-// -----------------------------------------------------------------------------
-
-#if defined(ARDUINO)
-#   include <inttypes.h>
-#elif defined(FSE_AVR)
-#   include <core_Types.h>
-#else
-#   include <inttypes.h>
-#endif
-
-// -----------------------------------------------------------------------------
+#include <inttypes.h>
 
 BEGIN_MIDI_NAMESPACE
 
@@ -37,9 +26,7 @@ BEGIN_MIDI_NAMESPACE
 // -----------------------------------------------------------------------------
 // Type definitions
 
-#ifndef FSE_AVR
-typedef uint8_t  byte;
-#endif
+typedef uint8_t byte;
 
 typedef byte StatusByte;
 typedef byte DataByte;
