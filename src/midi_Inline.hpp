@@ -60,7 +60,11 @@ template<class SerialPort>
 void MidiInterface<SerialPort>::begin(Channel inChannel)
 {
     // Initialise the Serial port
+#if defined(ARDUINO)
     mSerial.begin(MIDI_BAUDRATE);
+#elif defined(FSE_AVR)
+    mSerial. template open<MIDI_BAUDRATE>();
+#endif
     
 #if MIDI_BUILD_OUTPUT && MIDI_USE_RUNNING_STATUS
     
