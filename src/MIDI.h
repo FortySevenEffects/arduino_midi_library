@@ -18,6 +18,10 @@
 BEGIN_MIDI_NAMESPACE
 
 /*! \brief The main class for MIDI handling.
+It is templated over the type of serial port to provide abstraction from
+the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
+or ak47's Uart classes. The only requirement is that the class implements
+the begin, read, write and available methods.
  */
 template<class SerialPort>
 class MidiInterface
@@ -232,4 +236,4 @@ END_MIDI_NAMESPACE
 
 // -----------------------------------------------------------------------------
 
-#include "midi_Inline.hpp"
+#include "MIDI.hpp"
