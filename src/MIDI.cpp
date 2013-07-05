@@ -45,27 +45,30 @@ BEGIN_MIDI_NAMESPACE
  \return The lenght of the encoded output buffer.
  @see decodeSysEx
  */
-byte encodeSysEx(const byte* inData, byte* outSysEx, byte inLength)
+unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
 {
-    byte retlen = 0;
-    byte compteur;
-    byte count7 = 0;
-    
-    outSysEx[0] = 0;
-    for (compteur = 0; compteur < inLength; compteur++) {
-        byte c = inData[compteur] & 0x7F;
-        byte msb = inData[compteur] >> 7;
-        outSysEx[0] |= msb << count7;
-        outSysEx[1 + count7] = c;
+    unsigned outLength  = 0;     // Num bytes in output array.
+    byte count          = 0;     // Num 7bytes in a block.
+    outSysEx[0]         = 0;
+
+    for (unsigned i = 0; i < inLength; ++i)
+    {
+        const byte data = inData[i];
+        const byte msb  = data >> 7;
+        const byte body = data & 0x7f;
+
+        outSysEx[0] |= (msb << count);
+        outSysEx[1 + count] = body;
         
-        if (count7++ == 6) {
-            outSysEx += 8;
-            retlen += 8;
+        if (count++ == 6)
+        {
+            outSysEx   += 8;
+            outLength  += 8;
             outSysEx[0] = 0;
-            count7 = 0;
+            count       = 0;
         }
     }
-    return retlen + count7 + ((count7 != 0)?1:0);
+    return outLength + count + (count != 0 ? 1 : 0);
 }
 
 /*! \brief Decode System Exclusive messages.
@@ -78,24 +81,24 @@ byte encodeSysEx(const byte* inData, byte* outSysEx, byte inLength)
  \return The lenght of the output buffer.
  @see encodeSysEx @see getSysExArrayLength
  */
-byte decodeSysEx(const byte* inSysEx, byte* outData, byte inLength)
+unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
 {
-    byte cnt;
-    byte cnt2 = 0;
-    byte bits = 0;
+    unsigned count  = 0;
+    byte msbStorage = 0;
     
-    for (cnt = 0; cnt < inLength; ++cnt) {
-        
-        if ((cnt % 8) == 0) {
-            bits = inSysEx[cnt];
+    for (unsigned i = 0; i < inLength; ++i)
+    {
+        if ((i % 8) == 0)
+        {
+            msbStorage = inSysEx[i];
         } 
-        else {
-            outData[cnt2++] = inSysEx[cnt] | ((bits & 1) << 7);
-            bits >>= 1;
+        else
+        {
+            outData[count++] = inSysEx[i] | ((msbStorage & 1) << 7);
+            msbStorage >>= 1;
         }
-        
     }
-    return cnt2;
+    return count;
 }
 
 END_MIDI_NAMESPACE

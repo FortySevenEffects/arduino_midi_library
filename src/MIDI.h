@@ -223,8 +223,8 @@ private:
 
 // -----------------------------------------------------------------------------
 
-byte encodeSysEx(const byte* inData, byte* outSysEx, byte inLenght);
-byte decodeSysEx(const byte* inSysEx, byte* outData, byte inLenght);
+unsigned encodeSysEx(const byte* inData,  byte* outSysEx, unsigned inLenght);
+unsigned decodeSysEx(const byte* inSysEx, byte* outData,  unsigned inLenght);
 
 END_MIDI_NAMESPACE
 
