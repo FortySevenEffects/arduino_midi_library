@@ -13,6 +13,10 @@
 #include "midi_Settings.h"
 #include "midi_Defs.h"
 
+#ifdef FSE_AVR
+#include <ak47.h>
+#endif
+
 // -----------------------------------------------------------------------------
 
 BEGIN_MIDI_NAMESPACE
