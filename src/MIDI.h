@@ -118,7 +118,7 @@ public:
     
 private:
     bool inputFilter(Channel inChannel);
-    bool parse(Channel inChannel);
+    bool parse();
     void resetInput();
     
 private:

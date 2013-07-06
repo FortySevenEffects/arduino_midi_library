@@ -470,7 +470,7 @@ bool MidiInterface<SerialPort>::read(Channel inChannel)
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
     
-    if (parse(inChannel))
+    if (parse())
     {
         if (inputFilter(inChannel))
         {
@@ -493,8 +493,8 @@ bool MidiInterface<SerialPort>::read(Channel inChannel)
 
 // Private method: MIDI parser
 template<class SerialPort>
-bool MidiInterface<SerialPort>::parse(Channel inChannel)
-{ 
+bool MidiInterface<SerialPort>::parse()
+{
     const byte bytes_available = mSerial.available();
     
     if (bytes_available == 0)
@@ -624,7 +624,7 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
 #else
         // Call the parser recursively
         // to parse the rest of the message.
-        return parse(inChannel);
+        return parse();
 #endif
         
     }
@@ -762,7 +762,7 @@ bool MidiInterface<SerialPort>::parse(Channel inChannel)
 #else
             // Call the parser recursively
             // to parse the rest of the message.
-            return parse(inChannel);
+            return parse();
 #endif
         }
     }
