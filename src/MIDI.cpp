@@ -3,7 +3,7 @@
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino
  *  @version    4.0
- *  @author     Francois Best 
+ *  @author     Francois Best
  *  @date       24/02/11
  *  license     GPL Forty Seven Effects - 2011
  */
@@ -37,7 +37,7 @@ BEGIN_MIDI_NAMESPACE
 
 /*! \brief Encode System Exclusive messages.
  SysEx messages are encoded to guarantee transmission of data bytes higher than
- 127 without breaking the MIDI protocol. Use this static method to convert the  
+ 127 without breaking the MIDI protocol. Use this static method to convert the
  data you want to send.
  \param inData The data to encode.
  \param outSysEx The output buffer where to store the encoded message.
@@ -59,7 +59,7 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
 
         outSysEx[0] |= (msb << count);
         outSysEx[1 + count] = body;
-        
+
         if (count++ == 6)
         {
             outSysEx   += 8;
@@ -73,7 +73,7 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
 
 /*! \brief Decode System Exclusive messages.
  SysEx messages are encoded to guarantee transmission of data bytes higher than
- 127 without breaking the MIDI protocol. Use this static method to reassemble 
+ 127 without breaking the MIDI protocol. Use this static method to reassemble
  your received message.
  \param inSysEx The SysEx data received from MIDI in.
  \param outData    The output buffer where to store the decrypted message.
@@ -85,13 +85,13 @@ unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
 {
     unsigned count  = 0;
     byte msbStorage = 0;
-    
+
     for (unsigned i = 0; i < inLength; ++i)
     {
         if ((i % 8) == 0)
         {
             msbStorage = inSysEx[i];
-        } 
+        }
         else
         {
             outData[count++] = inSysEx[i] | ((msbStorage & 1) << 7);
