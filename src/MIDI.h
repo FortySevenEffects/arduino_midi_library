@@ -117,7 +117,8 @@ public:
     inline void setInputChannel(Channel inChannel);
     
 public:
-    static inline MidiType getTypeFromStatusByte(byte inStatus);
+    static inline MidiType getTypeFromStatusByte(StatusByte inStatus);
+    static inline byte getMessageLength(StatusByte inStatus);
 	static inline bool isChannelMessage(MidiType inType);
     static inline bool isRealtimeMessage(MidiType inType);
     
@@ -210,7 +211,6 @@ private:
 
 private:
     ThruFlags   mThruFlags;
-    bool        mForwardCurrentMessage;
     
 #endif // MIDI_BUILD_THRU
     

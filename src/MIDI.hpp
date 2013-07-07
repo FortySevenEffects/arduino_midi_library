@@ -485,7 +485,7 @@ bool MidiInterface<SerialPort>::parse()
     //  - Look for other bytes in buffer, call parser recursively,
     //    until the message is assembled or the buffer is empty.
     // Else, add the extracted byte to the pending message, and check validity.
-    // When the message is done, store it.
+    // When the message is recomposed, notify the caller.
 
     const byte extracted = mSerial.read();
 
@@ -511,10 +511,10 @@ bool MidiInterface<SerialPort>::parse()
             // so the running status does not apply here.
             // It will be updated upon completion of this message.
 
-            if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
+            if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
             {
                 mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
+                mMessage.channel = (mPendingMessage[0] & 0x0F) + 1;
                 mMessage.data1 = mPendingMessage[1];
 
                 // Save data2 only if applicable
@@ -530,70 +530,56 @@ bool MidiInterface<SerialPort>::parse()
             }
         }
 
-        switch (getTypeFromStatusByte(mPendingMessage[0]))
+        mPendingMessageExpectedLenght = getMessageLength(mPendingMessage[0]);
+
+        if (mPendingMessageExpectedLenght == 1)
         {
-                // 1 byte messages
-            case Start:
-            case Continue:
-            case Stop:
-            case Clock:
-            case ActiveSensing:
-            case SystemReset:
-            case TuneRequest:
-                // Handle the message type directly here.
-                mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = 0;
-                mMessage.data1 = 0;
-                mMessage.data2 = 0;
-                mMessage.valid = true;
+            // RealTime and 1 byte messages -> send & handle rightaway
+            if (shouldMessageBeForwarded(mPendingMessage[0]))
+            {
+                mSerial.write(mPendingMessage[0]);
+            }
 
-                // \fix Running Status broken when receiving Clock messages.
-                // Do not reset all input attributes, Running Status must remain unchanged.
-                //resetInput();
+            mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
+            mMessage.channel = 0;
+            mMessage.data1 = 0;
+            mMessage.data2 = 0;
+            mMessage.valid = true;
 
-                // We still need to reset these
-                mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
+            // \fix Running Status broken when receiving Clock messages.
+            // Do not reset all input attributes, Running Status must remain unchanged.
+            //resetInput();
 
-                return true;
-                break;
+            // We still need to reset these
+            mPendingMessageIndex = 0;
+            mPendingMessageExpectedLenght = 0;
 
-                // 2 bytes messages
-            case ProgramChange:
-            case AfterTouchChannel:
-            case TimeCodeQuarterFrame:
-            case SongSelect:
-                mPendingMessageExpectedLenght = 2;
-                break;
+            return true;
+        }
+        else if (mPendingMessageExpectedLenght == 0xff)
+        {
+            // SysEx: The message can be any length
+            // between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
+            mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE;
+            mRunningStatus_RX = InvalidType;
+            mMessage.sysexArray[0] = SystemExclusive;
 
-                // 3 bytes messages
-            case NoteOn:
-            case NoteOff:
-            case ControlChange:
-            case PitchBend:
-            case AfterTouchPoly:
-            case SongPosition:
-                mPendingMessageExpectedLenght = 3;
-                break;
 
-            case SystemExclusive:
-                // The message can be any lenght
-                // between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
-                mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE;
-                mRunningStatus_RX = InvalidType;
-                mMessage.sysexArray[0] = SystemExclusive;
-                break;
-
-            case InvalidType:
-            default:
-                // This is obviously wrong. Let's get the hell out'a here.
-                resetInput();
-                return false;
-                break;
+        }
+        else if (mPendingMessageExpectedLenght == 0)
+        {
+            // Parse error
+            resetInput();
+            return false;
         }
 
         // Then update the index of the pending message.
         mPendingMessageIndex++;
+
+        if (shouldMessageBeForwarded(mPendingMessage[0]))
+        {
+            mSerial.write(mPendingMessage[0]);
+        }
 
 #if USE_1BYTE_PARSING
         // Message is not complete.
@@ -603,7 +589,6 @@ bool MidiInterface<SerialPort>::parse()
         // to parse the rest of the message.
         return parse();
 #endif
-
     }
     else
     {
@@ -612,70 +597,74 @@ bool MidiInterface<SerialPort>::parse()
         {
             // Reception of status bytes in the middle of an uncompleted message
             // are allowed only for interleaved Real Time message or EOX
-            switch (extracted)
+            if (isRealtimeMessage(extracted))
             {
-                case Clock:
-                case Start:
-                case Continue:
-                case Stop:
-                case ActiveSensing:
-                case SystemReset:
+                if (shouldMessageBeForwarded(extracted)
+                {
+                    mSerial.write(extracted);
+                }
 
-                    // Here we will have to extract the one-byte message,
-                    // pass it to the structure for being read outside
-                    // the MIDI class, and recompose the message it was
-                    // interleaved into. Oh, and without killing the running status..
-                    // This is done by leaving the pending message as is,
-                    // it will be completed on next calls.
+                // Here we will have to extract the one-byte message,
+                // pass it to the structure for being read outside
+                // the MIDI class, and recompose the message it was
+                // interleaved into. Oh, and without killing the running status..
+                // This is done by leaving the pending message as is,
+                // it will be completed on next calls.
 
-                    mMessage.type = (MidiType)extracted;
-                    mMessage.data1 = 0;
-                    mMessage.data2 = 0;
+                mMessage.type = (MidiType)extracted;
+                mMessage.data1 = 0;
+                mMessage.data2 = 0;
+                mMessage.channel = 0;
+                mMessage.valid = true;
+                return true;
+            }
+            else if (extracted == 0xF7)
+            {
+                if (mMessage.sysexArray[0] == SystemExclusive)
+                {
+                    if (shouldMessageBeForwarded(SystemExclusive)
+                    {
+                        mSerial.write(extracted);
+                    }
+
+                    // Store the last byte (EOX)
+                    mMessage.sysexArray[mPendingMessageIndex++] = 0xF7;
+
+                    mMessage.type = SystemExclusive;
+
+                    // Get length
+                    mMessage.data1 = mPendingMessageIndex & 0xFF;
+                    mMessage.data2 = mPendingMessageIndex >> 8;
                     mMessage.channel = 0;
                     mMessage.valid = true;
+
+                    resetInput();
                     return true;
-
-                    break;
-
-                    // End of Exclusive
-                case 0xF7:
-                    if (mMessage.sysexArray[0] == SystemExclusive)
-                    {
-                        // Store the last byte (EOX)
-                        mMessage.sysexArray[mPendingMessageIndex++] = 0xF7;
-
-                        mMessage.type = SystemExclusive;
-
-                        // Get length
-                        mMessage.data1 = mPendingMessageIndex & 0xFF;
-                        mMessage.data2 = mPendingMessageIndex >> 8;
-                        mMessage.channel = 0;
-                        mMessage.valid = true;
-
-                        resetInput();
-                        return true;
-                    }
-                    else
-                    {
-                        // Well well well.. error.
-                        resetInput();
-                        return false;
-                    }
-
-                    break;
-                default:
-                    break;
+                }
+            }
+            else
+            {
+                // Parse error: unexpected status byte
             }
         }
 
         // Add extracted data byte to pending message
         if (mPendingMessage[0] == SystemExclusive)
+        {
             mMessage.sysexArray[mPendingMessageIndex] = extracted;
+        }   
         else
+        {
             mPendingMessage[mPendingMessageIndex] = extracted;
+        }
+        
+        if (shouldMessageBeForwarded(mPendingMessage[0])
+        {
+            mSerial.write(extracted);
+        }
 
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
         {
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
@@ -689,7 +678,7 @@ bool MidiInterface<SerialPort>::parse()
             mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
 
             if (isChannelMessage(mMessage.type))
-                mMessage.channel = (mPendingMessage[0] & 0x0F)+1;
+                mMessage.channel = (mPendingMessage[0] & 0x0F) + 1;
             else
                 mMessage.channel = 0;
 
@@ -823,7 +812,7 @@ const byte* MidiInterface<SerialPort>::getSysExArray() const
     return mMessage.sysexArray;
 }
 
-/*! \brief Get the lenght of the System Exclusive array.
+/*! \brief Get the length of the System Exclusive array.
 
  It is coded using data1 as LSB and data2 as MSB.
  \return The array's length, in bytes.
@@ -868,7 +857,7 @@ void MidiInterface<SerialPort>::setInputChannel(Channel inChannel)
  made public so you can handle MidiTypes more easily.
  */
 template<class SerialPort>
-MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(byte inStatus)
+MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(StatusByte inStatus)
 {
     if ((inStatus  < 0x80) ||
         (inStatus == 0xF4) ||
@@ -877,6 +866,38 @@ MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(byte inStatus)
         (inStatus == 0xFD)) return InvalidType; // data bytes and undefined.
     if (inStatus < 0xF0) return (MidiType)(inStatus & 0xF0);    // Channel message, remove channel nibble.
     else return (MidiType)inStatus;
+}
+
+template<class SerialPort>
+byte MidiInterface<SerialPort>::getMessageLength(StatusByte inStatus)
+{
+    const MidiType type = getTypeFromStatusByte(inStatus);
+    if (isRealtimeMessage(type) || type == TuneRequest)
+    {
+        return 1;
+    }
+    else if (type == NoteOn          ||
+             type == NoteOff         ||
+             type == ControlChange   ||
+             type == PitchBend       ||
+             type == AfterTouchPoly  ||
+             type == SongPosition)
+    {
+        return 3;
+    }
+    else if (type == ProgramChange        ||
+             type == AfterTouchChannel    ||
+             type == TimeCodeQuarterFrame ||
+             type == SongSelect)
+    {
+        return 2;
+    }
+    else if (type == SystemExclusive)
+    {
+        return 0xff; // SysEx messages can have variable length
+    }
+
+    return 0; // Unknown message type
 }
 
 template<class SerialPort>
@@ -1088,7 +1109,7 @@ bool MidiInterface<SerialPort>::shouldMessageBeForwarded(StatusByte inStatus) co
     else
     {
         // Unknown message or junk
-        return false;
+        return hasThruFlag(ThruFilterFlags::junk);
     }
 }
 

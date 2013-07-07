@@ -61,27 +61,26 @@ enum MidiType
 
 // -----------------------------------------------------------------------------
 
-/*! Enumeration of Thru filter modes */
-enum MidiFilterMode
-{
-    Off                   = 0,  ///< Thru disabled (nothing passes through).
-    Full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
-    SameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
-    DifferentChannel      = 3,  ///< All the messages but the ones on the Input Channel will be sent back.
-};
-
+/*! Enumeration of Thru filter modes
+ @see setThruFilterMode
+*/
 struct ThruFilterFlags
 {
     enum
     {
-          off               = 0
+          off               = 0         ///< Thru disabled (nothing passes through).
         
-        , channelSame       = 1
-        , channelDifferent  = 2
+        , channelSame       = (1 << 0)  ///< Only the messages on the Input Channel will be sent back.
+        , channelDifferent  = (1 << 1)  ///< All the messages but the ones on the Input Channel will be sent back.
         , channel           = channelSame | channelDifferent
-        , system            = 4
-        , realtime          = 8
-        , all               = channel | system | realtime
+        , systemExclusive   = (1 << 2)
+        , systemCommon      = (1 << 3)
+        , systemRealtime    = (1 << 4)
+        , system            = systemExclusive | systemCommon | systemRealtime
+        , junk              = (1 << 7)  ///< Send mis-formated data back (unadvisable)
+
+        /// Fully enabled Thru (every incoming message is sent back).
+        , all               = channel | system
     };
 };
 
