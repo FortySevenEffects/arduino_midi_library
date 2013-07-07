@@ -68,7 +68,7 @@ public:
     inline void sendAfterTouch(DataByte inPressure,
                                Channel inChannel);
     
-    inline void sendSysEx(unsigned inLength, 
+    inline void sendSysEx(unsigned int inLength, 
                           const byte* inArray,
                           bool inArrayContainsBoundaries = false);    
     
@@ -76,7 +76,7 @@ public:
                                          DataByte inValuesNibble);
     inline void sendTimeCodeQuarterFrame(DataByte inData);
     
-    inline void sendSongPosition(unsigned inBeats);
+    inline void sendSongPosition(unsigned int inBeats);
     inline void sendSongSelect(DataByte inSongNumber);
     inline void sendTuneRequest();
     inline void sendRealTime(MidiType inType);
@@ -109,7 +109,7 @@ public:
     inline DataByte getData1() const;
     inline DataByte getData2() const;
     inline const byte* getSysExArray() const;
-    inline unsigned getSysExArrayLength() const;
+    inline unsigned int getSysExArrayLength() const;
     inline bool check() const;
     
 public:
@@ -117,12 +117,9 @@ public:
     inline void setInputChannel(Channel inChannel);
     
 public:
-    static inline MidiType getTypeFromStatusByte(StatusByte inStatus);
-    static inline byte getMessageLength(StatusByte inStatus);
+    static inline MidiType getTypeFromStatusByte(byte inStatus);
 	static inline bool isChannelMessage(MidiType inType);
-    static inline bool isSystemRealtimeMessage(MidiType inType);
-    static inline bool isSystemCommonMessage(MidiType inType);
-
+    
 private:
     bool inputFilter(Channel inChannel);
     bool parse();
@@ -133,8 +130,8 @@ private:
     Channel    mInputChannel;
     
     byte         mPendingMessage[3];             // SysEx are dumped into mMessage directly.
-    unsigned mPendingMessageExpectedLenght;
-    unsigned mPendingMessageIndex;           // Extended to unsigned for larger SysEx payloads.
+    unsigned int mPendingMessageExpectedLenght;
+    unsigned int mPendingMessageIndex;           // Extended to unsigned int for larger SysEx payloads.
     Message mMessage;
     
     
@@ -153,7 +150,7 @@ public:
     inline void setHandlePitchBend(void (*fptr)(byte channel, int bend));
     inline void setHandleSystemExclusive(void (*fptr)(byte * array, byte size));
     inline void setHandleTimeCodeQuarterFrame(void (*fptr)(byte data));
-    inline void setHandleSongPosition(void (*fptr)(unsigned beats));
+    inline void setHandleSongPosition(void (*fptr)(unsigned int beats));
     inline void setHandleSongSelect(void (*fptr)(byte songnumber));
     inline void setHandleTuneRequest(void (*fptr)(void));
     inline void setHandleClock(void (*fptr)(void));
@@ -178,7 +175,7 @@ private:
     void (*mPitchBendCallback)(byte channel, int);
     void (*mSystemExclusiveCallback)(byte * array, byte size);
     void (*mTimeCodeQuarterFrameCallback)(byte data);
-    void (*mSongPositionCallback)(unsigned beats);
+    void (*mSongPositionCallback)(unsigned int beats);
     void (*mSongSelectCallback)(byte songnumber);
     void (*mTuneRequestCallback)(void);
     void (*mClockCallback)(void);
@@ -199,19 +196,20 @@ private:
 #if MIDI_BUILD_THRU
     
 public:
-    inline void turnThruOn(ThruFlags inThruFlags = ThruFilterFlags::all);
+    inline MidiFilterMode getFilterMode() const;
+    inline bool getThruState() const;
+    
+    inline void turnThruOn(MidiFilterMode inThruFilterMode = Full);
     inline void turnThruOff();
-
-    inline void setThruFilterMode(ThruFlags inFlags);
-    inline ThruFlags getThruFilterMode() const;
-    inline bool isThruOn() const;
-    inline bool hasThruFlag(byte inFlag) const;
+    inline void setThruFilterMode(MidiFilterMode inThruFilterMode);
+    
     
 private:
-    inline bool shouldMessageBeForwarded(StatusByte inStatus) const;
-
+    void thruFilter(byte inChannel);
+    
 private:
-    ThruFlags   mThruFlags;
+    bool            mThruActivated  : 1;
+    MidiFilterMode  mThruFilterMode : 7;
     
 #endif // MIDI_BUILD_THRU
     
