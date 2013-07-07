@@ -120,8 +120,9 @@ public:
     static inline MidiType getTypeFromStatusByte(StatusByte inStatus);
     static inline byte getMessageLength(StatusByte inStatus);
 	static inline bool isChannelMessage(MidiType inType);
-    static inline bool isRealtimeMessage(MidiType inType);
-    
+    static inline bool isSystemRealtimeMessage(MidiType inType);
+    static inline bool isSystemCommonMessage(MidiType inType);
+
 private:
     bool inputFilter(Channel inChannel);
     bool parse();

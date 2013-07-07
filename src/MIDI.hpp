@@ -397,7 +397,7 @@ void MidiInterface<SerialPort>::sendSongSelect(DataByte inSongNumber)
 template<class SerialPort>
 void MidiInterface<SerialPort>::sendRealTime(MidiType inType)
 {
-    if (isRealtimeMessage(inType) || inType == TuneRequest)
+    if (isSystemRealtimeMessage(inType) || inType == TuneRequest)
     {
         mSerial.write((byte)inType);
     }
@@ -597,9 +597,9 @@ bool MidiInterface<SerialPort>::parse()
         {
             // Reception of status bytes in the middle of an uncompleted message
             // are allowed only for interleaved Real Time message or EOX
-            if (isRealtimeMessage(extracted))
+            if (isSystemRealtimeMessage(getTypeFromStatusByte(extracted)))
             {
-                if (shouldMessageBeForwarded(extracted)
+                if (shouldMessageBeForwarded(extracted))
                 {
                     mSerial.write(extracted);
                 }
@@ -622,7 +622,7 @@ bool MidiInterface<SerialPort>::parse()
             {
                 if (mMessage.sysexArray[0] == SystemExclusive)
                 {
-                    if (shouldMessageBeForwarded(SystemExclusive)
+                    if (shouldMessageBeForwarded(SystemExclusive))
                     {
                         mSerial.write(extracted);
                     }
@@ -658,7 +658,7 @@ bool MidiInterface<SerialPort>::parse()
             mPendingMessage[mPendingMessageIndex] = extracted;
         }
         
-        if (shouldMessageBeForwarded(mPendingMessage[0])
+        if (shouldMessageBeForwarded(mPendingMessage[0]))
         {
             mSerial.write(extracted);
         }
@@ -872,7 +872,7 @@ template<class SerialPort>
 byte MidiInterface<SerialPort>::getMessageLength(StatusByte inStatus)
 {
     const MidiType type = getTypeFromStatusByte(inStatus);
-    if (isRealtimeMessage(type) || type == TuneRequest)
+    if (isSystemRealtimeMessage(type) || type == TuneRequest)
     {
         return 1;
     }
@@ -913,7 +913,7 @@ bool MidiInterface<SerialPort>::isChannelMessage(MidiType inType)
 }
 
 template<class SerialPort>
-bool MidiInterface<SerialPort>::isRealtimeMessage(MidiType inType)
+bool MidiInterface<SerialPort>::isSystemRealtimeMessage(MidiType inType)
 {
     return  inType == Clock         ||
             inType == Start         ||
@@ -921,6 +921,15 @@ bool MidiInterface<SerialPort>::isRealtimeMessage(MidiType inType)
             inType == Continue      ||
             inType == ActiveSensing ||
             inType == SystemReset;
+}
+
+template<class SerialPort>
+bool MidiInterface<SerialPort>::isSystemCommonMessage(MidiType inType)
+{
+    return  inType == TimeCodeQuarterFrame  ||
+            inType == SongPosition          ||
+            inType == SongSelect            ||
+            inType == TuneRequest;
 }
 
 // -----------------------------------------------------------------------------
@@ -1090,134 +1099,31 @@ bool MidiInterface<SerialPort>::hasThruFlag(byte inFlag) const
 template<class SerialPort>
 bool MidiInterface<SerialPort>::shouldMessageBeForwarded(StatusByte inStatus) const
 {
-    if (isChannelMessage(inStatus))
+    const MidiType type = getTypeFromStatusByte(inStatus);
+    if (isChannelMessage(type))
     {
-        const Channel channel = getChannel(inStatus);
+        const Channel channel = (inStatus & 0x0F) + 1;
         const bool forwardSame = hasThruFlag(ThruFilterFlags::channelSame);
         const bool forwardDiff = hasThruFlag(ThruFilterFlags::channelDifferent);
         return (forwardSame && mInputChannel == channel) ||
                (forwardDiff && mInputChannel != channel);
     }
-    else if (isRealtimeMessage(inStatus))
+    else if (isSystemRealtimeMessage(type))
     {
-        return hasThruFlag(ThruFilterFlags::realtime);
+        return hasThruFlag(ThruFilterFlags::systemRealtime);
     }
-    else if (inStatus == SystemExclusive)
+    else if (isSystemCommonMessage(type))
     {
-        return hasThruFlag(ThruFilterFlags::system);
+        return hasThruFlag(ThruFilterFlags::systemCommon);
+    }
+    else if (type == SystemExclusive)
+    {
+        return hasThruFlag(ThruFilterFlags::systemExclusive);
     }
     else
     {
         // Unknown message or junk
         return hasThruFlag(ThruFilterFlags::junk);
-    }
-}
-
-// This method is called upon reception of a message
-// and takes care of Thru filtering and sending.
-template<class SerialPort>
-void MidiInterface<SerialPort>::thruFilter(Channel inChannel)
-{
-
-    /*
-     This method handles Soft-Thru filtering.
-
-     Soft-Thru filtering:
-     - All system messages (System Exclusive, Common and Real Time) are passed to output unless filter is set to Off
-     - Channel messages are passed to the output whether their channel is matching the input channel and the filter setting
-
-     */
-
-    // If the feature is disabled, don't do anything.
-    if (!mThruActivated || (mThruFilterMode == Off))
-        return;
-
-
-    // First, check if the received message is Channel
-    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
-    {
-        const bool filter_condition = ((mMessage.channel == mInputChannel) ||
-                                       (mInputChannel == MIDI_CHANNEL_OMNI));
-
-        // Now let's pass it to the output
-        switch (mThruFilterMode)
-        {
-            case Full:
-                send(mMessage.type,
-                     mMessage.data1,
-                     mMessage.data2,
-                     mMessage.channel);
-                return;
-                break;
-            case SameChannel:
-                if (filter_condition)
-                {
-                    send(mMessage.type,
-                         mMessage.data1,
-                         mMessage.data2,
-                         mMessage.channel);
-                    return;
-                }
-                break;
-            case DifferentChannel:
-                if (!filter_condition)
-                {
-                    send(mMessage.type,
-                         mMessage.data1,
-                         mMessage.data2,
-                         mMessage.channel);
-                    return;
-                }
-                break;
-            case Off:
-                // Do nothing.
-                // Technically it's impossible to get there because
-                // the case was already tested earlier.
-                break;
-            default:
-                break;
-        }
-    }
-    else
-    {
-        // Send the message to the output
-        switch (mMessage.type)
-        {
-                // Real Time and 1 byte
-            case Clock:
-            case Start:
-            case Stop:
-            case Continue:
-            case ActiveSensing:
-            case SystemReset:
-            case TuneRequest:
-                sendRealTime(mMessage.type);
-                return;
-                break;
-
-            case SystemExclusive:
-                // Send SysEx (0xF0 and 0xF7 are included in the buffer)
-                sendSysEx(mMessage.data1,mMessage.sysexArray,true);
-                return;
-                break;
-
-            case SongSelect:
-                sendSongSelect(mMessage.data1);
-                return;
-                break;
-
-            case SongPosition:
-                sendSongPosition(mMessage.data1 | ((unsigned)mMessage.data2<<7));
-                return;
-                break;
-
-            case TimeCodeQuarterFrame:
-                sendTimeCodeQuarterFrame(mMessage.data1,mMessage.data2);
-                return;
-                break;
-            default:
-                break;
-        }
     }
 }
 

@@ -80,7 +80,7 @@ struct ThruFilterFlags
         , junk              = (1 << 7)  ///< Send mis-formated data back (unadvisable)
 
         /// Fully enabled Thru (every incoming message is sent back).
-        , all               = channel | system
+        , all               = channel | systemExclusive | systemCommon | systemRealtime
     };
 };
 
