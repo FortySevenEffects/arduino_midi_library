@@ -1117,8 +1117,8 @@ void MidiInterface<SerialPort>::thruFilter(Channel inChannel)
                      mMessage.data1,
                      mMessage.data2,
                      mMessage.channel);
-                return;
                 break;
+
             case SameChannel:
                 if (filter_condition)
                 {
@@ -1126,9 +1126,9 @@ void MidiInterface<SerialPort>::thruFilter(Channel inChannel)
                          mMessage.data1,
                          mMessage.data2,
                          mMessage.channel);
-                    return;
                 }
                 break;
+
             case DifferentChannel:
                 if (!filter_condition)
                 {
@@ -1136,14 +1136,15 @@ void MidiInterface<SerialPort>::thruFilter(Channel inChannel)
                          mMessage.data1,
                          mMessage.data2,
                          mMessage.channel);
-                    return;
                 }
                 break;
+
             case Off:
                 // Do nothing.
                 // Technically it's impossible to get there because
                 // the case was already tested earlier.
                 break;
+
             default:
                 break;
         }
@@ -1162,28 +1163,23 @@ void MidiInterface<SerialPort>::thruFilter(Channel inChannel)
             case SystemReset:
             case TuneRequest:
                 sendRealTime(mMessage.type);
-                return;
                 break;
 
             case SystemExclusive:
                 // Send SysEx (0xF0 and 0xF7 are included in the buffer)
-                sendSysEx(mMessage.data1,mMessage.sysexArray,true);
-                return;
+                sendSysEx(getSysExArrayLength(), getSysExArray(), true);
                 break;
 
             case SongSelect:
                 sendSongSelect(mMessage.data1);
-                return;
                 break;
 
             case SongPosition:
                 sendSongPosition(mMessage.data1 | ((unsigned)mMessage.data2<<7));
-                return;
                 break;
 
             case TimeCodeQuarterFrame:
                 sendTimeCodeQuarterFrame(mMessage.data1,mMessage.data2);
-                return;
                 break;
             default:
                 break;
