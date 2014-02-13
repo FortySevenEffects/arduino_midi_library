@@ -1,21 +1,21 @@
 /*!
  \mainpage Arduino MIDI Library
- 
+
  See the documentation of the main class, MidiInterface, or browse the modules
- using the sidebar on the left.
+ and examples using the sidebar on the left.
  \n
- The documentation for the latests stable version is available here:
- http://arduinomidilib.sourceforge.net/a00001.html
+ The latest development version is available on GitHub:
+ https://github.com/FortySevenEffects/arduino_midi_library/tree/dev
  */
 
 // -----------------------------------------------------------------------------
 // Examples
 
 /*!
- \example MIDI_Basic_IO.ino 
+ \example MIDI_Basic_IO.ino
  This example shows how to perform simple input and output MIDI. \n
  \n
- When any message arrives to the Arduino, the LED is turned on, 
+ When any message arrives to the Arduino, the LED is turned on,
  then we send a Note On message, wait for a second, then send
  the Note Off and turn off the LED.
  \n
@@ -29,7 +29,7 @@
  */
 
 /*!
- \example MIDI_Callbacks.ino 
+ \example MIDI_Callbacks.ino
  This example shows how to use callbacks for easier MIDI input handling. \n
  */
 
@@ -45,8 +45,8 @@
  */
 /*! \defgroup input    MIDI Input
  */
-/*! \defgroup callbacks Callbacks 
- \ingroup input   
+/*! \defgroup callbacks Callbacks
+ \ingroup input
  */
 /*! \defgroup thru     MIDI Thru
  */
