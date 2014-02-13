@@ -13,9 +13,6 @@ SoftwareSerial softSerial(10, 11);
     MIDI_CREATE_INSTANCE(SoftwareSerial, softSerial,    midiSW);
 #endif
 
-// \todo Create instance for USB if available
-
-
 void setupMidi()
 {
     while (!softSerial.isListening())

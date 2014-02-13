@@ -8,23 +8,23 @@
 template<class SerialClass>
 class Tester
 {
-public: 
+public:
     typedef bool (*Functor) (MIDI_CLASS(SerialClass)&);
-    
+
 public:
     explicit Tester(MIDI_CLASS(SerialClass)& inInstance)
         : mMidiInstance(inInstance)
         , mProgress(0)
     {
     }
-    
+
     void setup()
     {
         mProgress = 0;
         mMidiInstance.begin(MIDI_CHANNEL_OMNI);
         mMidiInstance.turnThruOff();
     }
-    
+
 public:
     inline bool performTest(Functor inTestMethod)
     {
@@ -36,7 +36,7 @@ public:
         }
         return false;
     }
-    
+
     inline bool expect(bool inCondition) const
     {
         Serial.print(testNames[mProgress]);
@@ -53,7 +53,7 @@ public:
         }
         return inCondition;
     }
-    
+
     bool run()
     {
         bool result = true;
@@ -77,7 +77,7 @@ public:
         result &= performTest(testSystemReset);
         return result;
     }
-    
+
 private:
     MIDI_CLASS(SerialClass)& mMidiInstance;
     unsigned mProgress;
@@ -102,8 +102,8 @@ bool launchTests()
     Serial.println("Testing HW:");
     if (testerHW.run() == false)
         return false;
-    /*Serial.println("Testing SW:");
+    Serial.println("Testing SW:");
     if (testerSW.run() == false)
-        return false;*/
+        return false;
     return true;
 }
