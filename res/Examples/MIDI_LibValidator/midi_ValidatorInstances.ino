@@ -1,4 +1,4 @@
-
+#include <Arduino.h>
 #include "midi_ValidatorInstances.h"
 
 // -----------------------------------------------------------------------------

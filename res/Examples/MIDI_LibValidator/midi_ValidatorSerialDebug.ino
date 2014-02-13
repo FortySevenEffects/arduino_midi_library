@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "midi_ValidatorSerialDebug.h"
 
 void setupSerialDebug()

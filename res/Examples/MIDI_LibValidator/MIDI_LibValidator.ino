@@ -3,6 +3,7 @@
 #include <MIDI.h>
 #include <LiquidCrystal.h>
 
+#include <Arduino.h>
 #include "midi_ValidatorSerialDebug.h"
 #include "midi_ValidatorLCD.h"
 #include "midi_ValidatorLEDs.h"

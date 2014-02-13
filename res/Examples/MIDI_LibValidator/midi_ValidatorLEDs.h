@@ -32,7 +32,7 @@ inline void setLedsFinal(bool inSuccess)
     {
         digitalWrite(LED_PASS, HIGH);
         digitalWrite(LED_FAIL, LOW);
-    }   
+    }
     else
     {
         digitalWrite(LED_FAIL, HIGH);

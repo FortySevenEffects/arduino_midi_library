@@ -1,4 +1,4 @@
-
+#include <Arduino.h>
 #include "midi_ValidatorLCD.h"
 
 #define LCD_D4      8
@@ -10,7 +10,7 @@
 
 // -----------------------------------------------------------------------------
 
-byte progressChar[6][8] = 
+byte progressChar[6][8] =
 {
     { B00000, B00000, B00000, B00000, B00000, B00000, B00000, B00000 },
     { B10000, B10000, B10000, B10000, B10000, B10000, B10000, B10000 },
@@ -28,7 +28,7 @@ void setupLCD()
 {
     for (byte i = 0; i < 6; ++i)
         lcd.createChar(i, progressChar[i]);
-    
+
     lcd.begin(16,2);
 }
 
@@ -41,7 +41,7 @@ void setProgressBar(unsigned inProgress, unsigned inTotal)
     const unsigned progress = (inProgress * numCols* numPix) / inTotal;
     const byte cursorX = progress / numPix;
     const byte charIndex = progress % numPix;
-    
+
     lcd.setCursor(cursorX, 1);
     lcd.write(charIndex);
 }

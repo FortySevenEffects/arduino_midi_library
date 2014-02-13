@@ -1,4 +1,4 @@
-
+#include <Arduino.h>
 #include "midi_ValidatorTests.h"
 
 // -----------------------------------------------------------------------------
@@ -7,9 +7,9 @@ IMPLEMENT_MIDI_TEST(testNoteOn, inMidi)
 {
     inMidi.sendNoteOn(12, 42, 3);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::NoteOn && 
-                    inMidi.getData1() == 12 && 
+
+    bool result =   inMidi.getType()  == midi::NoteOn &&
+                    inMidi.getData1() == 12 &&
                     inMidi.getData2() == 42 &&
                     inMidi.getChannel() == 3;
     return result;
@@ -19,9 +19,9 @@ IMPLEMENT_MIDI_TEST(testNoteOff, inMidi)
 {
     inMidi.sendNoteOff(12, 42, 3);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::NoteOff && 
-                    inMidi.getData1() == 12 && 
+
+    bool result =   inMidi.getType()  == midi::NoteOff &&
+                    inMidi.getData1() == 12 &&
                     inMidi.getData2() == 42 &&
                     inMidi.getChannel() == 3;
     return result;
@@ -31,9 +31,9 @@ IMPLEMENT_MIDI_TEST(testControlChange, inMidi)
 {
     inMidi.sendControlChange(12, 42, 3);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::ControlChange && 
-                    inMidi.getData1() == 12 && 
+
+    bool result =   inMidi.getType()  == midi::ControlChange &&
+                    inMidi.getData1() == 12 &&
                     inMidi.getData2() == 42 &&
                     inMidi.getChannel() == 3;
     return result;
@@ -43,9 +43,9 @@ IMPLEMENT_MIDI_TEST(testProgramChange, inMidi)
 {
     inMidi.sendProgramChange(12, 3);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::ProgramChange && 
-                    inMidi.getData1() == 12 && 
+
+    bool result =   inMidi.getType()  == midi::ProgramChange &&
+                    inMidi.getData1() == 12 &&
                     inMidi.getData2() == 0 &&
                     inMidi.getChannel() == 3;
     return result;
@@ -55,9 +55,9 @@ IMPLEMENT_MIDI_TEST(testAftertouchMono, inMidi)
 {
     inMidi.sendAfterTouch(12, 3);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::AfterTouchChannel && 
-                    inMidi.getData1() == 12 && 
+
+    bool result =   inMidi.getType()  == midi::AfterTouchChannel &&
+                    inMidi.getData1() == 12 &&
                     inMidi.getData2() == 0 &&
                     inMidi.getChannel() == 3;
     return result;
@@ -67,9 +67,9 @@ IMPLEMENT_MIDI_TEST(testAftertouchPoly, inMidi)
 {
     inMidi.sendPolyPressure(12, 42, 3);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::AfterTouchPoly && 
-                    inMidi.getData1() == 12 && 
+
+    bool result =   inMidi.getType()  == midi::AfterTouchPoly &&
+                    inMidi.getData1() == 12 &&
                     inMidi.getData2() == 42 &&
                     inMidi.getChannel() == 3;
     return result;
@@ -90,8 +90,8 @@ IMPLEMENT_MIDI_TEST(testPitchBend, inMidi)
     pitchBendMemory = 0;
     inMidi.sendPitchBend((int)1234, 3);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::PitchBend && 
+
+    bool result =   inMidi.getType()  == midi::PitchBend &&
                     pitchBendMemory == 1234 &&
                     inMidi.getChannel() == 3;
     return result;
@@ -108,7 +108,7 @@ IMPLEMENT_MIDI_TEST(testSysEx, inMidi)
     };
 
     inMidi.sendSysEx(13, testData);
-    
+
     while (inMidi.read() == false) { }
 
     bool result =   inMidi.getSysExArrayLength() == 15 &&       // 13 + F0 + F7
@@ -170,7 +170,7 @@ IMPLEMENT_MIDI_TEST(testTimeCode, inMidi)
     inMidi.setHandleTimeCodeQuarterFrame(timeCodeCallback);
     inMidi.sendTimeCodeQuarterFrame(0x07, 0x0F);
     while (inMidi.read() == false) { }
-    bool result =   inMidi.getType()  == midi::TimeCodeQuarterFrame && 
+    bool result =   inMidi.getType()  == midi::TimeCodeQuarterFrame &&
                     timeCodeMemory == 0x7F &&
                     inMidi.getChannel() == 0;
     return result;
@@ -182,9 +182,9 @@ IMPLEMENT_MIDI_TEST(testSongSelect, inMidi)
 {
     inMidi.sendSongSelect(12);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::SongSelect && 
-                    inMidi.getData1() == 12 && 
+
+    bool result =   inMidi.getType()  == midi::SongSelect &&
+                    inMidi.getData1() == 12 &&
                     inMidi.getData2() == 0 &&
                     inMidi.getChannel() == 0;
     return result;
@@ -205,8 +205,8 @@ IMPLEMENT_MIDI_TEST(testSongPosition, inMidi)
     inMidi.setHandleSongPosition(songPositionCallback);
     inMidi.sendSongPosition(12345);
     while (inMidi.read() == false) { }
-    
-    bool result =   inMidi.getType()  == midi::SongPosition && 
+
+    bool result =   inMidi.getType()  == midi::SongPosition &&
                     songPositionMemory == 12345 &&
                     inMidi.getChannel() == 0;
     return result;
