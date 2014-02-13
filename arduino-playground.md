@@ -40,6 +40,7 @@ You are now ready to use the library. look at the reference page to learn how to
 !!Reference
 
 See the extended reference [[ http://arduinomidilib.fortyseveneffects.com | here ]].
+Mirror: [[ http://fortyseveneffects.github.io/arduino_midi_library/ | GitHub ]].
 
 To know how to use the callback feature, see the dedicated page [[ http://playground.arduino.cc/Main/MIDILibraryCallbacks | here]].
 
