@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['samechannel',['SameChannel',['../a00017.html#a71217491dd9526eadf7da27452a1ae4faad2a3e2910e3ceaaa71318bc8063ca75',1,'midi_Defs.h']]],
+  ['softpedal',['SoftPedal',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92acc6e7108b064e18c546811bdacfe5120',1,'midi_Defs.h']]],
+  ['songposition',['SongPosition',['../a00017.html#af8bb3cf501a6b530be54ef36864af943a996450aa045571374864c2dc9404e944',1,'midi_Defs.h']]],
+  ['songselect',['SongSelect',['../a00017.html#af8bb3cf501a6b530be54ef36864af943ad512934b4f2e896bee884c262f64acb1',1,'midi_Defs.h']]],
+  ['sostenuto',['Sostenuto',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92a321016241bb0d86bafa58c347f4aff39',1,'midi_Defs.h']]],
+  ['soundcontroller1',['SoundController1',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92aee3eac0e2225b195d55f22ad091108af',1,'midi_Defs.h']]],
+  ['soundcontroller10',['SoundController10',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92a7adf1560806fd9f49eaba2268956a9cb',1,'midi_Defs.h']]],
+  ['soundcontroller2',['SoundController2',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92acd98e6527a489d7788cb474f66c3d667',1,'midi_Defs.h']]],
+  ['soundcontroller3',['SoundController3',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92af301e310574a9a24c08ef4522811c085',1,'midi_Defs.h']]],
+  ['soundcontroller4',['SoundController4',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92a4acd77ca8f324462d5c250f25761675d',1,'midi_Defs.h']]],
+  ['soundcontroller5',['SoundController5',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92a20fb8df1c00cc2fb12eb21b764d60c4a',1,'midi_Defs.h']]],
+  ['soundcontroller6',['SoundController6',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92a8e7773b3f966446f14272fe002877fc1',1,'midi_Defs.h']]],
+  ['soundcontroller7',['SoundController7',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92aef761d1402b9ee0bd39f15601311e2de',1,'midi_Defs.h']]],
+  ['soundcontroller8',['SoundController8',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92ab4d93b8b46ad16b81ed3fa271845d10d',1,'midi_Defs.h']]],
+  ['soundcontroller9',['SoundController9',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92a620800aeb04b237efc027d62bcaf1a95',1,'midi_Defs.h']]],
+  ['start',['Start',['../a00017.html#af8bb3cf501a6b530be54ef36864af943abd5f9c956752ce4dc707b4624b3a36f7',1,'midi_Defs.h']]],
+  ['stop',['Stop',['../a00017.html#af8bb3cf501a6b530be54ef36864af943af98d707eb4ed173ccfdbaf4eaa87100d',1,'midi_Defs.h']]],
+  ['sustain',['Sustain',['../a00017.html#ade475dd0413662853b5a7cd8dbe8ed92ad11e47bcc1661b5ed2b6c5b5d8710c8e',1,'midi_Defs.h']]],
+  ['systemexclusive',['SystemExclusive',['../a00017.html#af8bb3cf501a6b530be54ef36864af943a76531e9669a6601f0c84b1702314e5e3',1,'midi_Defs.h']]],
+  ['systemreset',['SystemReset',['../a00017.html#af8bb3cf501a6b530be54ef36864af943a7256ac4658ec7af1eb4705b83266a603',1,'midi_Defs.h']]]
+];
