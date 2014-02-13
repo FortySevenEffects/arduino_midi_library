@@ -74,7 +74,7 @@ Take a look at [the MIDI.org schematic](http://www.midi.org/techspecs/electrispe
 
 
 ## Contact
-if you have any comment or support request to make, feel free to contact me at francois.best{at}fortyseveneffects[dot]com.
+if you have any comment or support request to make, feel free to contact me: francois.best@fortyseveneffects.com
 
-You can also get informations about bug fixes and updates on my twitter account: @fortysevenfx.
+You can also get informations about bug fixes and updates on my twitter account: [@fortysevenfx](http://twitter.com/fortysevenfx).
 
