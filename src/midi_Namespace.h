@@ -3,7 +3,7 @@
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Namespace declaration
  *  @version    4.0
- *  @author     Francois Best 
+ *  @author     Francois Best
  *  @date       24/02/11
  *  license     GPL Forty Seven Effects - 2011
  */

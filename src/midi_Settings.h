@@ -3,7 +3,7 @@
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Settings
  *  @version    4.0
- *  @author     Francois Best 
+ *  @author     Francois Best
  *  @date       24/02/11
  *  license     GPL Forty Seven Effects - 2011
  */
@@ -34,8 +34,6 @@
 // -----------------------------------------------------------------------------
 
 // Create a MIDI object automatically on the port defined with MIDI_SERIAL_PORT.
-// You can turn this off by adding #define MIDI_AUTO_INSTANCIATE 0 just before
-// including <MIDI.h> in your sketch.
 #ifndef MIDI_AUTO_INSTANCIATE
 #   ifdef ARDUINO
 #       define MIDI_AUTO_INSTANCIATE    1
@@ -72,7 +70,7 @@
 #define MIDI_USE_RUNNING_STATUS         1
 
 // Setting this to 1 will make MIDI.read parse only one byte of data for each
-// call when data is available. This can speed up your application if receiving 
+// call when data is available. This can speed up your application if receiving
 // a lot of traffic, but might induce MIDI Thru and treatment latency.
 #define MIDI_USE_1BYTE_PARSING          1
 

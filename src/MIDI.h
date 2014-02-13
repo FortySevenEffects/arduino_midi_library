@@ -93,7 +93,6 @@ private:
 
 #endif // MIDI_BUILD_OUTPUT
 
-
     // -------------------------------------------------------------------------
     // MIDI Input
 
@@ -126,14 +125,12 @@ private:
     void resetInput();
 
 private:
-    StatusByte mRunningStatus_RX;
-    Channel    mInputChannel;
-
-    byte         mPendingMessage[3];             // SysEx are dumped into mMessage directly.
-    unsigned mPendingMessageExpectedLenght;
-    unsigned mPendingMessageIndex;           // Extended to unsigned for larger SysEx payloads.
-    Message mMessage;
-
+    StatusByte  mRunningStatus_RX;
+    Channel     mInputChannel;
+    byte        mPendingMessage[3];
+    unsigned    mPendingMessageExpectedLenght;
+    unsigned    mPendingMessageIndex;
+    Message     mMessage;
 
     // -------------------------------------------------------------------------
     // Input Callbacks
@@ -163,7 +160,6 @@ public:
     inline void disconnectCallbackFromType(MidiType inType);
 
 private:
-
     void launchCallback();
 
     void (*mNoteOffCallback)(byte channel, byte note, byte velocity);
@@ -186,9 +182,7 @@ private:
     void (*mSystemResetCallback)(void);
 
 #endif // MIDI_USE_CALLBACKS
-
 #endif // MIDI_BUILD_INPUT
-
 
     // -------------------------------------------------------------------------
     // MIDI Soft Thru
@@ -215,11 +209,9 @@ private:
 
 
 #if MIDI_USE_RUNNING_STATUS
-
 private:
     StatusByte mRunningStatus_TX;
-
-#endif // MIDI_USE_RUNNING_STATUS
+#endif
 
 private:
     SerialPort& mSerial;
@@ -236,7 +228,7 @@ END_MIDI_NAMESPACE
 
 #if MIDI_AUTO_INSTANCIATE && defined(ARDUINO)
     extern MIDI_NAMESPACE::MidiInterface<MIDI_DEFAULT_SERIAL_CLASS> MIDI;
-#endif // MIDI_AUTO_INSTANCIATE
+#endif
 
 // -----------------------------------------------------------------------------
 

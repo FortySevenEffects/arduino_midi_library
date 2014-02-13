@@ -12,7 +12,7 @@
 
 BEGIN_MIDI_NAMESPACE
 
-/*! \brief Constructor for MidiInterface. */
+/// \brief Constructor for MidiInterface.
 template<class SerialPort>
 MidiInterface<SerialPort>::MidiInterface(SerialPort& inSerial)
     : mSerial(inSerial)
@@ -1092,9 +1092,9 @@ void MidiInterface<SerialPort>::turnThruOff()
 
 // This method is called upon reception of a message
 // and takes care of Thru filtering and sending.
-// - All system messages (System Exclusive, Common and Real Time) are passed 
+// - All system messages (System Exclusive, Common and Real Time) are passed
 //   to output unless filter is set to Off.
-// - Channel messages are passed to the output whether their channel 
+// - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
 template<class SerialPort>
 void MidiInterface<SerialPort>::thruFilter(Channel inChannel)

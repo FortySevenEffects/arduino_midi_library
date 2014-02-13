@@ -3,7 +3,7 @@
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Definitions
  *  @version    4.0
- *  @author     Francois Best 
+ *  @author     Francois Best
  *  @date       24/02/11
  *  license     GPL Forty Seven Effects - 2011
  */
@@ -36,7 +36,7 @@ typedef byte FilterMode;
 // -----------------------------------------------------------------------------
 
 /*! Enumeration of MIDI types */
-enum MidiType 
+enum MidiType
 {
     InvalidType           = 0x00,    ///< For notifying errors
     NoteOff               = 0x80,    ///< Note Off
@@ -62,7 +62,7 @@ enum MidiType
 // -----------------------------------------------------------------------------
 
 /*! Enumeration of Thru filter modes */
-enum MidiFilterMode 
+enum MidiFilterMode
 {
     Off                   = 0,  ///< Thru disabled (nothing passes through).
     Full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
@@ -73,7 +73,7 @@ enum MidiFilterMode
 // -----------------------------------------------------------------------------
 
 /*! \brief Enumeration of Control Change command numbers.
- See the detailed controllers numbers & description here: 
+ See the detailed controllers numbers & description here:
  http://www.somascape.org/midi/tech/spec.html#ctrlnums
  */
 enum MidiControlChangeNumber
@@ -99,7 +99,7 @@ enum MidiControlChangeNumber
     GeneralPurposeController2   = 17,
     GeneralPurposeController3   = 18,
     GeneralPurposeController4   = 19,
-    
+
     // Switches ----------------------------------------------------------------
     Sustain                     = 64,
     Portamento                  = 65,
@@ -107,7 +107,7 @@ enum MidiControlChangeNumber
     SoftPedal                   = 67,
     Legato                      = 68,
     Hold                        = 69,
-    
+
     // Low resolution continuous controllers -----------------------------------
     SoundController1            = 70,   ///< Synth: Sound Variation   FX: Exciter On/Off
     SoundController2            = 71,   ///< Synth: Harmonic Content  FX: Compressor On/Off
@@ -130,7 +130,7 @@ enum MidiControlChangeNumber
     Effects3                    = 93,   ///< Chorus send level
     Effects4                    = 94,   ///< Celeste depth
     Effects5                    = 95,   ///< Phaser depth
-    
+
     // Channel Mode messages ---------------------------------------------------
     AllSoundOff                 = 120,
     ResetAllControllers         = 121,
@@ -145,45 +145,45 @@ enum MidiControlChangeNumber
 
 // -----------------------------------------------------------------------------
 
-/*! The midimsg structure contains decoded data of a MIDI message 
+/*! The midimsg structure contains decoded data of a MIDI message
     read from the serial port with read()
  */
 struct Message
 {
-    
+
     /*! The MIDI channel on which the message was recieved.
-     \n Value goes from 1 to 16. 
+     \n Value goes from 1 to 16.
      */
-    Channel channel; 
-    
-    /*! The type of the message 
+    Channel channel;
+
+    /*! The type of the message
      (see the MidiType enum for types reference)
      */
     MidiType type;
-    
+
     /*! The first data byte.
      \n Value goes from 0 to 127.
      */
     DataByte data1;
-    
-    /*! The second data byte. 
+
+    /*! The second data byte.
      If the message is only 2 bytes long, this one is null.
      \n Value goes from 0 to 127.
      */
     DataByte data2;
-    
+
     /*! System Exclusive dedicated byte array.
-     \n Array length is stocked on 16 bits, 
+     \n Array length is stocked on 16 bits,
      in data1 (LSB) and data2 (MSB)
      */
     DataByte sysexArray[MIDI_SYSEX_ARRAY_SIZE];
-    
+
     /*! This boolean indicates if the message is valid or not.
-     There is no channel consideration here, 
+     There is no channel consideration here,
      validity means the message respects the MIDI norm.
      */
     bool valid;
-    
+
 };
 
 // -----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ struct Message
     midi::MidiInterface<Type> Name((Type&)SerialPort);
 
 /*! \brief Shortcut for MIDI Interface class with template argument.
- The class name for a MIDI object using the hardware UART would be 
+ The class name for a MIDI object using the hardware UART would be
  midi::MidiInterface<HardwareSerial>, when the macro is MIDI_CLASS(HardwareSerial).
  */
 #define MIDI_CLASS(Type)                                                        \
