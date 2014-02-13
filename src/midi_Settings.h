@@ -70,6 +70,10 @@
 // of the same type and channel.
 // Set to 0 if you have troubles controlling your hardware.
 #define MIDI_USE_RUNNING_STATUS         1
+
+// Setting this to 1 will make MIDI.read parse only one byte of data for each
+// call when data is available. This can speed up your application if receiving 
+// a lot of traffic, but might induce MIDI Thru and treatment latency.
 #define MIDI_USE_1BYTE_PARSING          1
 
 #define MIDI_BAUDRATE                   31250

@@ -1092,23 +1092,16 @@ void MidiInterface<SerialPort>::turnThruOff()
 
 // This method is called upon reception of a message
 // and takes care of Thru filtering and sending.
+// - All system messages (System Exclusive, Common and Real Time) are passed 
+//   to output unless filter is set to Off.
+// - Channel messages are passed to the output whether their channel 
+//   is matching the input channel and the filter setting
 template<class SerialPort>
 void MidiInterface<SerialPort>::thruFilter(Channel inChannel)
 {
-
-    /*
-     This method handles Soft-Thru filtering.
-
-     Soft-Thru filtering:
-     - All system messages (System Exclusive, Common and Real Time) are passed to output unless filter is set to Off
-     - Channel messages are passed to the output whether their channel is matching the input channel and the filter setting
-
-     */
-
     // If the feature is disabled, don't do anything.
     if (!mThruActivated || (mThruFilterMode == Off))
         return;
-
 
     // First, check if the received message is Channel
     if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
