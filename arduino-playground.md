@@ -2,8 +2,10 @@
 
 This library enables MIDI I/O communications on the Arduino serial ports. You can send and receive messages of all kinds (including System Exclusive, RealTime etc..). The purpose of this library is not to make a big synthetizer out of an Arduino board, the application remains yours. However, it will help you interfacing it with other MIDI devices.
 
+Download the latest version [[ https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.0/Arduino_MIDI_Library_v4.0.zip | here ]].
+
 You can now follow the developments on [[ http://github.com/FortySevenEffects/arduino_midi_library/ | GitHub]].
-Download the latest version [[ http://github.com/FortySevenEffects/arduino_midi_library/archive/master.zip | here ]].
+
 
 !!!!Features:
 * Compatible with all Arduino boards (and clones with an AVR processor)
@@ -16,25 +18,27 @@ Download the latest version [[ http://github.com/FortySevenEffects/arduino_midi_
 * Create more than one MIDI port for mergers/splitters applications.
 * Use any serial port, hardware or software.
 
-- Update (13/02/2014): Version 4.0 released. Moved to GitHub, added multiple instances & software serial support, and a few bug fixes.
-- Update (29/01/2012): Version 3.2 released. Release notes are [[ http://sourceforge.net/news/?group_id=265194 | here ]]
-- Update (06/05/2011): Version 3.1 released. Added [[ http://playground.arduino.cc/Main/MIDILibraryCallbacks | callback]] support.\\
-- Update (06/03/2011): Version 3.0 released. Project is now hosted on [[ http://sourceforge.net/projects/arduinomidilib/ | SourceForge]].\\
-- Update (14/12/2009): Version 2.5 released.\\
-- Update (28/07/2009): Version 2.0 released.\\
-- Update (28/03/2009): Simplified version of MIDI.begin, Fast mode is now on by default.\\
-- Update (08/03/2009): Thru method operationnal. Added some features to enable thru.
+
+!!!!Changelog:
+* 13/02/2014 : Version 4.0 released. Moved to GitHub, added multiple instances & software serial support, and a few bug fixes.
+* 29/01/2012 : Version 3.2 released. Release notes are [[ http://sourceforge.net/news/?group_id=265194 | here ]]
+* 06/05/2011 : Version 3.1 released. Added [[ http://playground.arduino.cc/Main/MIDILibraryCallbacks | callback]] support.
+* 06/03/2011 : Version 3.0 released. Project is now hosted on [[ http://sourceforge.net/projects/arduinomidilib/ | SourceForge]].
+* 14/12/2009 : Version 2.5 released.
+* 28/07/2009 : Version 2.0 released.
+* 28/03/2009 : Simplified version of MIDI.begin, Fast mode is now on by default.
+* 08/03/2009 : Thru method operationnal. Added some features to enable thru.
 
 !!!!Warning: this library requires Arduino 1.0 or more recent versions.
 
 
 !!!What do I need to do?
 
-* Download the library
+* Download the library ([[ https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.0/Arduino_MIDI_Library_v4.0.zip | link ]])
 * Follow the installation instructions there: http://arduino.cc/en/Guide/Libraries
 * Include the library in your sketch using the menu in the IDE, or type [@#include <MIDI.h>@]
 
-You are now ready to use the library. look at the reference page to learn how to use it, or the examples given. Just don't forget to enable the I/O communications with MIDI.begin...
+You are now ready to use the library. Look at the reference page to learn how to use it, or the examples given. Just don't forget to enable the I/O communications with MIDI.begin...
 
 
 !!Reference
