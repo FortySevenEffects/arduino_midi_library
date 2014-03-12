@@ -69,6 +69,11 @@
 // Set to 0 if you have troubles controlling your hardware.
 #define MIDI_USE_RUNNING_STATUS         1
 
+// NoteOn with 0 velocity should be handled as NoteOf.
+// Set to 1 to get NoteOff events when receiving null-velocity NoteOn messages.
+// Set to 0 to get NoteOn  events when receiving null-velocity NoteOn messages.
+#define MIDI_HANDLE_NULL_VELOCITY_NOTE_ON_AS_NOTE_OFF 1
+
 // Setting this to 1 will make MIDI.read parse only one byte of data for each
 // call when data is available. This can speed up your application if receiving
 // a lot of traffic, but might induce MIDI Thru and treatment latency.

@@ -99,8 +99,8 @@ private:
 #if MIDI_BUILD_INPUT
 
 public:
-    bool read();
-    bool read(Channel inChannel);
+    inline bool read();
+    inline bool read(Channel inChannel);
 
 public:
     inline MidiType getType() const;
@@ -120,9 +120,10 @@ public:
 	static inline bool isChannelMessage(MidiType inType);
 
 private:
-    bool inputFilter(Channel inChannel);
     bool parse();
-    void resetInput();
+    inline void handleNullVelocityNoteOnAsNoteOff();
+    inline bool inputFilter(Channel inChannel);
+    inline void resetInput();
 
 private:
     StatusByte  mRunningStatus_RX;
