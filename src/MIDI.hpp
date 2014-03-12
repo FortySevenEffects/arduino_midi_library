@@ -457,7 +457,7 @@ StatusByte MidiInterface<SerialPort>::getStatus(MidiType inType,
  @see see setInputChannel()
  */
 template<class SerialPort>
-bool MidiInterface<SerialPort>::read()
+inline bool MidiInterface<SerialPort>::read()
 {
     return read(mInputChannel);
 }
@@ -465,13 +465,14 @@ bool MidiInterface<SerialPort>::read()
 /*! \brief Read messages on a specified channel.
  */
 template<class SerialPort>
-bool MidiInterface<SerialPort>::read(Channel inChannel)
+inline bool MidiInterface<SerialPort>::read(Channel inChannel)
 {
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
 
     if (parse())
     {
+        handleNullVelocityNoteOnAsNoteOff();
         if (inputFilter(inChannel))
         {
 
@@ -770,9 +771,20 @@ bool MidiInterface<SerialPort>::parse()
     return false;
 }
 
+// Private method, see midi_Settings.h for documentation
+inline void MidiInterface<SerialPort>::handleNullVelocityNoteOnAsNoteOff()
+{
+    #if MIDI_HANDLE_NULL_VELOCITY_NOTE_ON_AS_NOTE_OFF
+    if (getType() == NoteOn && getData2() == 0)
+    {
+        mMessage.type = NoteOff;
+    }
+    #endif
+}
+
 // Private method: check if the received message is on the listened channel
 template<class SerialPort>
-bool MidiInterface<SerialPort>::inputFilter(Channel inChannel)
+inline bool MidiInterface<SerialPort>::inputFilter(Channel inChannel)
 {
     // This method handles recognition of channel
     // (to know if the message is destinated to the Arduino)
@@ -804,7 +816,7 @@ bool MidiInterface<SerialPort>::inputFilter(Channel inChannel)
 
 // Private method: reset input attributes
 template<class SerialPort>
-void MidiInterface<SerialPort>::resetInput()
+inline void MidiInterface<SerialPort>::resetInput()
 {
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
