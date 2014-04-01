@@ -130,6 +130,7 @@ public:
 
 public:
     static inline MidiType getTypeFromStatusByte(byte inStatus);
+    static inline Channel getChannelFromStatusByte(byte inStatus);
 	static inline bool isChannelMessage(MidiType inType);
 
 private:

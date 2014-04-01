@@ -550,9 +550,9 @@ bool MidiInterface<SerialPort>::parse()
 
             if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
             {
-                mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = (mPendingMessage[0] & 0x0f) + 1;
-                mMessage.data1 = mPendingMessage[1];
+                mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
+                mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
+                mMessage.data1   = mPendingMessage[1];
 
                 // Save data2 only if applicable
                 if (mPendingMessageExpectedLenght == 3)
@@ -725,7 +725,7 @@ bool MidiInterface<SerialPort>::parse()
             mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
 
             if (isChannelMessage(mMessage.type))
-                mMessage.channel = (mPendingMessage[0] & 0x0f) + 1;
+                mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             else
                 mMessage.channel = 0;
 
@@ -946,6 +946,14 @@ MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(byte inStatus)
     }
 
     return (MidiType)inStatus;
+}
+
+/*! \brief Returns channel in the range 1-16
+ */
+template<class SerialPort>
+inline Channel MidiInterface<SerialPort>::getChannelFromStatusByte(byte inStatus)
+{
+    return (inStatus & 0x0f) + 1;
 }
 
 template<class SerialPort>
