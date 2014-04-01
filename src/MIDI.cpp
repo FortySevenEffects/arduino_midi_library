@@ -57,6 +57,7 @@ BEGIN_MIDI_NAMESPACE
  \param inLength The lenght of the input buffer.
  \return The lenght of the encoded output buffer.
  @see decodeSysEx
+ Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */
 unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
 {
@@ -93,6 +94,7 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
  \param inLength The lenght of the input buffer.
  \return The lenght of the output buffer.
  @see encodeSysEx @see getSysExArrayLength
+ Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */
 unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
 {

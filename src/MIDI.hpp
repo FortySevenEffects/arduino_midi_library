@@ -711,7 +711,7 @@ bool MidiInterface<SerialPort>::parse()
             mPendingMessage[mPendingMessageIndex] = extracted;
 
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
         {
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
