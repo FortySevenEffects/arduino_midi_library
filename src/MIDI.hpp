@@ -772,6 +772,7 @@ bool MidiInterface<SerialPort>::parse()
 }
 
 // Private method, see midi_Settings.h for documentation
+template<class SerialPort>
 inline void MidiInterface<SerialPort>::handleNullVelocityNoteOnAsNoteOff()
 {
     #if MIDI_HANDLE_NULL_VELOCITY_NOTE_ON_AS_NOTE_OFF
