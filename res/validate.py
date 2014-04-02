@@ -15,6 +15,13 @@ srcDir  = os.path.join(rootDir, 'src')
 
 # ------------------------------------------------------------------------------
 
+class Dict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dict__ = self
+
+# ------------------------------------------------------------------------------
+
 class Arduino:
     if sys.platform == 'darwin':
         binary  = '/Applications/Arduino.app/Contents/MacOS/JavaApplicationStub'
@@ -31,11 +38,28 @@ class Arduino:
 
     libraryDir = os.path.join(home, 'libraries')
 
-    boards = {
-        'Uno':          'arduino:avr:uno',
-        'Leonardo':     'arduino:avr:leonardo',
-        'Mega':         'arduino:avr:mega',
-    }
+    boards = [
+        Dict({
+            'name':   'Uno',
+            'id':     'arduino:avr:uno',
+            'port':   None,
+        }),
+        Dict({
+            'name':   'Leonardo',
+            'id':     'arduino:avr:leonardo',
+            'port':   None,
+        }),
+        Dict({
+            'name':   'Mega',
+            'id':     'arduino:avr:mega',
+            'port':   None,
+        }),
+        Dict({
+            'name':   'Due',
+            'id':     'arduino:sam:due',
+            'port':   None,
+        }),
+    ]
 
     def checkReturnCode(code):
         if code == 0:
@@ -48,11 +72,11 @@ class Arduino:
             print('Invalid argument')
         return False
 
-    def verify(sketch, board):
+    def verify(sketch, boardId):
         return  Arduino.checkReturnCode(subprocess.call([
                 Arduino.binary,
                 '--verify', sketch,
-                '--board',  board,
+                '--board',  boardId,
                 #'--verbose-build',
             ], stdout = open(os.devnull, 'wb')))
 
@@ -97,11 +121,11 @@ class ArduinoMidiLibrary:
         return [os.path.join(exDir, x, x + '.ino') for x in os.listdir(exDir)]
 
     def validate(self):
-        for boardName, boardId in Arduino.boards.items():
+        for board in Arduino.boards:
             # Validate examples
-            print('Validation for Arduino %s' % boardName)
+            print('Validation for Arduino %s' % board.name)
             for example in self.getInstalledExamples():
-                if not Arduino.verify(example, boardId):
+                if not Arduino.verify(example, board.id):
                     print('{0:40} {1}'.format(os.path.basename(example), 'FAILED'))
                     return False
                 else:
