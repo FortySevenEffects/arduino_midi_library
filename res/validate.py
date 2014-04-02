@@ -41,11 +41,11 @@ class Arduino:
         if code == 0:
             return True
         if code == 1:
-            print("Operation failed.")
+            print('Operation failed.')
         if code == 2:
-            print("File not found")
+            print('File not found')
         if code == 3:
-            print("Invalid argument")
+            print('Invalid argument')
         return False
 
     def verify(sketch, board):
@@ -54,7 +54,7 @@ class Arduino:
                 '--verify', sketch,
                 '--board',  board,
                 #'--verbose-build',
-            ]))
+            ], stdout = open(os.devnull, 'wb')))
 
 # ------------------------------------------------------------------------------
 
@@ -101,14 +101,22 @@ class ArduinoMidiLibrary:
             # Validate examples
             print('Validation for Arduino %s' % boardName)
             for example in self.getInstalledExamples():
-                Arduino.verify(example, boardId)
+                if not Arduino.verify(example, boardId):
+                    print('{0:40} {1}'.format(os.path.basename(example), 'FAILED'))
+                    return False
+                else:
+                    print('{0:40} {1}'.format(os.path.basename(example), 'PASSED'))
+        return True
 
 # ------------------------------------------------------------------------------
 
 def main():
     lib = ArduinoMidiLibrary()
     lib.install()
-    lib.validate()
+    if lib.validate():
+        print('Validation passed')
+    else:
+        print('Validation failed')
 
 # ------------------------------------------------------------------------------
 
