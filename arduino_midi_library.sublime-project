@@ -4,5 +4,13 @@
 		{
 			"path": "."
 		}
-	]
+	],
+    "build_systems":
+    [
+        {
+            "name": "Arduino MIDI Library Validator",
+            "cmd": ["python3", "${project_path}/res/validate.py"],
+            "path": "/usr/local/bin:/usr/bin:/bin"
+        }
+    ]
 }
