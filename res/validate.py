@@ -118,7 +118,7 @@ class ArduinoMidiLibrary:
 
     def getInstalledExamples(self):
         exDir = os.path.join(self.path, 'examples')
-        return [os.path.join(exDir, x, x + '.ino') for x in os.listdir(exDir)]
+        return [os.path.join(exDir, x, x + '.ino') for x in next(os.walk(exDir))[1]]
 
     def validate(self):
         for board in Arduino.boards:
