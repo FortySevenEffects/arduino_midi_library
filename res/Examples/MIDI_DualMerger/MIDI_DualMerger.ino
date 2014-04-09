@@ -1,4 +1,3 @@
-#include <SoftwareSerial.h>
 #include <MIDI.h>
 
 // This example shows how to create two instances of the library to create a merger.
@@ -7,10 +6,15 @@
 // A out = A in + B in
 // B out = B in + A in
 
-SoftwareSerial softSerial(2,3);
-
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial,     midiA); 
-MIDI_CREATE_INSTANCE(SoftwareSerial, softSerial, midiB);
+#ifdef ARDUINO_SAM_DUE
+    MIDI_CREATE_INSTANCE(HardwareSerial, Serial,     midiA);
+    MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
+#else
+    #include <SoftwareSerial.h>
+    SoftwareSerial softSerial(2,3);
+    MIDI_CREATE_INSTANCE(HardwareSerial, Serial,     midiA);
+    MIDI_CREATE_INSTANCE(SoftwareSerial, softSerial, midiB);
+#endif
 
 void setup()
 {
@@ -30,7 +34,7 @@ void loop()
                    midiA.getData2(),
                    midiA.getChannel());
     }
-    
+
     if (midiB.read())
     {
         // Thru on B has already pushed the input message to out B.
