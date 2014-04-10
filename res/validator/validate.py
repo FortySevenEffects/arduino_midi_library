@@ -4,7 +4,9 @@ import sys
 import os
 import shutil
 import subprocess
-from pprint import pprint
+from pprint     import pprint
+from midi       import *
+from tester     import *
 
 # ------------------------------------------------------------------------------
 
@@ -136,12 +138,20 @@ class ArduinoMidiLibrary:
 # ------------------------------------------------------------------------------
 
 def main():
-    lib = ArduinoMidiLibrary()
-    lib.install()
-    if lib.validate():
-        print('Validation passed')
-    else:
-        print('Validation failed')
+    midiInterface = MidiInterface()
+    tester  = Tester(midiInterface)
+    midiInterface.listenerCallback = tester.handleMidiInput
+
+    tester.checkThru([Midi.NoteOn, 64, 80])
+
+    #lib = ArduinoMidiLibrary()
+    #lib.install()
+    #if lib.validate():
+    #    print('Validation passed')
+    #else:
+    #    print('Validation failed')
+
+
 
 # ------------------------------------------------------------------------------
 
