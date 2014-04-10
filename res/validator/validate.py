@@ -8,7 +8,7 @@ from pprint import pprint
 
 # ------------------------------------------------------------------------------
 
-rootDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+rootDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
 logsDir = os.path.join(rootDir, 'logs')
 resDir  = os.path.join(rootDir, 'res')
 srcDir  = os.path.join(rootDir, 'src')
@@ -77,8 +77,9 @@ class Arduino:
                 Arduino.binary,
                 '--verify', sketch,
                 '--board',  boardId,
-                #'--verbose-build',
-            ], stdout = open(os.devnull, 'wb')))
+                '--verbose-build',
+            ]))
+            #], stdout = open(os.devnull, 'wb')))
 
 # ------------------------------------------------------------------------------
 
