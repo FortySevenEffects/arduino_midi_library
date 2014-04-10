@@ -44,58 +44,71 @@ class Midi:
 
 class MidiInterface:
     def __init__(self, listenerCallback = None):
-        self.interface          = rtmidi.MidiIn()
+        self.input              = rtmidi.MidiIn()
+        self.output             = rtmidi.MidiOut()
         self.listenerCallback   = listenerCallback
         self.ports              = self.getAvailablePorts()
-        self.port               = self.connect(self.choosePort())
+        self.port               = self.connect(self.choosePorts())
 
     # --------------------------------------------------------------------------
 
-    def read(self):
-        pass
-
     def handleMidiInput(self, message, timestamp):
         midiData = message[0]
-        print(midiData)
         if self.listenerCallback:
             self.listenerCallback(midiData)
+
+    def send(self, message):
+        print('Sending', message)
+        self.output.send_message(message)
 
     # --------------------------------------------------------------------------
 
     def getAvailablePorts(self):
-        return self.interface.get_ports()
+        return {
+            'input' : self.input.get_ports(),
+            'output': self.output.get_ports(),
+        }
 
-    def choosePort(self):
-        if not self.ports:
+    def choosePorts(self):
+        return {
+            'input' : self.choosePort(self.ports['input'],  'input'),
+            'output': self.choosePort(self.ports['output'], 'output')
+        }
+
+    def choosePort(self, ports, direction):
+        if not ports:
             print('No MIDI ports available, bailing out.')
             return None
 
-        if len(self.ports) == 1:
-            return (0, self.ports[0])
+        if len(ports) == 1:
+            return {
+                'id':   0,
+                'name': ports[0]
+            }
 
         else:
             # Give a choice
-            print('Multiple ports available, please make a choice:')
-            choices = []
-            for port, i in zip(self.ports, range(0, len(self.ports))):
-                choices.append((i, port))
+            print('Multiple %s ports available, please make a choice:' % direction)
+            choices = dict()
+            for port, i in zip(ports, range(0, len(ports))):
+                choices[i] = port
                 print('  [%d]' % i, port)
             choiceIndex = int(input('-> '))
-            return choices[choiceIndex]
+            return {
+                'id': choiceIndex,
+                'name': choices[choiceIndex]
+            }
 
     # --------------------------------------------------------------------------
 
-    def connect(self, port):
-        if not port:
+    def connect(self, ports):
+        if not ports:
             return None
-        print(port)
-        print('Connecting to %s' % port[1])
-        self.interface.set_callback(self.handleMidiInput)
-        self.interface.open_port(port[0])
-        return port
 
+        print('Connecting input to %s'  % ports['input']['name'])
+        print('Connecting output to %s' % ports['output']['name'])
 
-midi = MidiInterface()
-
-while True:
-    midi.read()
+        self.input.set_callback(self.handleMidiInput)
+        self.input.open_port(ports['input']['id'])
+        self.output.open_port(ports['output']['id'])
+        return ports
