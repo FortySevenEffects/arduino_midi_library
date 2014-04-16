@@ -2,10 +2,23 @@
  *  @file       midi_Settings.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Settings
- *  @version    4.0
+ *  @version    4.1
  *  @author     Francois Best
  *  @date       24/02/11
- *  license     GPL Forty Seven Effects - 2011
+ *  @license    GPL v3.0 - Copyright Forty Seven Effects 2014
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -48,13 +61,13 @@
 // Set the default port to use for MIDI.
 #if MIDI_AUTO_INSTANCIATE
 #   ifdef ARDUINO
+#       include "Arduino.h"
 #       ifdef USBCON
 #           define MIDI_DEFAULT_SERIAL_PORT     Serial1 // For Leonardo
 #       else
 #           define MIDI_DEFAULT_SERIAL_PORT     Serial  // For other Arduinos
 #       endif
 #       define MIDI_DEFAULT_SERIAL_CLASS        HardwareSerial
-#       include "Arduino.h"
 #       include "HardwareSerial.h"
 #   else
 #       error Auto-instanciation disabled. Use MIDI_CREATE_INSTANCE macro.

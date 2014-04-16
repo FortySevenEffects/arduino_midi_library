@@ -2,10 +2,23 @@
  *  @file       midi_Inline.hpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Inline implementations
- *  @version    4.0
+ *  @version    4.1
  *  @author     Francois Best
  *  @date       24/02/11
- *  license     GPL Forty Seven Effects - 2011
+ *  @license    GPL v3.0 - Copyright Forty Seven Effects 2014
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -496,9 +509,7 @@ inline bool MidiInterface<SerialPort>::read(Channel inChannel)
 template<class SerialPort>
 bool MidiInterface<SerialPort>::parse()
 {
-    const byte bytes_available = mSerial.available();
-
-    if (bytes_available == 0)
+    if (mSerial.available() == 0)
         // No data available.
         return false;
 
@@ -534,29 +545,11 @@ bool MidiInterface<SerialPort>::parse()
             // Else: well, we received another status byte,
             // so the running status does not apply here.
             // It will be updated upon completion of this message.
-
-            if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
-            {
-                mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = (mPendingMessage[0] & 0x0f) + 1;
-                mMessage.data1 = mPendingMessage[1];
-
-                // Save data2 only if applicable
-                if (mPendingMessageExpectedLenght == 3)
-                    mMessage.data2 = mPendingMessage[2];
-                else
-                    mMessage.data2 = 0;
-
-                mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
-                mMessage.valid = true;
-                return true;
-            }
         }
 
         switch (getTypeFromStatusByte(mPendingMessage[0]))
         {
-                // 1 byte messages
+            // 1 byte messages
             case Start:
             case Continue:
             case Stop:
@@ -616,17 +609,38 @@ bool MidiInterface<SerialPort>::parse()
                 break;
         }
 
-        // Then update the index of the pending message.
-        mPendingMessageIndex++;
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        {
+            // Reception complete
+            mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
+            mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
+            mMessage.data1   = mPendingMessage[1];
 
-#if USE_1BYTE_PARSING
+            // Save data2 only if applicable
+            if (mPendingMessageExpectedLenght == 3)
+                mMessage.data2 = mPendingMessage[2];
+            else
+                mMessage.data2 = 0;
+
+            mPendingMessageIndex = 0;
+            mPendingMessageExpectedLenght = 0;
+            mMessage.valid = true;
+            return true;
+        }
+        else
+        {
+            // Waiting for more data
+            mPendingMessageIndex++;
+        }
+
+        #if USE_1BYTE_PARSING
         // Message is not complete.
         return false;
-#else
+        #else
         // Call the parser recursively
         // to parse the rest of the message.
         return parse();
-#endif
+        #endif
 
     }
     else
@@ -698,7 +712,7 @@ bool MidiInterface<SerialPort>::parse()
             mPendingMessage[mPendingMessageIndex] = extracted;
 
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght-1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
         {
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
@@ -712,7 +726,7 @@ bool MidiInterface<SerialPort>::parse()
             mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
 
             if (isChannelMessage(mMessage.type))
-                mMessage.channel = (mPendingMessage[0] & 0x0f) + 1;
+                mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             else
                 mMessage.channel = 0;
 
@@ -766,9 +780,6 @@ bool MidiInterface<SerialPort>::parse()
 #endif
         }
     }
-
-    // What are our chances to fall here?
-    return false;
 }
 
 // Private method, see midi_Settings.h for documentation
@@ -934,6 +945,14 @@ MidiType MidiInterface<SerialPort>::getTypeFromStatusByte(byte inStatus)
     }
 
     return (MidiType)inStatus;
+}
+
+/*! \brief Returns channel in the range 1-16
+ */
+template<class SerialPort>
+inline Channel MidiInterface<SerialPort>::getChannelFromStatusByte(byte inStatus)
+{
+    return (inStatus & 0x0f) + 1;
 }
 
 template<class SerialPort>

@@ -2,10 +2,23 @@
  *  @file       MIDI.cpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino
- *  @version    4.0
+ *  @version    4.1
  *  @author     Francois Best
  *  @date       24/02/11
- *  license     GPL Forty Seven Effects - 2011
+ *  @license    GPL v3.0 - Copyright Forty Seven Effects 2014
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MIDI.h"
@@ -44,6 +57,7 @@ BEGIN_MIDI_NAMESPACE
  \param inLength The lenght of the input buffer.
  \return The lenght of the encoded output buffer.
  @see decodeSysEx
+ Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */
 unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
 {
@@ -80,6 +94,7 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
  \param inLength The lenght of the input buffer.
  \return The lenght of the output buffer.
  @see encodeSysEx @see getSysExArrayLength
+ Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */
 unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
 {

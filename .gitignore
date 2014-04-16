@@ -1,2 +1,4 @@
 *.sublime-workspace
 *.pyc
+logs/
+build/
