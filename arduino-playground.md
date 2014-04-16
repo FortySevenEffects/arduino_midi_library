@@ -1,8 +1,8 @@
-!!MIDI Library v4.0
+!!MIDI Library v4.1
 
 This library enables MIDI I/O communications on the Arduino serial ports. You can send and receive messages of all kinds (including System Exclusive, RealTime etc..). The purpose of this library is not to make a big synthetizer out of an Arduino board, the application remains yours. However, it will help you interfacing it with other MIDI devices.
 
-Download the latest version [[ https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.0/Arduino_MIDI_Library_v4.0.zip | here ]].
+Download the latest version [[ https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.1/Arduino_MIDI_Library_v4.1.zip | here ]].
 
 You can now follow the developments on [[ http://github.com/FortySevenEffects/arduino_midi_library/ | GitHub]].
 
@@ -20,6 +20,7 @@ You can now follow the developments on [[ http://github.com/FortySevenEffects/ar
 
 
 !!!!Changelog:
+* 16/04/2014 : Version 4.1 released. Bug fixes regarding running status.
 * 13/02/2014 : Version 4.0 released. Moved to GitHub, added multiple instances & software serial support, and a few bug fixes.
 * 29/01/2012 : Version 3.2 released. Release notes are [[ http://sourceforge.net/news/?group_id=265194 | here ]]
 * 06/05/2011 : Version 3.1 released. Added [[ http://playground.arduino.cc/Main/MIDILibraryCallbacks | callback]] support.
@@ -34,7 +35,7 @@ You can now follow the developments on [[ http://github.com/FortySevenEffects/ar
 
 !!!What do I need to do?
 
-* Download the library ([[ https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.0/Arduino_MIDI_Library_v4.0.zip | link ]])
+* Download the library ([[ https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.1/Arduino_MIDI_Library_v4.1.zip | link ]])
 * Follow the installation instructions there: http://arduino.cc/en/Guide/Libraries
 * Include the library in your sketch using the menu in the IDE, or type [@#include <MIDI.h>@]
 
