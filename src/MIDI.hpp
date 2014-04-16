@@ -547,29 +547,11 @@ bool MidiInterface<SerialPort>::parse()
             // Else: well, we received another status byte,
             // so the running status does not apply here.
             // It will be updated upon completion of this message.
-
-            if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
-            {
-                mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
-                mMessage.data1   = mPendingMessage[1];
-
-                // Save data2 only if applicable
-                if (mPendingMessageExpectedLenght == 3)
-                    mMessage.data2 = mPendingMessage[2];
-                else
-                    mMessage.data2 = 0;
-
-                mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
-                mMessage.valid = true;
-                return true;
-            }
         }
 
         switch (getTypeFromStatusByte(mPendingMessage[0]))
         {
-                // 1 byte messages
+            // 1 byte messages
             case Start:
             case Continue:
             case Stop:
@@ -629,17 +611,38 @@ bool MidiInterface<SerialPort>::parse()
                 break;
         }
 
-        // Then update the index of the pending message.
-        mPendingMessageIndex++;
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        {
+            // Reception complete
+            mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
+            mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
+            mMessage.data1   = mPendingMessage[1];
 
-#if USE_1BYTE_PARSING
+            // Save data2 only if applicable
+            if (mPendingMessageExpectedLenght == 3)
+                mMessage.data2 = mPendingMessage[2];
+            else
+                mMessage.data2 = 0;
+
+            mPendingMessageIndex = 0;
+            mPendingMessageExpectedLenght = 0;
+            mMessage.valid = true;
+            return true;
+        }
+        else
+        {
+            // Waiting for more data
+            mPendingMessageIndex++;
+        }
+
+        #if USE_1BYTE_PARSING
         // Message is not complete.
         return false;
-#else
+        #else
         // Call the parser recursively
         // to parse the rest of the message.
         return parse();
-#endif
+        #endif
 
     }
     else
