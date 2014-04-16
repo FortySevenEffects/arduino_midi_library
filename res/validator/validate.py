@@ -143,6 +143,14 @@ def main():
     midiInterface.listenerCallback = tester.handleMidiInput
 
     tester.checkThru([Midi.NoteOn, 64, 80])
+    tester.checkThru([Midi.AfterTouchChannel, 1])
+    tester.checkThru([2])
+    tester.checkThru([3])
+    tester.checkThru([Midi.NoteOn, 64, 0])
+    tester.checkThru([65, 127])
+    tester.checkThru([65, 0])
+    tester.checkThru([66, 127])
+    tester.checkThru([66, 0])
 
     #lib = ArduinoMidiLibrary()
     #lib.install()
