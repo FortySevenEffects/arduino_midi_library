@@ -509,9 +509,7 @@ inline bool MidiInterface<SerialPort>::read(Channel inChannel)
 template<class SerialPort>
 bool MidiInterface<SerialPort>::parse()
 {
-    const byte bytes_available = mSerial.available();
-
-    if (bytes_available == 0)
+    if (mSerial.available() == 0)
         // No data available.
         return false;
 
@@ -779,9 +777,6 @@ bool MidiInterface<SerialPort>::parse()
 #endif
         }
     }
-
-    // What are our chances to fall here?
-    return false;
 }
 
 // Private method, see midi_Settings.h for documentation
