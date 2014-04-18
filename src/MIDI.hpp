@@ -483,24 +483,22 @@ inline bool MidiInterface<SerialPort>::read(Channel inChannel)
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
 
-    if (parse())
+    if (!parse())
+        return false;
+
+    handleNullVelocityNoteOnAsNoteOff();
+    const bool channelMatch = inputFilter(inChannel);
+
+    if (MIDI_USE_CALLBACKS && channelMatch)
     {
-        handleNullVelocityNoteOnAsNoteOff();
-        if (inputFilter(inChannel))
-        {
-
-#if (MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU)
-            thruFilter(inChannel);
-#endif
-
-#if MIDI_USE_CALLBACKS
-            launchCallback();
-#endif
-            return true;
-        }
+        launchCallback();
     }
 
-    return false;
+#if MIDI_BUILD_THRU
+    thruFilter(inChannel);
+#endif
+
+    return channelMatch;
 }
 
 // -----------------------------------------------------------------------------
