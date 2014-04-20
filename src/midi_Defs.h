@@ -24,6 +24,7 @@
 #pragma once
 
 #include "midi_Namespace.h"
+#include "midi_Settings.h"
 #include <inttypes.h>
 
 BEGIN_MIDI_NAMESPACE
@@ -39,8 +40,7 @@ BEGIN_MIDI_NAMESPACE
 // -----------------------------------------------------------------------------
 // Type definitions
 
-typedef uint8_t byte;
-
+typedef uint8_t  byte;
 typedef byte StatusByte;
 typedef byte DataByte;
 typedef byte Channel;
@@ -163,7 +163,6 @@ enum MidiControlChangeNumber
  */
 struct Message
 {
-
     /*! The MIDI channel on which the message was recieved.
      \n Value goes from 1 to 16.
      */
@@ -196,13 +195,14 @@ struct Message
      validity means the message respects the MIDI norm.
      */
     bool valid;
-
 };
 
 // -----------------------------------------------------------------------------
 
 /*! \brief Create an instance of the library attached to a serial port.
  You can use HardwareSerial or SoftwareSerial for the serial port.
+ Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
+ Then call midi2.begin(), midi2.read() etc..
  */
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
     midi::MidiInterface<Type> Name((Type&)SerialPort);

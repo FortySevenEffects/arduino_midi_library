@@ -143,7 +143,7 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
     // Then test if channel is valid
     if (inChannel >= MIDI_CHANNEL_OFF  ||
         inChannel == MIDI_CHANNEL_OMNI ||
-        inType < NoteOff)
+        inType < 0x80)
     {
         if (Settings::UseRunningStatus)
         {
@@ -178,12 +178,14 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
         // Then send data
         mSerial.write(inData1);
         if (inType != ProgramChange && inType != AfterTouchChannel)
+        {
             mSerial.write(inData2);
-
-        return;
+        }
     }
     else if (inType >= TuneRequest && inType <= SystemReset)
+    {
         sendRealTime(inType); // System Real-time and 1 byte.
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -212,7 +214,7 @@ void MidiInterface<SerialPort, Settings>::sendNoteOn(DataByte inNoteNumber,
 
  Note: you can send NoteOn with zero velocity to make a NoteOff, this is based
  on the Running Status principle, to avoid sending status messages and thus
- sending only NoteOn data. This method will always send a real NoteOff message.
+ sending only NoteOn data. sendNoteOff will always send a real NoteOff message.
  Take a look at the values, names and frequencies of notes here:
  http://www.phys.unsw.edu.au/jw/notes.html
  */
@@ -492,24 +494,22 @@ inline bool MidiInterface<SerialPort, Settings>::read(Channel inChannel)
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
 
-    if (parse())
+    if (!parse())
+        return false;
+
+    handleNullVelocityNoteOnAsNoteOff();
+    const bool channelMatch = inputFilter(inChannel);
+
+    if (MIDI_USE_CALLBACKS && channelMatch)
     {
-        handleNullVelocityNoteOnAsNoteOff();
-        if (inputFilter(inChannel))
-        {
-
-#if (MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU)
-            thruFilter(inChannel);
-#endif
-
-#if MIDI_USE_CALLBACKS
-            launchCallback();
-#endif
-            return true;
-        }
+        launchCallback();
     }
 
-    return false;
+#if MIDI_BUILD_THRU
+    thruFilter(inChannel);
+#endif
+
+    return channelMatch;
 }
 
 // -----------------------------------------------------------------------------
@@ -802,7 +802,6 @@ inline void MidiInterface<SerialPort, Settings>::handleNullVelocityNoteOnAsNoteO
     {
         mMessage.type = NoteOff;
     }
-    #endif
 }
 
 // Private method: check if the received message is on the listened channel
@@ -953,10 +952,10 @@ MidiType MidiInterface<SerialPort, Settings>::getTypeFromStatusByte(byte inStatu
     if (inStatus < 0xf0)
     {
         // Channel message, remove channel nibble.
-        return (MidiType)(inStatus & 0xf0);
+        return MidiType(inStatus & 0xf0);
     }
 
-    return (MidiType)inStatus;
+    return MidiType(inStatus);
 }
 
 /*! \brief Returns channel in the range 1-16

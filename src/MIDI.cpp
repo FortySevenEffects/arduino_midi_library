@@ -25,27 +25,6 @@
 
 // -----------------------------------------------------------------------------
 
-#if !(MIDI_BUILD_INPUT) && !(MIDI_BUILD_OUTPUT)
-#   error To use MIDI, you need to enable at least input or output.
-#endif
-
-#if MIDI_BUILD_THRU && !(MIDI_BUILD_OUTPUT)
-#   error For thru to work, you need to enable output.
-#endif
-#if MIDI_BUILD_THRU && !(MIDI_BUILD_INPUT)
-#   error For thru to work, you need to enable input.
-#endif
-
-// -----------------------------------------------------------------------------
-
-#if MIDI_AUTO_INSTANCIATE && defined(ARDUINO)
-    MIDI_CREATE_INSTANCE(MIDI_DEFAULT_SERIAL_CLASS,
-                         MIDI_DEFAULT_SERIAL_PORT,
-                         MIDI);
-#endif
-
-// -----------------------------------------------------------------------------
-
 BEGIN_MIDI_NAMESPACE
 
 /*! \brief Encode System Exclusive messages.

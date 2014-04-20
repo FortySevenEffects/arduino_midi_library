@@ -45,36 +45,6 @@
 #define MIDI_USE_CALLBACKS              1
 
 // -----------------------------------------------------------------------------
-
-// Create a MIDI object automatically on the port defined with MIDI_SERIAL_PORT.
-#ifndef MIDI_AUTO_INSTANCIATE
-#   ifdef ARDUINO
-#       define MIDI_AUTO_INSTANCIATE    1
-#   else
-#       define MIDI_AUTO_INSTANCIATE    0   ///< @see MIDI_CREATE_INSTANCE
-#   endif
-#endif
-
-// -----------------------------------------------------------------------------
-// Default serial port configuration (if MIDI_AUTO_INSTANCIATE is set)
-
-// Set the default port to use for MIDI.
-#if MIDI_AUTO_INSTANCIATE
-#   ifdef ARDUINO
-#       include "Arduino.h"
-#       ifdef USBCON
-#           define MIDI_DEFAULT_SERIAL_PORT     Serial1 // For Leonardo
-#       else
-#           define MIDI_DEFAULT_SERIAL_PORT     Serial  // For other Arduinos
-#       endif
-#       define MIDI_DEFAULT_SERIAL_CLASS        HardwareSerial
-#       include "HardwareSerial.h"
-#   else
-#       error Auto-instanciation disabled. Use MIDI_CREATE_INSTANCE macro.
-#   endif
-#endif
-
-// -----------------------------------------------------------------------------
 // Misc. options
 
 // Running status enables short messages when sending multiple values

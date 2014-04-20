@@ -26,10 +26,6 @@
 #include "midi_Settings.h"
 #include "midi_Defs.h"
 
-#ifdef FSE_AVR
-#include <ak47.h>
-#endif
-
 // -----------------------------------------------------------------------------
 
 BEGIN_MIDI_NAMESPACE
@@ -44,16 +40,14 @@ template<class SerialPort, class Settings = DefaultSettings>
 class MidiInterface
 {
 public:
-    MidiInterface(SerialPort& inSerial);
-    ~MidiInterface();
+    inline  MidiInterface(SerialPort& inSerial);
+    inline ~MidiInterface();
 
 public:
     void begin(Channel inChannel = 1);
 
     // -------------------------------------------------------------------------
     // MIDI Output
-
-#if MIDI_BUILD_OUTPUT
 
 public:
     inline void sendNoteOn(DataByte inNoteNumber,
@@ -100,16 +94,8 @@ public:
               DataByte inData2,
               Channel inChannel);
 
-private:
-    inline StatusByte getStatus(MidiType inType,
-                                Channel inChannel) const;
-
-#endif // MIDI_BUILD_OUTPUT
-
     // -------------------------------------------------------------------------
     // MIDI Input
-
-#if MIDI_BUILD_INPUT
 
 public:
     inline bool read();
@@ -133,24 +119,9 @@ public:
     static inline Channel getChannelFromStatusByte(byte inStatus);
 	static inline bool isChannelMessage(MidiType inType);
 
-private:
-    bool parse();
-    inline void handleNullVelocityNoteOnAsNoteOff();
-    inline bool inputFilter(Channel inChannel);
-    inline void resetInput();
-
-private:
-    StatusByte  mRunningStatus_RX;
-    Channel     mInputChannel;
-    byte        mPendingMessage[3];
-    unsigned    mPendingMessageExpectedLenght;
-    unsigned    mPendingMessageIndex;
-    Message     mMessage;
 
     // -------------------------------------------------------------------------
     // Input Callbacks
-
-#if MIDI_USE_CALLBACKS
 
 public:
     inline void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
@@ -196,13 +167,8 @@ private:
     void (*mActiveSensingCallback)(void);
     void (*mSystemResetCallback)(void);
 
-#endif // MIDI_USE_CALLBACKS
-#endif // MIDI_BUILD_INPUT
-
     // -------------------------------------------------------------------------
     // MIDI Soft Thru
-
-#if MIDI_BUILD_THRU
 
 public:
     inline MidiFilterMode getFilterMode() const;
@@ -217,10 +183,27 @@ private:
     void thruFilter(byte inChannel);
 
 private:
+    bool parse();
+    inline void handleNullVelocityNoteOnAsNoteOff();
+    inline bool inputFilter(Channel inChannel);
+    inline void resetInput();
+
+private:
     bool            mThruActivated  : 1;
     MidiFilterMode  mThruFilterMode : 7;
 
-#endif // MIDI_BUILD_THRU
+private:
+    StatusByte  mRunningStatus_RX;
+    Channel     mInputChannel;
+    byte        mPendingMessage[3];
+    unsigned    mPendingMessageExpectedLenght;
+    unsigned    mPendingMessageIndex;
+    Message     mMessage;
+
+private:
+    inline StatusByte getStatus(MidiType inType,
+                                Channel inChannel) const;
+
 
 
 #if MIDI_USE_RUNNING_STATUS
@@ -238,12 +221,6 @@ unsigned encodeSysEx(const byte* inData,  byte* outSysEx, unsigned inLenght);
 unsigned decodeSysEx(const byte* inSysEx, byte* outData,  unsigned inLenght);
 
 END_MIDI_NAMESPACE
-
-// -----------------------------------------------------------------------------
-
-#if MIDI_AUTO_INSTANCIATE && defined(ARDUINO)
-    extern MIDI_NAMESPACE::MidiInterface<MIDI_DEFAULT_SERIAL_CLASS> MIDI;
-#endif
 
 // -----------------------------------------------------------------------------
 
