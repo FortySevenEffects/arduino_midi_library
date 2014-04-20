@@ -207,11 +207,12 @@ struct Message
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
     midi::MidiInterface<Type> Name((Type&)SerialPort);
 
-/*! \brief Shortcut for MIDI Interface class with template argument.
- The class name for a MIDI object using the hardware UART would be
- midi::MidiInterface<HardwareSerial>, when the macro is MIDI_CLASS(HardwareSerial).
+/*! \brief Create an instance of the library attached to a serial port with
+ custom settings.
+ @see DefaultSettings
+ @see MIDI_CREATE_INSTANCE
  */
-#define MIDI_CLASS(Type)                                                        \
-    midi::MidiInterface<Type>
+#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
+    midi::MidiInterface<Type, Settings> Name((Type&)SerialPort);
 
 END_MIDI_NAMESPACE

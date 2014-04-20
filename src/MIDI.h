@@ -40,7 +40,7 @@ the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
 or ak47's Uart classes. The only requirement is that the class implements
 the begin, read, write and available methods.
  */
-template<class SerialPort>
+template<class SerialPort, class Settings = DefaultSettings>
 class MidiInterface
 {
 public:
