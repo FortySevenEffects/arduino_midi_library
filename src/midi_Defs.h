@@ -203,6 +203,8 @@ struct Message
 
 /*! \brief Create an instance of the library attached to a serial port.
  You can use HardwareSerial or SoftwareSerial for the serial port.
+ Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
+ Then call midi2.begin(), midi2.read() etc..
  */
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
     midi::MidiInterface<Type> Name((Type&)SerialPort);
