@@ -108,7 +108,7 @@ inline MidiNote::MidiNote(const MidiNote& inOther)
 
 inline MidiNote& MidiNote::operator= (const MidiNote& inOther)
 {
-    pitch = inOther.pitch;
+    pitch    = inOther.pitch;
     velocity = inOther.velocity;
     return *this;
 }
@@ -197,9 +197,9 @@ inline void MidiNoteList<Size>::add(const MidiNote& inNote)
 template<byte Size>
 inline void MidiNoteList<Size>::remove(byte inPitch)
 {
-    if (mHead != 0)
+    if (mTail != 0)
     {
-        for (Cell* it = mHead; it != 0; it = it->next)
+        for (Cell* it = mTail; it != 0; it = it->prev)
         {
             if (it->note.pitch == inPitch)
             {
