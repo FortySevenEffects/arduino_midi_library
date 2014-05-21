@@ -1,7 +1,8 @@
 /*!
- *  \file       synth-core_NoteList.h
+ *  \file       noteList.h
  *  \author     Francois Best
  *  \date       24/05/2013
+ *  \brief      Linked list of notes, for Low, Last & High playing modes.
  *  \license    GPL v3.0 - Copyright Forty Seven Effects 2013
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -156,6 +157,10 @@ inline MidiNoteList<Size>::~MidiNoteList()
 
 // -----------------------------------------------------------------------------
 
+/*! \brief Add a note, sorting it by time.
+ Call this when receiving a NoteOn event. This will add the new note as the tail
+ of the list.
+ */
 template<byte Size>
 inline void MidiNoteList<Size>::add(const MidiNote& inNote)
 {
@@ -186,6 +191,9 @@ inline void MidiNoteList<Size>::add(const MidiNote& inNote)
     print();
 }
 
+/*! \brief Remove a note
+ Call this when receiving a NoteOff event.
+ */
 template<byte Size>
 inline void MidiNoteList<Size>::remove(byte inPitch)
 {
@@ -235,6 +243,9 @@ inline void MidiNoteList<Size>::remove(byte inPitch)
 
 // -----------------------------------------------------------------------------
 
+/*! \brief Get a note at an arbitrary position
+ This can be interesting for duo/multi/polyphony operations.
+ */
 template<byte Size>
 inline bool MidiNoteList<Size>::get(byte inIndex, byte& outPitch) const
 {
@@ -258,6 +269,9 @@ inline bool MidiNoteList<Size>::get(byte inIndex, byte& outPitch) const
     return false;
 }
 
+/*! \brief Get the last active note played
+ This implements the Mono Last playing mode.
+ */
 template<byte Size>
 inline bool MidiNoteList<Size>::getLast(byte& outPitch) const
 {
@@ -270,6 +284,9 @@ inline bool MidiNoteList<Size>::getLast(byte& outPitch) const
     return true;
 }
 
+/*! \brief Get the highest pitched active note
+ This implements the Mono High playing mode.
+ */
 template<byte Size>
 inline bool MidiNoteList<Size>::getHigh(byte& outPitch) const
 {
@@ -295,6 +312,9 @@ inline bool MidiNoteList<Size>::getHigh(byte& outPitch) const
     return true;
 }
 
+/*! \brief Get the lowest pitched active note
+ This implements the Mono Low playing mode.
+ */
 template<byte Size>
 inline bool MidiNoteList<Size>::getLow(byte& outPitch) const
 {
@@ -328,6 +348,8 @@ inline bool MidiNoteList<Size>::empty() const
     return mSize == 0;
 }
 
+/*! \brief Get the number of active notes.
+ */
 template<byte Size>
 inline byte MidiNoteList<Size>::size() const
 {
@@ -335,6 +357,7 @@ inline byte MidiNoteList<Size>::size() const
 }
 
 // -----------------------------------------------------------------------------
+// Private implementations, for internal use only.
 
 template<byte Size>
 inline typename MidiNoteList<Size>::Cell* MidiNoteList<Size>::getFirstEmptyCell()
