@@ -18,12 +18,12 @@ MidiNoteList<sMaxNumNotes> midiNotes;
 
 // -----------------------------------------------------------------------------
 
-void handleGateChanged(bool inGateActive)
+inline void handleGateChanged(bool inGateActive)
 {
     digitalWrite(sGatePin, inGateActive ? HIGH : LOW);
 }
 
-void pulseGate()
+inline void pulseGate()
 {
     handleGateChanged(false);
     delay(1);
@@ -32,41 +32,40 @@ void pulseGate()
 
 // -----------------------------------------------------------------------------
 
-void handleNotesChanged()
+void handleNoteOn(byte inChannel, byte inNote, byte inVelocity)
 {
-    if (midiNotes.empty())
-    {
-        handleGateChanged(false);
-        noTone(sAudioOutPin);
-    }
-    else
-    {
-        // Possible playing modes:
-        // Mono Low:  use midiNotes.getLow
-        // Mono High: use midiNotes.getHigh
-        // Mono Last: use midiNotes.getLast
+    const bool firstNote = midiNotes.empty();
+    midiNotes.add(MidiNote(inNote, inVelocity));
+    
+    // Possible playing modes:
+    // Mono Low:  use midiNotes.getLow
+    // Mono High: use midiNotes.getHigh
+    // Mono Last: use midiNotes.getLast
 
-        byte currentNote = 0;
-        if (midiNotes.getLast(currentNote))
+    byte currentNote = 0;
+    if (midiNotes.getLast(currentNote))
+    {
+        tone(sAudioOutPin, sNotePitches[currentNote]);
+        
+        if (firstNote)
         {
-            tone(sAudioOutPin, sNotePitches[currentNote]);
+            handleGateChanged(true);
+        }
+        else
+        {
             pulseGate(); // Retrigger envelopes. Remove for legato effect.
         }
     }
 }
 
-// -----------------------------------------------------------------------------
-
-void handleNoteOn(byte inChannel, byte inNote, byte inVelocity)
-{
-    midiNotes.add(MidiNote(inNote, inVelocity));
-    handleNotesChanged();
-}
-
 void handleNoteOff(byte inChannel, byte inNote, byte inVelocity)
 {
     midiNotes.remove(inNote);
-    handleNotesChanged();
+    if (midiNotes.empty())
+    {
+        handleGateChanged(false);
+        noTone(sAudioOutPin);
+    }
 }
 
 // -----------------------------------------------------------------------------
