@@ -18,12 +18,12 @@ MidiNoteList<sMaxNumNotes> midiNotes;
 
 // -----------------------------------------------------------------------------
 
-void handleGateChanged(bool inGateActive)
+inline void handleGateChanged(bool inGateActive)
 {
     digitalWrite(sGatePin, inGateActive ? HIGH : LOW);
 }
 
-void pulseGate()
+inline void pulseGate()
 {
     handleGateChanged(false);
     delay(1);
@@ -32,7 +32,7 @@ void pulseGate()
 
 // -----------------------------------------------------------------------------
 
-void handleNotesChanged()
+void handleNotesChanged(bool isFirstNote = false)
 {
     if (midiNotes.empty())
     {
@@ -50,7 +50,15 @@ void handleNotesChanged()
         if (midiNotes.getLast(currentNote))
         {
             tone(sAudioOutPin, sNotePitches[currentNote]);
-            pulseGate(); // Retrigger envelopes. Remove for legato effect.
+            
+            if (isFirstNote)
+            {
+                handleGateChanged(true);
+            }
+            else
+            {
+                pulseGate(); // Retrigger envelopes. Remove for legato effect.
+            }
         }
     }
 }
@@ -59,8 +67,9 @@ void handleNotesChanged()
 
 void handleNoteOn(byte inChannel, byte inNote, byte inVelocity)
 {
+    const bool firstNote = midiNotes.empty();
     midiNotes.add(MidiNote(inNote, inVelocity));
-    handleNotesChanged();
+    handleNotesChanged(firstNote);
 }
 
 void handleNoteOff(byte inChannel, byte inNote, byte inVelocity)
