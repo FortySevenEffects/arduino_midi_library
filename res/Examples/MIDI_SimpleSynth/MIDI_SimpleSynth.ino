@@ -41,8 +41,13 @@ void handleNotesChanged()
     }
     else
     {
+        // Possible playing modes:
+        // Mono Low:  use midiNotes.getLow
+        // Mono High: use midiNotes.getHigh
+        // Mono Last: use midiNotes.getLast
+
         byte currentNote = 0;
-        if (midiNotes.getTail(currentNote))
+        if (midiNotes.getLast(currentNote))
         {
             tone(sAudioOutPin, sNotePitches[currentNote]);
             pulseGate(); // Retrigger envelopes. Remove for legato effect.
@@ -67,7 +72,7 @@ void handleNoteOff(byte inChannel, byte inNote, byte inVelocity)
 // -----------------------------------------------------------------------------
 
 void setup()
-{  
+{
     pinMode(sGatePin,     OUTPUT);
     pinMode(sAudioOutPin, OUTPUT);
     MIDI.setHandleNoteOn(handleNoteOn);

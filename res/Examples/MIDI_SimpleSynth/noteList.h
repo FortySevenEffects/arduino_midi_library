@@ -65,7 +65,9 @@ public:
 
 public:
     inline bool get(byte inIndex, byte& outPitch) const;
-    inline bool getTail(byte& outPitch) const;
+    inline bool getLast(byte& outPitch) const;
+    inline bool getHigh(byte& outPitch) const;
+    inline bool getLow(byte& outPitch) const;
 
 public:
     inline bool empty() const;
@@ -257,14 +259,65 @@ inline bool MidiNoteList<Size>::get(byte inIndex, byte& outPitch) const
 }
 
 template<byte Size>
-inline bool MidiNoteList<Size>::getTail(byte& outPitch) const
+inline bool MidiNoteList<Size>::getLast(byte& outPitch) const
 {
-    if (mTail)
+    if (!mTail)
     {
-        outPitch = mTail->note.pitch;
-        return true;
+        return false;
     }
-    return false;
+
+    outPitch = mTail->note.pitch;
+    return true;
+}
+
+template<byte Size>
+inline bool MidiNoteList<Size>::getHigh(byte& outPitch) const
+{
+    if (!mTail)
+    {
+        return false;
+    }
+
+    outPitch = 0;
+    const Cell* it = mTail;
+    for (byte i = 0; i < mSize; ++i)
+    {
+        if (it->note.pitch > outPitch)
+        {
+            outPitch = it->note.pitch;
+        }
+
+        if (it->prev)
+        {
+            it = it->prev;
+        }
+    }
+    return true;
+}
+
+template<byte Size>
+inline bool MidiNoteList<Size>::getLow(byte& outPitch) const
+{
+    if (!mTail)
+    {
+        return false;
+    }
+
+    outPitch = 0xff;
+    const Cell* it = mTail;
+    for (byte i = 0; i < mSize; ++i)
+    {
+        if (it->note.pitch < outPitch)
+        {
+            outPitch = it->note.pitch;
+        }
+
+        if (it->prev)
+        {
+            it = it->prev;
+        }
+    }
+    return true;
 }
 
 // -----------------------------------------------------------------------------
