@@ -18,12 +18,12 @@ MidiNoteList<sMaxNumNotes> midiNotes;
 
 // -----------------------------------------------------------------------------
 
-inline void handleGateChanged(bool inGateActive)
+void handleGateChanged(bool inGateActive)
 {
     digitalWrite(sGatePin, inGateActive ? HIGH : LOW);
 }
 
-inline void pulseGate()
+void pulseGate()
 {
     handleGateChanged(false);
     delay(1);
@@ -32,40 +32,41 @@ inline void pulseGate()
 
 // -----------------------------------------------------------------------------
 
-void handleNoteOn(byte inChannel, byte inNote, byte inVelocity)
+void handleNotesChanged()
 {
-    const bool firstNote = midiNotes.empty();
-    midiNotes.add(MidiNote(inNote, inVelocity));
-    
-    // Possible playing modes:
-    // Mono Low:  use midiNotes.getLow
-    // Mono High: use midiNotes.getHigh
-    // Mono Last: use midiNotes.getLast
-
-    byte currentNote = 0;
-    if (midiNotes.getLast(currentNote))
-    {
-        tone(sAudioOutPin, sNotePitches[currentNote]);
-        
-        if (firstNote)
-        {
-            handleGateChanged(true);
-        }
-        else
-        {
-            pulseGate(); // Retrigger envelopes. Remove for legato effect.
-        }
-    }
-}
-
-void handleNoteOff(byte inChannel, byte inNote, byte inVelocity)
-{
-    midiNotes.remove(inNote);
     if (midiNotes.empty())
     {
         handleGateChanged(false);
         noTone(sAudioOutPin);
     }
+    else
+    {
+        // Possible playing modes:
+        // Mono Low:  use midiNotes.getLow
+        // Mono High: use midiNotes.getHigh
+        // Mono Last: use midiNotes.getLast
+
+        byte currentNote = 0;
+        if (midiNotes.getLast(currentNote))
+        {
+            tone(sAudioOutPin, sNotePitches[currentNote]);
+            pulseGate(); // Retrigger envelopes. Remove for legato effect.
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+
+void handleNoteOn(byte inChannel, byte inNote, byte inVelocity)
+{
+    midiNotes.add(MidiNote(inNote, inVelocity));
+    handleNotesChanged();
+}
+
+void handleNoteOff(byte inChannel, byte inNote, byte inVelocity)
+{
+    midiNotes.remove(inNote);
+    handleNotesChanged();
 }
 
 // -----------------------------------------------------------------------------
