@@ -145,8 +145,6 @@ inline typename MidiNoteList<Size>::Cell& MidiNoteList<Size>::Cell::operator= (c
 template<byte Size>
 inline MidiNoteList<Size>::MidiNoteList()
 {
-    // Check that size is a power of two
-    //AVR_STATIC_ASSERT(Size != 0 && !(Size & (Size - 1)));
 }
 
 template<byte Size>
