@@ -4,6 +4,7 @@ import sys
 import os
 import shutil
 import subprocess
+import argparse
 from pprint     import pprint
 from midi       import *
 from tester     import *
@@ -138,28 +139,42 @@ class ArduinoMidiLibrary:
 # ------------------------------------------------------------------------------
 
 def main():
-    midiInterface = MidiInterface()
-    tester  = Tester(midiInterface)
-    midiInterface.listenerCallback = tester.handleMidiInput
 
-    tester.checkThru([Midi.NoteOn, 64, 80])
-    tester.checkThru([Midi.AfterTouchChannel, 1])
-    tester.checkThru([2])
-    tester.checkThru([3])
-    tester.checkThru([Midi.NoteOn, 64, 0])
-    tester.checkThru([65, 127])
-    tester.checkThru([65, 0])
-    tester.checkThru([66, 127])
-    tester.checkThru([66, 0])
+    info = "Validator script for the Arduino MIDI Library."
+    arg_parser = argparse.ArgumentParser(description = info)
 
-    #lib = ArduinoMidiLibrary()
-    #lib.install()
-    #if lib.validate():
-    #    print('Validation passed')
-    #else:
-    #    print('Validation failed')
+    arg_parser.add_argument('--compile', '-c',
+                            action="store_true",
+                            help="Test compilation of the example sketches")
 
+    arg_parser.add_argument('--runtime', '-r',
+                            action="store_true",
+                            help="Test runtime")
 
+    args = arg_parser.parse_args()
+
+    if args.compile:
+        lib = ArduinoMidiLibrary()
+        lib.install()
+        if lib.validate():
+            print('Compilation test passed')
+        else:
+            print('Compilation test failed')
+
+    if args.runtime:
+        midiInterface = MidiInterface()
+        tester  = Tester(midiInterface)
+        midiInterface.listenerCallback = tester.handleMidiInput
+
+        tester.checkThru([Midi.NoteOn, 64, 80])
+        tester.checkThru([Midi.AfterTouchChannel, 1])
+        tester.checkThru([2])
+        tester.checkThru([3])
+        tester.checkThru([Midi.NoteOn, 64, 0])
+        tester.checkThru([65, 127])
+        tester.checkThru([65, 0])
+        tester.checkThru([66, 127])
+        tester.checkThru([66, 0])
 
 # ------------------------------------------------------------------------------
 

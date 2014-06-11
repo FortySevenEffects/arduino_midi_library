@@ -1,7 +1,8 @@
 /*!
- *  \file       synth-core_NoteList.h
+ *  \file       noteList.h
  *  \author     Francois Best
  *  \date       24/05/2013
+ *  \brief      Linked list of notes, for Low, Last & High playing modes.
  *  \license    GPL v3.0 - Copyright Forty Seven Effects 2013
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -65,7 +66,9 @@ public:
 
 public:
     inline bool get(byte inIndex, byte& outPitch) const;
-    inline bool getTail(byte& outPitch) const;
+    inline bool getLast(byte& outPitch) const;
+    inline bool getHigh(byte& outPitch) const;
+    inline bool getLow(byte& outPitch) const;
 
 public:
     inline bool empty() const;
@@ -105,7 +108,7 @@ inline MidiNote::MidiNote(const MidiNote& inOther)
 
 inline MidiNote& MidiNote::operator= (const MidiNote& inOther)
 {
-    pitch = inOther.pitch;
+    pitch    = inOther.pitch;
     velocity = inOther.velocity;
     return *this;
 }
@@ -145,8 +148,6 @@ inline typename MidiNoteList<Size>::Cell& MidiNoteList<Size>::Cell::operator= (c
 template<byte Size>
 inline MidiNoteList<Size>::MidiNoteList()
 {
-    // Check that size is a power of two
-    //AVR_STATIC_ASSERT(Size != 0 && !(Size & (Size - 1)));
 }
 
 template<byte Size>
@@ -156,6 +157,10 @@ inline MidiNoteList<Size>::~MidiNoteList()
 
 // -----------------------------------------------------------------------------
 
+/*! \brief Add a note, sorting it by time.
+ Call this when receiving a NoteOn event. This will add the new note as the tail
+ of the list.
+ */
 template<byte Size>
 inline void MidiNoteList<Size>::add(const MidiNote& inNote)
 {
@@ -186,12 +191,15 @@ inline void MidiNoteList<Size>::add(const MidiNote& inNote)
     print();
 }
 
+/*! \brief Remove a note
+ Call this when receiving a NoteOff event.
+ */
 template<byte Size>
 inline void MidiNoteList<Size>::remove(byte inPitch)
 {
-    if (mHead != 0)
+    if (mTail != 0)
     {
-        for (Cell* it = mHead; it != 0; it = it->next)
+        for (Cell* it = mTail; it != 0; it = it->prev)
         {
             if (it->note.pitch == inPitch)
             {
@@ -235,6 +243,9 @@ inline void MidiNoteList<Size>::remove(byte inPitch)
 
 // -----------------------------------------------------------------------------
 
+/*! \brief Get a note at an arbitrary position
+ This can be interesting for duo/multi/polyphony operations.
+ */
 template<byte Size>
 inline bool MidiNoteList<Size>::get(byte inIndex, byte& outPitch) const
 {
@@ -258,15 +269,75 @@ inline bool MidiNoteList<Size>::get(byte inIndex, byte& outPitch) const
     return false;
 }
 
+/*! \brief Get the last active note played
+ This implements the Mono Last playing mode.
+ */
 template<byte Size>
-inline bool MidiNoteList<Size>::getTail(byte& outPitch) const
+inline bool MidiNoteList<Size>::getLast(byte& outPitch) const
 {
-    if (mTail)
+    if (!mTail)
     {
-        outPitch = mTail->note.pitch;
-        return true;
+        return false;
     }
-    return false;
+
+    outPitch = mTail->note.pitch;
+    return true;
+}
+
+/*! \brief Get the highest pitched active note
+ This implements the Mono High playing mode.
+ */
+template<byte Size>
+inline bool MidiNoteList<Size>::getHigh(byte& outPitch) const
+{
+    if (!mTail)
+    {
+        return false;
+    }
+
+    outPitch = 0;
+    const Cell* it = mTail;
+    for (byte i = 0; i < mSize; ++i)
+    {
+        if (it->note.pitch > outPitch)
+        {
+            outPitch = it->note.pitch;
+        }
+
+        if (it->prev)
+        {
+            it = it->prev;
+        }
+    }
+    return true;
+}
+
+/*! \brief Get the lowest pitched active note
+ This implements the Mono Low playing mode.
+ */
+template<byte Size>
+inline bool MidiNoteList<Size>::getLow(byte& outPitch) const
+{
+    if (!mTail)
+    {
+        return false;
+    }
+
+    outPitch = 0xff;
+    const Cell* it = mTail;
+    for (byte i = 0; i < mSize; ++i)
+    {
+        if (it->note.pitch < outPitch)
+        {
+            outPitch = it->note.pitch;
+        }
+
+        if (it->prev)
+        {
+            it = it->prev;
+        }
+    }
+    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -277,6 +348,8 @@ inline bool MidiNoteList<Size>::empty() const
     return mSize == 0;
 }
 
+/*! \brief Get the number of active notes.
+ */
 template<byte Size>
 inline byte MidiNoteList<Size>::size() const
 {
@@ -284,6 +357,7 @@ inline byte MidiNoteList<Size>::size() const
 }
 
 // -----------------------------------------------------------------------------
+// Private implementations, for internal use only.
 
 template<byte Size>
 inline typename MidiNoteList<Size>::Cell* MidiNoteList<Size>::getFirstEmptyCell()
