@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['turnthruoff',['turnThruOff',['../a00023.html#ga12a3e547b29b876d1b51aeed742dcf68',1,'MidiInterface']]],
-  ['turnthruon',['turnThruOn',['../a00023.html#gaa006be35e1d034ea4072c613677e9ce3',1,'MidiInterface']]]
+  ['turnthruoff',['turnThruOff',['../a00027.html#ga27d7e9112f7aa73c1b9cc1401a8c36dd',1,'MidiInterface']]],
+  ['turnthruon',['turnThruOn',['../a00027.html#gaef5aade0fd7953158a45dc6489a72ac1',1,'MidiInterface']]]
 ];

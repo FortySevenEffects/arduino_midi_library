@@ -1,7 +1,6 @@
 var a00018 =
 [
-    [ "BEGIN_MIDI_NAMESPACE", "a00018.html#adf6b690441eb0a31c4abd3bc4fb99673", null ],
-    [ "END_MIDI_NAMESPACE", "a00018.html#abf831eff386c2ded4d253fb11321028e", null ],
-    [ "MIDI_NAMESPACE", "a00018.html#a6690f18c03533dfb99f45d37aab6e735", null ],
-    [ "USING_NAMESPACE_MIDI", "a00018.html#a8064897c61213d14c9353caeee7c0225", null ]
+    [ "MidiInterface", "a00015.html", "a00015" ],
+    [ "decodeSysEx", "a00018.html#acd6ba88e8a9b7d47226e1288539758d6", null ],
+    [ "encodeSysEx", "a00018.html#a658e91a27ea7f4172798d9503508d702", null ]
 ];

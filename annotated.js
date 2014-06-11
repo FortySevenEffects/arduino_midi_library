@@ -1,5 +1,6 @@
 var annotated =
 [
-    [ "Message", "a00011.html", "a00011" ],
-    [ "MidiInterface", "a00012.html", "a00012" ]
+    [ "DefaultSettings", "a00013.html", "a00013" ],
+    [ "Message", "a00014.html", "a00014" ],
+    [ "MidiInterface", "a00015.html", "a00015" ]
 ];

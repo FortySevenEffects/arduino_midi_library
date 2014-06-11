@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['data1',['data1',['../a00011.html#abe3ce67e461e675f23653c135f6beb7c',1,'Message']]],
-  ['data2',['data2',['../a00011.html#a2d0e48e5e101ca336b2660958b80e8c9',1,'Message']]]
+  ['channel',['channel',['../a00014.html#a3e088d88b4c2c84efd78f080a6ba3384',1,'Message']]]
 ];

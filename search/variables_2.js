@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['sysexarray',['sysexArray',['../a00011.html#a0226b4f85e85022807cab2997ea1ead5',1,'Message']]]
+  ['data1',['data1',['../a00014.html#a92150532e5720f95013e16a2f49a8df8',1,'Message']]],
+  ['data2',['data2',['../a00014.html#af6ca8f3ba3f77fe769a259de3b88c36c',1,'Message']]]
 ];

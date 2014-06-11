@@ -1,13 +1,15 @@
 var searchData=
 [
-  ['getchannel',['getChannel',['../a00021.html#ga6d0c5246ef8ade42c1531f824596269c',1,'MidiInterface']]],
-  ['getdata1',['getData1',['../a00021.html#ga73fa425b721cf926c24ecfb040b2960c',1,'MidiInterface']]],
-  ['getdata2',['getData2',['../a00021.html#ga2a544dc66ac388896418ca376e82258b',1,'MidiInterface']]],
-  ['getfiltermode',['getFilterMode',['../a00023.html#ga9b0cbe42b2fb78ab1857dc06b6a54ea4',1,'MidiInterface']]],
-  ['getinputchannel',['getInputChannel',['../a00021.html#ga3bb43a658b274b21f81c07e774d9dc47',1,'MidiInterface']]],
-  ['getsysexarray',['getSysExArray',['../a00021.html#ga23e90089fdf310eaa219487899e6b3ee',1,'MidiInterface']]],
-  ['getsysexarraylength',['getSysExArrayLength',['../a00021.html#ga642e4abae85d031a1af2f3cb418accc8',1,'MidiInterface']]],
-  ['getthrustate',['getThruState',['../a00023.html#ga83a7d8f6d29c8be59bdcef9603ecc19c',1,'MidiInterface']]],
-  ['gettype',['getType',['../a00021.html#ga4baa969f4c0a0b57e6bb6bb926a99f01',1,'MidiInterface']]],
-  ['gettypefromstatusbyte',['getTypeFromStatusByte',['../a00021.html#ga1a4ccf55fac79b461f5ee36a4b1edf15',1,'MidiInterface']]]
+  ['getchannel',['getChannel',['../a00025.html#ga1e653fc11aaec776bca87dcfff13c610',1,'MidiInterface']]],
+  ['getchannelfromstatusbyte',['getChannelFromStatusByte',['../a00025.html#ga4c50a2be0160dfb169126c7d9e6d1458',1,'MidiInterface']]],
+  ['getdata1',['getData1',['../a00025.html#ga32c64fd9603f0682fa254106c994d6d8',1,'MidiInterface']]],
+  ['getdata2',['getData2',['../a00025.html#gad8baa0422e4ddc0ce08b6b73deec4572',1,'MidiInterface']]],
+  ['getfiltermode',['getFilterMode',['../a00027.html#gaec8dd581ba2b844e1dd9746e050d7420',1,'MidiInterface']]],
+  ['getinputchannel',['getInputChannel',['../a00025.html#ga414b3426cd08e148d612f94d3e462344',1,'MidiInterface']]],
+  ['getsysexarray',['getSysExArray',['../a00025.html#gadfe8c45f580dff62a2f48734c7989152',1,'MidiInterface']]],
+  ['getsysexarraylength',['getSysExArrayLength',['../a00025.html#ga0732725386bdd0c7f04c6ad91a3b6f26',1,'MidiInterface']]],
+  ['getsysexsize',['getSysExSize',['../a00014.html#a6c72b14a27625012b1215c518fd4576e',1,'Message']]],
+  ['getthrustate',['getThruState',['../a00027.html#ga905e5df39734a7ed9ed898dc34e98d2c',1,'MidiInterface']]],
+  ['gettype',['getType',['../a00025.html#gab326ef6f5b5510f1d25baf17bcfe7fd5',1,'MidiInterface']]],
+  ['gettypefromstatusbyte',['getTypeFromStatusByte',['../a00025.html#ga5fe93ef5d57c050691348e44e1588e16',1,'MidiInterface']]]
 ];

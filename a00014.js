@@ -1,5 +1,11 @@
 var a00014 =
 [
-    [ "decodeSysEx", "a00014.html#ae5b3935e2eeca1f7be983da095dcf056", null ],
-    [ "encodeSysEx", "a00014.html#afe7c42d0b3ebed55378f19fc25c2c00b", null ]
+    [ "getSysExSize", "a00014.html#a6c72b14a27625012b1215c518fd4576e", null ],
+    [ "channel", "a00014.html#a3e088d88b4c2c84efd78f080a6ba3384", null ],
+    [ "data1", "a00014.html#a92150532e5720f95013e16a2f49a8df8", null ],
+    [ "data2", "a00014.html#af6ca8f3ba3f77fe769a259de3b88c36c", null ],
+    [ "sSysExMaxSize", "a00014.html#a06ebe9aea7bf76c87564cc4b6c74f901", null ],
+    [ "sysexArray", "a00014.html#a4f63b5d7cc89e5f96c8fed1367832c2b", null ],
+    [ "type", "a00014.html#abfe2249141ed2a0b529f35343affb0e0", null ],
+    [ "valid", "a00014.html#a715befa071b78dc19c48c4871bd5f293", null ]
 ];

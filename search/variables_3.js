@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['type',['type',['../a00011.html#ae9a90fa9c557f17cdc9d86e430a35be7',1,'Message']]]
+  ['handlenullvelocitynoteonasnoteoff',['HandleNullVelocityNoteOnAsNoteOff',['../a00013.html#a13c8f26edeade3374921764fa8650ac9',1,'DefaultSettings']]]
 ];

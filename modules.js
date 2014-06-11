@@ -1,6 +1,6 @@
 var modules =
 [
-    [ "MIDI Output", "a00020.html", "a00020" ],
-    [ "MIDI Input", "a00021.html", "a00021" ],
-    [ "MIDI Thru", "a00023.html", "a00023" ]
+    [ "MIDI Output", "a00024.html", "a00024" ],
+    [ "MIDI Input", "a00025.html", "a00025" ],
+    [ "MIDI Thru", "a00027.html", "a00027" ]
 ];

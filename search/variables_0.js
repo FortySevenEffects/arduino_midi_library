@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['channel',['channel',['../a00011.html#a48df18b63d7ceb83fd36d3ed13528c11',1,'Message']]]
+  ['baudrate',['BaudRate',['../a00013.html#a3af54ace87effb366e1ec455be22b52a',1,'DefaultSettings']]]
 ];
