@@ -27,16 +27,20 @@
 
 BEGIN_MIDI_NAMESPACE
 
-/*! \brief Default Settings Traits struct
+/*! \brief Default Settings for the MIDI Library.
+
  To change the default settings, don't edit them there, create a subclass and
  override the values in that subclass, then use the MIDI_CREATE_CUSTOM_INSTANCE
  macro to create your instance. The settings you don't override will keep their
  default value. Eg:
+ \code{.cpp}
  struct MySettings : public midi::DefaultSettings
  {
     static const bool UseRunningStatus = false; // Messes with my old equipment!
  };
+
  MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, midi, MySettings);
+ \endcode
  */
 struct DefaultSettings
 {

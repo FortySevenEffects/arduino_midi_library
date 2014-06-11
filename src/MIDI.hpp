@@ -1,5 +1,5 @@
 /*!
- *  @file       midi_Inline.hpp
+ *  @file       MIDI.hpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Inline implementations
  *  @version    4.2
@@ -1200,7 +1200,5 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
         }
     }
 }
-
-// -----------------------------------------------------------------------------
 
 END_MIDI_NAMESPACE

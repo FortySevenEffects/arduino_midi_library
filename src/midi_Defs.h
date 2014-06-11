@@ -34,8 +34,6 @@ typedef uint8_t byte;
 
 BEGIN_MIDI_NAMESPACE
 
-// -----------------------------------------------------------------------------
-
 #define MIDI_CHANNEL_OMNI       0
 #define MIDI_CHANNEL_OFF        17 // and over
 

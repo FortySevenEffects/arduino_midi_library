@@ -179,7 +179,6 @@ public:
     inline void turnThruOff();
     inline void setThruFilterMode(MidiFilterMode inThruFilterMode);
 
-
 private:
     void thruFilter(byte inChannel);
 
