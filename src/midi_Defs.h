@@ -24,6 +24,7 @@
 #pragma once
 
 #include "midi_Namespace.h"
+#include "midi_Settings.h"
 #include <inttypes.h>
 
 BEGIN_MIDI_NAMESPACE
@@ -39,8 +40,7 @@ BEGIN_MIDI_NAMESPACE
 // -----------------------------------------------------------------------------
 // Type definitions
 
-typedef uint8_t byte;
-
+typedef uint8_t  byte;
 typedef byte StatusByte;
 typedef byte DataByte;
 typedef byte Channel;
@@ -163,7 +163,6 @@ enum MidiControlChangeNumber
  */
 struct Message
 {
-
     /*! The MIDI channel on which the message was recieved.
      \n Value goes from 1 to 16.
      */
@@ -196,7 +195,6 @@ struct Message
      validity means the message respects the MIDI norm.
      */
     bool valid;
-
 };
 
 // -----------------------------------------------------------------------------
@@ -209,11 +207,12 @@ struct Message
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
     midi::MidiInterface<Type> Name((Type&)SerialPort);
 
-/*! \brief Shortcut for MIDI Interface class with template argument.
- The class name for a MIDI object using the hardware UART would be
- midi::MidiInterface<HardwareSerial>, when the macro is MIDI_CLASS(HardwareSerial).
+/*! \brief Create an instance of the library attached to a serial port with
+ custom settings.
+ @see DefaultSettings
+ @see MIDI_CREATE_INSTANCE
  */
-#define MIDI_CLASS(Type)                                                        \
-    midi::MidiInterface<Type>
+#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
+    midi::MidiInterface<Type, Settings> Name((Type&)SerialPort);
 
 END_MIDI_NAMESPACE

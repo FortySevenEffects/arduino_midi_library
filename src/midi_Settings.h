@@ -45,36 +45,6 @@
 #define MIDI_USE_CALLBACKS              1
 
 // -----------------------------------------------------------------------------
-
-// Create a MIDI object automatically on the port defined with MIDI_SERIAL_PORT.
-#ifndef MIDI_AUTO_INSTANCIATE
-#   ifdef ARDUINO
-#       define MIDI_AUTO_INSTANCIATE    1
-#   else
-#       define MIDI_AUTO_INSTANCIATE    0   ///< @see MIDI_CREATE_INSTANCE
-#   endif
-#endif
-
-// -----------------------------------------------------------------------------
-// Default serial port configuration (if MIDI_AUTO_INSTANCIATE is set)
-
-// Set the default port to use for MIDI.
-#if MIDI_AUTO_INSTANCIATE
-#   ifdef ARDUINO
-#       include "Arduino.h"
-#       ifdef USBCON
-#           define MIDI_DEFAULT_SERIAL_PORT     Serial1 // For Leonardo
-#       else
-#           define MIDI_DEFAULT_SERIAL_PORT     Serial  // For other Arduinos
-#       endif
-#       define MIDI_DEFAULT_SERIAL_CLASS        HardwareSerial
-#       include "HardwareSerial.h"
-#   else
-#       error Auto-instanciation disabled. Use MIDI_CREATE_INSTANCE macro.
-#   endif
-#endif
-
-// -----------------------------------------------------------------------------
 // Misc. options
 
 // Running status enables short messages when sending multiple values
@@ -98,5 +68,25 @@
 // -----------------------------------------------------------------------------
 
 BEGIN_MIDI_NAMESPACE
+
+/*! \brief Default Settings Traits struct
+ To change the default settings, don't edit them there, create a subclass and
+ override the values in that subclass, then use the MIDI_CREATE_CUSTOM_INSTANCE
+ macro to create your instance. The settings you don't override will keep their
+ default value. Eg:
+ struct MySettings : public midi::DefaultSettings
+ {
+    static const bool UseRunningStatus = false; // Messes with my old equipment!
+ };
+ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, midi, MySettings);
+ */
+struct DefaultSettings
+{
+    static const bool UseRunningStatus                      = true;
+    static const bool HandleNullVelocityNoteOnAsNoteOff     = true;
+    static const bool Use1ByteParsing                       = true;
+    static const unsigned BaudRate                          = 31250;
+    static const unsigned SysExArraySize                    = 128;
+};
 
 END_MIDI_NAMESPACE
