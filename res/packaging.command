@@ -37,4 +37,4 @@ zip -r Arduino_MIDI_Library.zip MIDI
 
 # Generate doc
 cd "$root/doc"
-doxygen .
+doxygen
