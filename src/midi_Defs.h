@@ -24,8 +24,13 @@
 #pragma once
 
 #include "midi_Namespace.h"
-#include "midi_Settings.h"
+
+#if ARDUINO
+#include <Arduino.h>
+#else
 #include <inttypes.h>
+typedef uint8_t byte;
+#endif
 
 BEGIN_MIDI_NAMESPACE
 
@@ -40,7 +45,6 @@ BEGIN_MIDI_NAMESPACE
 // -----------------------------------------------------------------------------
 // Type definitions
 
-typedef uint8_t  byte;
 typedef byte StatusByte;
 typedef byte DataByte;
 typedef byte Channel;
@@ -155,48 +159,6 @@ enum MidiControlChangeNumber
     PolyModeOn                  = 127
 };
 
-
-// -----------------------------------------------------------------------------
-
-/*! The midimsg structure contains decoded data of a MIDI message
-    read from the serial port with read()
- */
-struct Message
-{
-    /*! The MIDI channel on which the message was recieved.
-     \n Value goes from 1 to 16.
-     */
-    Channel channel;
-
-    /*! The type of the message
-     (see the MidiType enum for types reference)
-     */
-    MidiType type;
-
-    /*! The first data byte.
-     \n Value goes from 0 to 127.
-     */
-    DataByte data1;
-
-    /*! The second data byte.
-     If the message is only 2 bytes long, this one is null.
-     \n Value goes from 0 to 127.
-     */
-    DataByte data2;
-
-    /*! System Exclusive dedicated byte array.
-     \n Array length is stocked on 16 bits,
-     in data1 (LSB) and data2 (MSB)
-     */
-    DataByte sysexArray[MIDI_SYSEX_ARRAY_SIZE];
-
-    /*! This boolean indicates if the message is valid or not.
-     There is no channel consideration here,
-     validity means the message respects the MIDI norm.
-     */
-    bool valid;
-};
-
 // -----------------------------------------------------------------------------
 
 /*! \brief Create an instance of the library attached to a serial port.
@@ -206,6 +168,19 @@ struct Message
  */
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
     midi::MidiInterface<Type> Name((Type&)SerialPort);
+
+#if defined(ARDUINO_SAM_DUE) || defined(USBCON)
+    // Leonardo, Due and other USB boards use Serial1 by default.
+    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
+        MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
+#else
+    /*! \brief Create an instance of the library with default name, serial port
+    and settings, for compatibility with sketches written with pre-v4.2 MIDI Lib,
+    or if you don't bother using custom names, serial port or settings.
+    */
+    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
+        MIDI_CREATE_INSTANCE(HardwareSerial, Serial,  MIDI);
+#endif
 
 /*! \brief Create an instance of the library attached to a serial port with
  custom settings.

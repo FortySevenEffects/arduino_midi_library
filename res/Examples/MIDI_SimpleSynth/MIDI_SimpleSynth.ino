@@ -2,6 +2,8 @@
 #include "noteList.h"
 #include "pitches.h"
 
+MIDI_CREATE_DEFAULT_INSTANCE();
+
 #ifdef ARDUINO_SAM_DUE // Due has no tone function (yet), overriden to prevent build errors.
 #define tone(...)
 #define noTone(...)
@@ -50,7 +52,7 @@ void handleNotesChanged(bool isFirstNote = false)
         if (midiNotes.getLast(currentNote))
         {
             tone(sAudioOutPin, sNotePitches[currentNote]);
-            
+
             if (isFirstNote)
             {
                 handleGateChanged(true);

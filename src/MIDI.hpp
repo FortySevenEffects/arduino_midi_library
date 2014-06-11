@@ -79,18 +79,10 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
     mSerial.begin(Settings::BaudRate);
 #endif
 
-#if MIDI_BUILD_OUTPUT
-    if (Settings::UseRunningStatus)
-    {
-        mRunningStatus_TX = InvalidType;
-    }
-#endif // MIDI_BUILD_OUTPUT
-
-
-#if MIDI_BUILD_INPUT
-
     mInputChannel = inChannel;
+    mRunningStatus_TX = InvalidType;
     mRunningStatus_RX = InvalidType;
+
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
 
@@ -100,24 +92,13 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
     mMessage.data1   = 0;
     mMessage.data2   = 0;
 
-#endif // MIDI_BUILD_INPUT
-
-
-#if (MIDI_BUILD_INPUT && MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU) // Thru
-
     mThruFilterMode = Full;
     mThruActivated  = true;
-
-#endif // Thru
-
 }
-
 
 // -----------------------------------------------------------------------------
 //                                 Output
 // -----------------------------------------------------------------------------
-
-#if MIDI_BUILD_OUTPUT
 
 /*! \addtogroup output
  @{
@@ -459,14 +440,9 @@ StatusByte MidiInterface<SerialPort, Settings>::getStatus(MidiType inType,
     return ((byte)inType | ((inChannel - 1) & 0x0f));
 }
 
-#endif // MIDI_BUILD_OUTPUT
-
-
 // -----------------------------------------------------------------------------
 //                                  Input
 // -----------------------------------------------------------------------------
-
-#if MIDI_BUILD_INPUT
 
 /*! \addtogroup input
  @{
@@ -505,9 +481,7 @@ inline bool MidiInterface<SerialPort, Settings>::read(Channel inChannel)
         launchCallback();
     }
 
-#if MIDI_BUILD_THRU
     thruFilter(inChannel);
-#endif
 
     return channelMatch;
 }
@@ -604,8 +578,8 @@ bool MidiInterface<SerialPort, Settings>::parse()
 
             case SystemExclusive:
                 // The message can be any lenght
-                // between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
-                mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE;
+                // between 3 and MidiMessage::sSysExMaxSize bytes
+                mPendingMessageExpectedLenght = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
                 mMessage.sysexArray[0] = SystemExclusive;
                 break;
@@ -693,8 +667,8 @@ bool MidiInterface<SerialPort, Settings>::parse()
                         mMessage.type = SystemExclusive;
 
                         // Get length
-                        mMessage.data1   = mPendingMessageIndex & 0xff;
-                        mMessage.data2   = mPendingMessageIndex >> 8;
+                        mMessage.data1   = mPendingMessageIndex & 0xff; // LSB
+                        mMessage.data2   = mPendingMessageIndex >> 8;   // MSB
                         mMessage.channel = 0;
                         mMessage.valid   = true;
 
@@ -725,7 +699,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
         {
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
-            // the buffer. If this happens, try increasing MIDI_SYSEX_ARRAY_SIZE.
+            // the buffer. If this happens, try increasing MidiMessage::sSysExMaxSize.
             if (mPendingMessage[0] == SystemExclusive)
             {
                 resetInput();
@@ -852,7 +826,7 @@ inline void MidiInterface<SerialPort, Settings>::resetInput()
  Returns an enumerated type. @see MidiType
  */
 template<class SerialPort, class Settings>
-MidiType MidiInterface<SerialPort, Settings>::getType() const
+inline MidiType MidiInterface<SerialPort, Settings>::getType() const
 {
     return mMessage.type;
 }
@@ -863,21 +837,21 @@ MidiType MidiInterface<SerialPort, Settings>::getType() const
  For non-channel messages, this will return 0.
  */
 template<class SerialPort, class Settings>
-Channel MidiInterface<SerialPort, Settings>::getChannel() const
+inline Channel MidiInterface<SerialPort, Settings>::getChannel() const
 {
     return mMessage.channel;
 }
 
 /*! \brief Get the first data byte of the last received message. */
 template<class SerialPort, class Settings>
-DataByte MidiInterface<SerialPort, Settings>::getData1() const
+inline DataByte MidiInterface<SerialPort, Settings>::getData1() const
 {
     return mMessage.data1;
 }
 
 /*! \brief Get the second data byte of the last received message. */
 template<class SerialPort, class Settings>
-DataByte MidiInterface<SerialPort, Settings>::getData2() const
+inline DataByte MidiInterface<SerialPort, Settings>::getData2() const
 {
     return mMessage.data2;
 }
@@ -887,7 +861,7 @@ DataByte MidiInterface<SerialPort, Settings>::getData2() const
  @see getSysExArrayLength to get the array's length in bytes.
  */
 template<class SerialPort, class Settings>
-const byte* MidiInterface<SerialPort, Settings>::getSysExArray() const
+inline const byte* MidiInterface<SerialPort, Settings>::getSysExArray() const
 {
     return mMessage.sysexArray;
 }
@@ -898,16 +872,14 @@ const byte* MidiInterface<SerialPort, Settings>::getSysExArray() const
  \return The array's length, in bytes.
  */
 template<class SerialPort, class Settings>
-unsigned MidiInterface<SerialPort, Settings>::getSysExArrayLength() const
+inline unsigned MidiInterface<SerialPort, Settings>::getSysExArrayLength() const
 {
-    static const unsigned maxSize = Settings::SysExArraySize;
-    const unsigned size = (unsigned(mMessage.data2) << 8) | mMessage.data1;
-    return (size > maxSize) ? maxSize : size;
+    return mMessage.getSysExSize();
 }
 
 /*! \brief Check if a valid message is stored in the structure. */
 template<class SerialPort, class Settings>
-bool MidiInterface<SerialPort, Settings>::check() const
+inline bool MidiInterface<SerialPort, Settings>::check() const
 {
     return mMessage.valid;
 }
@@ -915,7 +887,7 @@ bool MidiInterface<SerialPort, Settings>::check() const
 // -----------------------------------------------------------------------------
 
 template<class SerialPort, class Settings>
-Channel MidiInterface<SerialPort, Settings>::getInputChannel() const
+inline Channel MidiInterface<SerialPort, Settings>::getInputChannel() const
 {
     return mInputChannel;
 }
@@ -925,7 +897,7 @@ Channel MidiInterface<SerialPort, Settings>::getInputChannel() const
  if you want to listen to all channels, and MIDI_CHANNEL_OFF to disable input.
  */
 template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::setInputChannel(Channel inChannel)
+inline void MidiInterface<SerialPort, Settings>::setInputChannel(Channel inChannel)
 {
     mInputChannel = inChannel;
 }
@@ -980,8 +952,6 @@ bool MidiInterface<SerialPort, Settings>::isChannelMessage(MidiType inType)
 
 // -----------------------------------------------------------------------------
 
-#if MIDI_USE_CALLBACKS
-
 /*! \addtogroup callbacks
  @{
  */
@@ -993,7 +963,7 @@ template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settin
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleProgramChange(void (*fptr)(byte channel, byte number))                 { mProgramChangeCallback        = fptr; }
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure))           { mAfterTouchChannelCallback    = fptr; }
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandlePitchBend(void (*fptr)(byte channel, int bend))                        { mPitchBendCallback            = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSystemExclusive(void (*fptr)(byte* array, byte size))                  { mSystemExclusiveCallback      = fptr; }
+template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSystemExclusive(void (*fptr)(byte* array, unsigned size))              { mSystemExclusiveCallback      = fptr; }
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleTimeCodeQuarterFrame(void (*fptr)(byte data))                          { mTimeCodeQuarterFrameCallback = fptr; }
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSongPosition(void (*fptr)(unsigned beats))                             { mSongPositionCallback         = fptr; }
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSongSelect(void (*fptr)(byte songnumber))                              { mSongSelectCallback           = fptr; }
@@ -1066,7 +1036,7 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
         case AfterTouchChannel:     if (mAfterTouchChannelCallback != 0)     mAfterTouchChannelCallback(mMessage.channel, mMessage.data1);    break;
 
         case ProgramChange:         if (mProgramChangeCallback != 0)         mProgramChangeCallback(mMessage.channel, mMessage.data1);    break;
-        case SystemExclusive:       if (mSystemExclusiveCallback != 0)       mSystemExclusiveCallback(mMessage.sysexArray, mMessage.data1);    break;
+        case SystemExclusive:       if (mSystemExclusiveCallback != 0)       mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());    break;
 
             // Occasional messages
         case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != 0)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
@@ -1081,18 +1051,11 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
     }
 }
 
-#endif // MIDI_USE_CALLBACKS
-
 /*! @} */ // End of doc group MIDI Input
-
-#endif // MIDI_BUILD_INPUT
-
 
 // -----------------------------------------------------------------------------
 //                                  Thru
 // -----------------------------------------------------------------------------
-
-#if (MIDI_BUILD_INPUT && MIDI_BUILD_OUTPUT && MIDI_BUILD_THRU)
 
 /*! \addtogroup thru
  @{
@@ -1237,8 +1200,6 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
         }
     }
 }
-
-#endif // MIDI_BUILD_THRU
 
 // -----------------------------------------------------------------------------
 

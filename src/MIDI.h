@@ -23,8 +23,9 @@
 
 #pragma once
 
-#include "midi_Settings.h"
 #include "midi_Defs.h"
+#include "midi_Settings.h"
+#include "midi_Message.h"
 
 // -----------------------------------------------------------------------------
 
@@ -131,7 +132,7 @@ public:
     inline void setHandleProgramChange(void (*fptr)(byte channel, byte number));
     inline void setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure));
     inline void setHandlePitchBend(void (*fptr)(byte channel, int bend));
-    inline void setHandleSystemExclusive(void (*fptr)(byte * array, byte size));
+    inline void setHandleSystemExclusive(void (*fptr)(byte * array, unsigned size));
     inline void setHandleTimeCodeQuarterFrame(void (*fptr)(byte data));
     inline void setHandleSongPosition(void (*fptr)(unsigned beats));
     inline void setHandleSongSelect(void (*fptr)(byte songnumber));
@@ -155,7 +156,7 @@ private:
     void (*mProgramChangeCallback)(byte channel, byte);
     void (*mAfterTouchChannelCallback)(byte channel, byte);
     void (*mPitchBendCallback)(byte channel, int);
-    void (*mSystemExclusiveCallback)(byte * array, byte size);
+    void (*mSystemExclusiveCallback)(byte * array, unsigned size);
     void (*mTimeCodeQuarterFrameCallback)(byte data);
     void (*mSongPositionCallback)(unsigned beats);
     void (*mSongSelectCallback)(byte songnumber);
@@ -193,23 +194,20 @@ private:
     MidiFilterMode  mThruFilterMode : 7;
 
 private:
+    typedef Message<Settings::SysExMaxSize> MidiMessage;
+
+private:
     StatusByte  mRunningStatus_RX;
+    StatusByte  mRunningStatus_TX;
     Channel     mInputChannel;
     byte        mPendingMessage[3];
     unsigned    mPendingMessageExpectedLenght;
     unsigned    mPendingMessageIndex;
-    Message     mMessage;
+    MidiMessage mMessage;
 
 private:
     inline StatusByte getStatus(MidiType inType,
                                 Channel inChannel) const;
-
-
-
-#if MIDI_USE_RUNNING_STATUS
-private:
-    StatusByte mRunningStatus_TX;
-#endif
 
 private:
     SerialPort& mSerial;

@@ -23,47 +23,16 @@
 
 #pragma once
 
-#include "midi_Namespace.h"
-
-// -----------------------------------------------------------------------------
-
-// Here are a few settings you can change to customize
-// the library for your own project. You can for example
-// choose to compile only parts of it so you gain flash
-// space and optimise the speed of your sketch.
-
-// -----------------------------------------------------------------------------
+#include "midi_Defs.h"
 
 // Compilation flags. Set them to 1 to build the associated feature
 // (MIDI in, out, thru), or to 0 to disable the feature and save space.
 // Note that thru can work only if input and output are enabled.
 
-#define MIDI_BUILD_INPUT                1
-#define MIDI_BUILD_OUTPUT               1
-#define MIDI_BUILD_THRU                 1
-
-#define MIDI_USE_CALLBACKS              1
-
-// -----------------------------------------------------------------------------
-// Misc. options
-
-// Running status enables short messages when sending multiple values
-// of the same type and channel.
-// Set to 0 if you have troubles controlling your hardware.
-#define MIDI_USE_RUNNING_STATUS         1
-
-// NoteOn with 0 velocity should be handled as NoteOf.
-// Set to 1 to get NoteOff events when receiving null-velocity NoteOn messages.
-// Set to 0 to get NoteOn  events when receiving null-velocity NoteOn messages.
-#define MIDI_HANDLE_NULL_VELOCITY_NOTE_ON_AS_NOTE_OFF 1
-
-// Setting this to 1 will make MIDI.read parse only one byte of data for each
-// call when data is available. This can speed up your application if receiving
-// a lot of traffic, but might induce MIDI Thru and treatment latency.
-#define MIDI_USE_1BYTE_PARSING          1
-
-#define MIDI_BAUDRATE                   31250
-#define MIDI_SYSEX_ARRAY_SIZE           255     // Maximum size is 65535 bytes.
+#define MIDI_BUILD_INPUT    1
+#define MIDI_BUILD_OUTPUT   1
+#define MIDI_BUILD_THRU     1
+#define MIDI_USE_CALLBACKS  1
 
 // -----------------------------------------------------------------------------
 
@@ -82,11 +51,33 @@ BEGIN_MIDI_NAMESPACE
  */
 struct DefaultSettings
 {
-    static const bool UseRunningStatus                      = true;
-    static const bool HandleNullVelocityNoteOnAsNoteOff     = true;
-    static const bool Use1ByteParsing                       = true;
-    static const unsigned BaudRate                          = 31250;
-    static const unsigned SysExArraySize                    = 128;
+    /*! Running status enables short messages when sending multiple values
+     of the same type and channel.\n
+     Set to 0 if you have troubles controlling your hardware.
+     */
+    static const bool UseRunningStatus = true;
+
+    /* NoteOn with 0 velocity should be handled as NoteOf.\n
+     Set to 1 to get NoteOff events when receiving null-velocity NoteOn messages.\n
+     Set to 0 to get NoteOn  events when receiving null-velocity NoteOn messages.
+     */
+    static const bool HandleNullVelocityNoteOnAsNoteOff = true;
+
+    // Setting this to 1 will make MIDI.read parse only one byte of data for each
+    // call when data is available. This can speed up your application if receiving
+    // a lot of traffic, but might induce MIDI Thru and treatment latency.
+    static const bool Use1ByteParsing = true;
+
+    /*! Override the default MIDI baudrate to transmit over USB serial, to
+    a decoding program such as Hairless MIDI (set baudrate to 115200)\n
+    http://projectgus.github.io/hairless-midiserial/
+    */
+    static const long BaudRate = 31250;
+
+    /*! Maximum size of SysEx receivable. Decrease to save RAM if you don't expect
+    to receive SysEx, or adjust accordingly.
+    */
+    static const unsigned SysExMaxSize = 128;
 };
 
 END_MIDI_NAMESPACE
