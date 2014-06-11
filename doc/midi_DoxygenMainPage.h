@@ -37,6 +37,7 @@
  \example MIDI_Bench.ino
  \example MIDI_DualMerger.ino
  \example MIDI_Input.ino
+ \example MIDI_SimpleSynth.ino
  */
 
 // -----------------------------------------------------------------------------

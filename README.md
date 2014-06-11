@@ -1,9 +1,9 @@
-#Arduino MIDI Library v4.1
+#Arduino MIDI Library v4.2
 
 This library enables MIDI I/O communications on the Arduino serial ports.
 The purpose of this library is not to make a big synthetizer out of an Arduino board, the application remains yours. However, it will help you interfacing it with other MIDI devices.
 
-Download the latest version [here](https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.1/Arduino_MIDI_Library_v4.1.zip).
+Download the latest version [here](https://github.com/FortySevenEffects/arduino_midi_library/releases/latest).
 
 ### Features
 * Compatible with all Arduino boards (and clones with an AVR processor)
@@ -18,6 +18,7 @@ Download the latest version [here](https://github.com/FortySevenEffects/arduino_
 
 
 #### Changelog
+* 11/06/2014 : Version 4.2 released. Bug fix for SysEx, overridable template settings.
 * 16/04/2014 : Version 4.1 released. Bug fixes regarding running status.
 * 13/02/2014 : Version 4.0 released. Moved to GitHub, added multiple instances & software serial support, and a few bug fixes.
 * 29/01/2012 : Version 3.2 released. Release notes are [here](http://sourceforge.net/news/?group_id=265194)
@@ -26,7 +27,7 @@ Download the latest version [here](https://github.com/FortySevenEffects/arduino_
 * 14/12/2009 : Version 2.5 released.
 * 28/07/2009 : Version 2.0 released.
 * 28/03/2009 : Simplified version of MIDI.begin, Fast mode is now on by default.
-* 08/03/2009 : Thru method operationnal. Added some features to enable thru.
+* 08/03/2009 : Thru method operational. Added some features to enable thru.
 
 
 
@@ -35,9 +36,10 @@ Download the latest version [here](https://github.com/FortySevenEffects/arduino_
 
 ### What do I need to do?
 
-* Download the library ([link](https://github.com/FortySevenEffects/arduino_midi_library/releases/download/4.1/Arduino_MIDI_Library_v4.1.zip))
+* Download the library ([link](https://github.com/FortySevenEffects/arduino_midi_library/releases/latest))
 * Follow the installation instructions there: http://arduino.cc/en/Guide/Libraries
 * Include the library in your sketch using the menu in the IDE, or type `#include <MIDI.h>`
+* Create the MIDI instance using `MIDI_CREATE_DEFAULT_INSTANCE();` or take a look at the documentation for custom serial port, settings etc..
 
 You are now ready to use the library. Look at the reference page to learn how to use it, or the examples given. Just don't forget to enable the I/O communications with MIDI.begin...
 
@@ -45,9 +47,6 @@ You are now ready to use the library. Look at the reference page to learn how to
 ##Reference
 
 See the extended reference [here](http://arduinomidilib.fortyseveneffects.com) ([Mirror](http://fortyseveneffects.github.io/arduino_midi_library/)).
-
-To know how to use the callback feature, see the dedicated page [here](http://playground.arduino.cc/Main/MIDILibraryCallbacks).
-
 
 ### Using MIDI.begin
 
@@ -78,4 +77,3 @@ Take a look at [the MIDI.org schematic](http://www.midi.org/techspecs/electrispe
 if you have any comment or support request to make, feel free to contact me: francois.best@fortyseveneffects.com
 
 You can also get informations about bug fixes and updates on my twitter account: [@fortysevenfx](http://twitter.com/fortysevenfx).
-

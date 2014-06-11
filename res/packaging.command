@@ -12,8 +12,8 @@ cd "`dirname "${0}"`"
 root="${PWD}/.."
 build="$root/build/MIDI"
 
-echo root  $root
-echo build $build
+echo "root:  $root"
+echo "build: $build"
 
 # Create a temporary destination folder
 mkdir -p "$build"
@@ -34,3 +34,7 @@ cp -r * "$build/examples"
 # Generate package
 cd "$build/.."
 zip -r Arduino_MIDI_Library.zip MIDI
+
+# Generate doc
+cd "$root/doc"
+doxygen

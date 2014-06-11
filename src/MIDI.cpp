@@ -2,7 +2,7 @@
  *  @file       MIDI.cpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino
- *  @version    4.1
+ *  @version    4.2
  *  @author     Francois Best
  *  @date       24/02/11
  *  @license    GPL v3.0 - Copyright Forty Seven Effects 2014
@@ -22,27 +22,6 @@
  */
 
 #include "MIDI.h"
-
-// -----------------------------------------------------------------------------
-
-#if !(MIDI_BUILD_INPUT) && !(MIDI_BUILD_OUTPUT)
-#   error To use MIDI, you need to enable at least input or output.
-#endif
-
-#if MIDI_BUILD_THRU && !(MIDI_BUILD_OUTPUT)
-#   error For thru to work, you need to enable output.
-#endif
-#if MIDI_BUILD_THRU && !(MIDI_BUILD_INPUT)
-#   error For thru to work, you need to enable input.
-#endif
-
-// -----------------------------------------------------------------------------
-
-#if MIDI_AUTO_INSTANCIATE && defined(ARDUINO)
-    MIDI_CREATE_INSTANCE(MIDI_DEFAULT_SERIAL_CLASS,
-                         MIDI_DEFAULT_SERIAL_PORT,
-                         MIDI);
-#endif
 
 // -----------------------------------------------------------------------------
 
