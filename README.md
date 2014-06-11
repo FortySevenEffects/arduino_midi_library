@@ -12,7 +12,7 @@ Download the latest version [here](https://github.com/FortySevenEffects/arduino_
 * Software Thru, with message filtering.
 * [Callbacks](http://playground.arduino.cc/Main/MIDILibraryCallbacks) to handle input messages more easily.
 * Last received message is saved until a new one arrives.
-* Configurable: disable input or output if you don't need it, and get the pin back for IO use (and save some flash space).
+* Configurable: [overridable template-based settings](http://arduinomidilib.fortyseveneffects.com/a00013.html#details).
 * Create more than one MIDI port for mergers/splitters applications.
 * Use any serial port, hardware or software.
 
