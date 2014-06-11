@@ -30,7 +30,6 @@ template<class SerialPort, class Settings>
 inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     : mSerial(inSerial)
 {
-#if MIDI_BUILD_INPUT && MIDI_USE_CALLBACKS
     mNoteOffCallback                = 0;
     mNoteOnCallback                 = 0;
     mAfterTouchPolyCallback         = 0;
@@ -49,7 +48,6 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     mStopCallback                   = 0;
     mActiveSensingCallback          = 0;
     mSystemResetCallback            = 0;
-#endif
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -476,7 +474,7 @@ inline bool MidiInterface<SerialPort, Settings>::read(Channel inChannel)
     handleNullVelocityNoteOnAsNoteOff();
     const bool channelMatch = inputFilter(inChannel);
 
-    if (MIDI_USE_CALLBACKS && channelMatch)
+    if (channelMatch)
     {
         launchCallback();
     }
@@ -616,15 +614,17 @@ bool MidiInterface<SerialPort, Settings>::parse()
             mPendingMessageIndex++;
         }
 
-        #if USE_1BYTE_PARSING
-        // Message is not complete.
-        return false;
-        #else
-        // Call the parser recursively
-        // to parse the rest of the message.
-        return parse();
-        #endif
-
+        if (Settings::Use1ByteParsing)
+        {
+            // Message is not complete.
+            return false;
+        }
+        else
+        {
+            // Call the parser recursively
+            // to parse the rest of the message.
+            return parse();
+        }
     }
     else
     {

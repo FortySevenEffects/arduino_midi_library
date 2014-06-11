@@ -25,17 +25,6 @@
 
 #include "midi_Defs.h"
 
-// Compilation flags. Set them to 1 to build the associated feature
-// (MIDI in, out, thru), or to 0 to disable the feature and save space.
-// Note that thru can work only if input and output are enabled.
-
-#define MIDI_BUILD_INPUT    1
-#define MIDI_BUILD_OUTPUT   1
-#define MIDI_BUILD_THRU     1
-#define MIDI_USE_CALLBACKS  1
-
-// -----------------------------------------------------------------------------
-
 BEGIN_MIDI_NAMESPACE
 
 /*! \brief Default Settings Traits struct
