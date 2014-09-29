@@ -12,7 +12,7 @@
   {
     "type": "git",
     "url": "https://github.com/FortySevenEffects/arduino_midi_library.git"
-  }
+  },
   "include": "src",
   "examples": "res/Examples/*/*.ino"
  }
