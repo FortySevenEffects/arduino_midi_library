@@ -169,8 +169,8 @@ enum MidiControlChangeNumber
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
     midi::MidiInterface<Type> Name((Type&)SerialPort);
 
-#if defined(ARDUINO_SAM_DUE) || defined(USBCON)
-    // Leonardo, Due and other USB boards use Serial1 by default.
+#if defined(SERIAL_PORT_USBVIRTUAL) || defined(USBCON)
+    // Leonardo, Due, Teensy and other USB boards use Serial1 by default.
     #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
         MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 #else
