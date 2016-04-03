@@ -797,8 +797,8 @@ inline bool MidiInterface<SerialPort, Settings>::inputFilter(Channel inChannel)
     if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
     {
         // Then we need to know if we listen to it
-        if ((mMessage.channel == mInputChannel) ||
-            (mInputChannel == MIDI_CHANNEL_OMNI))
+        if ((mMessage.channel == inChannel) ||
+            (inChannel == MIDI_CHANNEL_OMNI))
         {
             return true;
         }
