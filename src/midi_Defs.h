@@ -122,6 +122,8 @@ enum MidiControlChangeNumber
     GeneralPurposeController3   = 18,
     GeneralPurposeController4   = 19,
 
+    DataEntryLSB                = 38,
+
     // Switches ----------------------------------------------------------------
     Sustain                     = 64,
     Portamento                  = 65,
@@ -152,6 +154,12 @@ enum MidiControlChangeNumber
     Effects3                    = 93,   ///< Chorus send level
     Effects4                    = 94,   ///< Celeste depth
     Effects5                    = 95,   ///< Phaser depth
+    DataIncrement               = 96,
+    DataDecrement               = 97,
+    NRPN                        = 98,   ///< Non-Registered Parameter Number (LSB)
+    NRPNMSB                     = 99,   ///< Non-Registered Parameter Number (MSB)
+    RPN                         = 100,  ///< Registered Parameter Number (LSB)
+    RPNMSB                      = 101,  ///< Registered Parameter Number (MSB)
 
     // Channel Mode messages ---------------------------------------------------
     AllSoundOff                 = 120,
@@ -162,6 +170,24 @@ enum MidiControlChangeNumber
     OmniModeOn                  = 125,
     MonoModeOn                  = 126,
     PolyModeOn                  = 127
+};
+
+struct RPN
+{
+#define MIDI_MAKE_RPN(msb, lsb)  msb << 7 + lsb
+
+    enum RegisteredParameterNumbers
+    {
+        PitchBendSensitivity    = MIDI_MAKE_RPN(0x00, 0x00),
+        ChannelFineTuning       = MIDI_MAKE_RPN(0x00, 0x01),
+        ChannelCoarseTuning     = MIDI_MAKE_RPN(0x00, 0x02),
+        SelectTuningProgram     = MIDI_MAKE_RPN(0x00, 0x03),
+        SelectTuningBank        = MIDI_MAKE_RPN(0x00, 0x04),
+        ModulationDepthRange    = MIDI_MAKE_RPN(0x00, 0x05),
+        NullFunction            = MIDI_MAKE_RPN(0x7f, 0x7f),
+    };
+
+#undef MIDI_MAKE_RPN
 };
 
 // -----------------------------------------------------------------------------
