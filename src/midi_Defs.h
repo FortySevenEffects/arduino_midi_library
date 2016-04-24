@@ -174,20 +174,16 @@ enum MidiControlChangeNumber
 
 struct RPN
 {
-#define MIDI_MAKE_RPN(msb, lsb)  msb << 7 + lsb
-
     enum RegisteredParameterNumbers
     {
-        PitchBendSensitivity    = MIDI_MAKE_RPN(0x00, 0x00),
-        ChannelFineTuning       = MIDI_MAKE_RPN(0x00, 0x01),
-        ChannelCoarseTuning     = MIDI_MAKE_RPN(0x00, 0x02),
-        SelectTuningProgram     = MIDI_MAKE_RPN(0x00, 0x03),
-        SelectTuningBank        = MIDI_MAKE_RPN(0x00, 0x04),
-        ModulationDepthRange    = MIDI_MAKE_RPN(0x00, 0x05),
-        NullFunction            = MIDI_MAKE_RPN(0x7f, 0x7f),
+        PitchBendSensitivity    = 0x0000,
+        ChannelFineTuning       = 0x0001,
+        ChannelCoarseTuning     = 0x0002,
+        SelectTuningProgram     = 0x0003,
+        SelectTuningBank        = 0x0004,
+        ModulationDepthRange    = 0x0005,
+        NullFunction            = (0x7f << 7) + 0x7f,
     };
-
-#undef MIDI_MAKE_RPN
 };
 
 // -----------------------------------------------------------------------------
