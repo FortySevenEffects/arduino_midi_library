@@ -5,6 +5,4 @@ before_install:
 script:
   - build_main_platforms
 notifications:
-  email:
-    on_success: change
-    on_failure: change
+  email: false
