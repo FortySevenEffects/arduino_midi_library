@@ -9,6 +9,9 @@
 #ifdef ARDUINO_SAM_DUE
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial,     midiA);
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
+#elif defined(ARDUINO_SAMD_ZERO)
+    MIDI_CREATE_INSTANCE(HardwareSerial, SerialUSB,  midiA);
+    MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
 #else
     #include <SoftwareSerial.h>
     SoftwareSerial softSerial(2,3);
