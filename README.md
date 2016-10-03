@@ -1,7 +1,7 @@
 # Arduino MIDI Library
 
 [![Build Status](https://travis-ci.org/FortySevenEffects/arduino_midi_library.svg?branch=master)](https://travis-ci.org/FortySevenEffects/arduino_midi_library)
-[![GitHub release](https://img.shields.io/github/release/FortySevenEffects/arduino_midi_library.svg?maxAge=2592000)]()
+[![GitHub release](https://img.shields.io/github/release/FortySevenEffects/arduino_midi_library.svg?maxAge=2592000)](https://github.com/FortySevenEffects/arduino_midi_library/releases/latest)
 [![License](https://img.shields.io/github/license/FortySevenEffects/arduino_midi_library.svg?maxAge=2592000)](LICENSE)
 
 This library enables MIDI I/O communications on the Arduino serial ports.
