@@ -1,0 +1,11 @@
+#pragma once
+
+#define TEST_MOCKS_NAMESPACE            test_mocks
+#define BEGIN_TEST_MOCKS_NAMESPACE      namespace TEST_MOCKS_NAMESPACE {
+#define END_TEST_MOCKS_NAMESPACE        }
+
+#define USING_NAMESPACE_TEST_MOCKS      using namespace TEST_MOCKS_NAMESPACE;
+
+BEGIN_TEST_MOCKS_NAMESPACE
+
+END_TEST_MOCKS_NAMESPACE
