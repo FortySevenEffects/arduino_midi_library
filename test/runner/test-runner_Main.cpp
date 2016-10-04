@@ -2,9 +2,14 @@
 
 BEGIN_TEST_RUNNER_NAMESPACE
 
+bool run()
+{
+    return false;
+}
+
 END_TEST_RUNNER_NAMESPACE
 
 int main()
 {
-    return 0;
+    return TEST_RUNNER_NAMESPACE::run() ? 0 : 1;
 }
