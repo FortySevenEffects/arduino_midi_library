@@ -43,13 +43,6 @@ struct Message
     */
     static const unsigned sSysExMaxSize = SysExMaxSize;
 
-    /*! Static method accessor for SysEx max size, used for unit tests.
-    */
-    static inline unsigned getSysExMaxSize()
-    {
-        return SysExMaxSize;
-    }
-
     /*! The MIDI channel on which the message was recieved.
      \n Value goes from 1 to 16.
      */
