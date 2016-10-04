@@ -3,6 +3,7 @@ project(unit-tests)
 include_directories(
     ${unit-tests_SOURCE_DIR}
     ${gtest_SOURCE_DIR}/include
+    ${gmock_SOURCE_DIR}/include
 )
 
 add_executable(unit-tests
@@ -13,10 +14,12 @@ add_executable(unit-tests
 
     tests/unit-tests_MidiMessage.cpp
     tests/unit-tests_Settings.cpp
+    tests/unit-tests_SysExCodec.cpp
 )
 
 target_link_libraries(unit-tests
     gtest
+    gmock
     midi
     test-mocks
 )

@@ -55,7 +55,7 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
         const byte msb  = data >> 7;
         const byte body = data & 0x7f;
 
-        outSysEx[0] |= (msb << count);
+        outSysEx[0] |= (msb << (6 - count));
         outSysEx[1 + count] = body;
 
         if (count++ == 6)
@@ -84,17 +84,20 @@ unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
 {
     unsigned count  = 0;
     byte msbStorage = 0;
+    byte byteIndex  = 0;
 
     for (unsigned i = 0; i < inLength; ++i)
     {
         if ((i % 8) == 0)
         {
             msbStorage = inSysEx[i];
+            byteIndex  = 6;
         }
         else
         {
-            outData[count++] = inSysEx[i] | ((msbStorage & 1) << 7);
-            msbStorage >>= 1;
+            const byte body = inSysEx[i];
+            const byte msb  = ((msbStorage >> byteIndex--) & 1) << 7;
+            outData[count++] = msb | body;
         }
     }
     return count;
