@@ -15,6 +15,10 @@ add_executable(unit-tests
     tests/unit-tests_MidiMessage.cpp
     tests/unit-tests_Settings.cpp
     tests/unit-tests_SysExCodec.cpp
+    tests/unit-tests_SerialMock.cpp
+    tests/unit-tests_MidiInput.cpp
+    tests/unit-tests_MidiOutput.cpp
+    tests/unit-tests_MidiThru.cpp
 )
 
 target_link_libraries(unit-tests

@@ -26,11 +26,11 @@ int RingBuffer<DataType, Size>::getLength() const
     }
     else if (mWriteHead > mReadHead)
     {
-        return mWriteHead - mReadHead;
+        return int(mWriteHead - mReadHead);
     }
     else
     {
-        return Size - mReadHead + mWriteHead;
+        return int(mWriteHead - mData) + Size - int(mReadHead - mData);
     }
 }
 
