@@ -1,6 +1,17 @@
 #include "unit-tests.h"
 #include <src/MIDI.h>
-#include <test/mocks/test-mocks_SerialMock.h>
+
+BEGIN_MIDI_NAMESPACE
+
+// Declare references:
+// http://stackoverflow.com/questions/4891067/weird-undefined-symbols-of-static-constants-inside-a-struct-class
+
+template<unsigned Size>
+const unsigned Message<Size>::sSysExMaxSize;
+
+END_MIDI_NAMESPACE
+
+// -----------------------------------------------------------------------------
 
 BEGIN_UNNAMED_NAMESPACE
 
@@ -28,9 +39,8 @@ TEST(MidiMessage, getSysExSize)
     // Small message
     {
         typedef midi::Message<32> Message;
+        ASSERT_EQ(Message::sSysExMaxSize, 32);
         Message message = Message();
-        ASSERT_EQ(Message::getSysExMaxSize(), 32);
-        ASSERT_EQ(message.getSysExMaxSize(),  32);
 
         const unsigned sizeUnder = 20;
         setSysExSize(message, sizeUnder);
@@ -43,9 +53,8 @@ TEST(MidiMessage, getSysExSize)
     // Medium message
     {
         typedef midi::Message<256> Message;
+        ASSERT_EQ(Message::sSysExMaxSize, 256);
         Message message = Message();
-        ASSERT_EQ(Message::getSysExMaxSize(), 256);
-        ASSERT_EQ(message.getSysExMaxSize(),  256);
 
         const unsigned sizeUnder = 200;
         setSysExSize(message, sizeUnder);
@@ -58,9 +67,8 @@ TEST(MidiMessage, getSysExSize)
     // Large message
     {
         typedef midi::Message<1024> Message;
+        ASSERT_EQ(Message::sSysExMaxSize, 1024);
         Message message = Message();
-        ASSERT_EQ(Message::getSysExMaxSize(), 1024);
-        ASSERT_EQ(message.getSysExMaxSize(),  1024);
 
         const unsigned sizeUnder = 1000;
         setSysExSize(message, sizeUnder);
