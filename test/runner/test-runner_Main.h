@@ -6,4 +6,4 @@ BEGIN_TEST_RUNNER_NAMESPACE
 
 END_TEST_RUNNER_NAMESPACE
 
-int main();
+int main(int argc, char **argv);

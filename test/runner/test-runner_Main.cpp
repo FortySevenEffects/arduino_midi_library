@@ -1,15 +1,7 @@
 #include "test-runner_Main.h"
+#include <gtest/gtest.h>
 
-BEGIN_TEST_RUNNER_NAMESPACE
-
-bool run()
-{
-    return false;
-}
-
-END_TEST_RUNNER_NAMESPACE
-
-int main()
-{
-    return TEST_RUNNER_NAMESPACE::run() ? 0 : 1;
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
