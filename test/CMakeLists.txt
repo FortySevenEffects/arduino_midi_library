@@ -1,2 +1,2 @@
 add_subdirectory(mocks)
-add_subdirectory(runner)
+add_subdirectory(unit-tests)

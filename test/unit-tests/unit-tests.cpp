@@ -1,5 +1,4 @@
-#include "test-runner_Main.h"
-#include <gtest/gtest.h>
+#include "unit-tests.h"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
