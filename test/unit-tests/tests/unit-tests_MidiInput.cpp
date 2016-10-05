@@ -48,6 +48,39 @@ TEST(MidiInput, getTypeFromStatusByte)
     EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfd), midi::InvalidType);
 }
 
+TEST(MidiInput, getChannelFromStatusByte)
+{
+    EXPECT_EQ(MidiInterface::getChannelFromStatusByte(0x00), 1);
+    EXPECT_EQ(MidiInterface::getChannelFromStatusByte(0x80), 1);
+    EXPECT_EQ(MidiInterface::getChannelFromStatusByte(0x94), 5);
+    EXPECT_EQ(MidiInterface::getChannelFromStatusByte(0xaf), 16);
+}
+
+TEST(MidiInput, isChannelMessage)
+{
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::InvalidType),           false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::NoteOff),               true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::NoteOn),                true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::AfterTouchPoly),        true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::ControlChange),         true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::ProgramChange),         true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::AfterTouchChannel),     true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::PitchBend),             true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SystemExclusive),       false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::TimeCodeQuarterFrame),  false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SongPosition),          false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SongSelect),            false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::TuneRequest),           false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Clock),                 false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Start),                 false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Continue),              false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Stop),                  false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::ActiveSensing),         false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SystemReset),           false);
+}
+
+// --
+
 TEST(MidiInput, begin)
 {
     SerialMock serial;
@@ -62,6 +95,28 @@ TEST(MidiInput, begin)
     midi.begin(12);
     EXPECT_EQ(serial.mBaudrate, 31250);
     EXPECT_EQ(midi.getInputChannel(), 12);
+}
+
+TEST(MidiInput, initInputChannel)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+
+    EXPECT_EQ(midi.getInputChannel(), 0);
+    midi.setInputChannel(12);
+    EXPECT_EQ(midi.getInputChannel(), 12);
+}
+
+TEST(MidiInput, initMessage)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    EXPECT_EQ(midi.getType(),               midi::InvalidType);
+    EXPECT_EQ(midi.getChannel(),            0);
+    EXPECT_EQ(midi.getData1(),              0);
+    EXPECT_EQ(midi.getData2(),              0);
+    EXPECT_EQ(midi.getSysExArrayLength(),   0);
+    EXPECT_EQ(midi.check(),                 false);
 }
 
 END_UNNAMED_NAMESPACE
