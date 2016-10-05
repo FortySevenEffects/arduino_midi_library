@@ -34,6 +34,11 @@ BEGIN_MIDI_NAMESPACE
 template<class SerialPort, class Settings>
 inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     : mSerial(inSerial)
+    , mInputChannel(0)
+    , mRunningStatus_RX(InvalidType)
+    , mRunningStatus_TX(InvalidType)
+    , mPendingMessageExpectedLenght(0)
+    , mPendingMessageIndex(0)
 {
     mNoteOffCallback                = 0;
     mNoteOnCallback                 = 0;
