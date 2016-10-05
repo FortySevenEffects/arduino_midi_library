@@ -39,6 +39,19 @@ BEGIN_MIDI_NAMESPACE
 template<unsigned SysExMaxSize>
 struct Message
 {
+    /*! Default constructor
+     \n Initializes the attributes with their default values.
+    */
+    inline Message()
+        : channel(0)
+        , type(midi::InvalidType)
+        , data1(0)
+        , data2(0)
+        , valid(false)
+    {
+        memset(sysexArray, 0, sSysExMaxSize * sizeof(DataByte));
+    }
+
     /*! The maximum size for the System Exclusive array.
     */
     static const unsigned sSysExMaxSize = SysExMaxSize;
