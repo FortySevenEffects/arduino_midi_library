@@ -28,6 +28,10 @@ target_link_libraries(unit-tests
     test-mocks
 )
 
-# add_custom_command(TARGET unit-tests POST_BUILD
-#     COMMAND ${unit-tests_BINARY_DIR}/unit-tests
-# )
+option(RUN_UNIT_TESTS_IN_POST_BUILD false)
+
+if (RUN_UNIT_TESTS_IN_POST_BUILD)
+    add_custom_command(TARGET unit-tests POST_BUILD
+        COMMAND ${unit-tests_BINARY_DIR}/unit-tests
+    )
+endif()
