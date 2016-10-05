@@ -42,9 +42,12 @@ the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
 or ak47's Uart classes. The only requirement is that the class implements
 the begin, read, write and available methods.
  */
-template<class SerialPort, class Settings = DefaultSettings>
+template<class SerialPort, class _Settings = DefaultSettings>
 class MidiInterface
 {
+public:
+    typedef _Settings Settings;
+
 public:
     inline  MidiInterface(SerialPort& inSerial);
     inline ~MidiInterface();
