@@ -116,7 +116,7 @@ void SerialMock<BufferSize>::begin(int inBaudrate)
 template<int BufferSize>
 int SerialMock<BufferSize>::available() const
 {
-    return mRxBuffer.getSize();
+    return mRxBuffer.getLength();
 }
 
 template<int BufferSize>
