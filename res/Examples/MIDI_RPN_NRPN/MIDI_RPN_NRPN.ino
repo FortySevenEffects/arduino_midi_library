@@ -198,7 +198,7 @@ void loop()
         const midi::Channel channel = 1;
         const byte semitones = 12;
         const byte cents     = 42;
-        MIDI.startRpn(midi::PitchBendSensitivity, channel);
+        MIDI.beginRpn(midi::RPN::PitchBendSensitivity, channel);
         MIDI.sendRpnValue(semitones, cents, channel);
         MIDI.endRpn(channel);
     }
