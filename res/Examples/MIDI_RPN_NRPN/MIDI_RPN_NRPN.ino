@@ -65,7 +65,7 @@ public:
                 }
                 break;
 
-            case midi::DataEntry:
+            case midi::DataEntryMSB:
                 if (mSelected)
                 {
                     Value& currentValue = getCurrentValue();
@@ -110,8 +110,8 @@ public:
 
 typedef State<2> RpnState;  // We'll listen to 2 RPN
 typedef State<4> NrpnState; // and 4 NRPN
-typedef ParameterNumberParser<RpnState,  midi::RPNMSB,  midi::RPN>  RpnParser;
-typedef ParameterNumberParser<NrpnState, midi::NRPNMSB, midi::NRPN> NrpnParser;
+typedef ParameterNumberParser<RpnState,  midi::RPNMSB,  midi::RPNLSB>  RpnParser;
+typedef ParameterNumberParser<NrpnState, midi::NRPNMSB, midi::NRPNLSB> NrpnParser;
 
 struct ChannelSetup
 {
