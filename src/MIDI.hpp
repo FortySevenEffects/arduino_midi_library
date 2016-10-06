@@ -1289,8 +1289,8 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
     // First, check if the received message is Channel
     if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
     {
-        const bool filter_condition = ((mMessage.channel == mInputChannel) ||
-                                       (mInputChannel == MIDI_CHANNEL_OMNI));
+        const bool filter_condition = ((mMessage.channel == inChannel) ||
+                                       (inChannel == MIDI_CHANNEL_OMNI));
 
         // Now let's pass it to the output
         switch (mThruFilterMode)
