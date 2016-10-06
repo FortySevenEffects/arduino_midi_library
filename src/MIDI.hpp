@@ -438,6 +438,164 @@ void MidiInterface<SerialPort, Settings>::sendRealTime(MidiType inType)
     }
 }
 
+/*! \brief Start a Registered Parameter Number frame.
+ \param inNumber The 14-bit number of the RPN you want to select.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::beginRpn(unsigned inNumber,
+                                                          Channel inChannel)
+{
+    if (mCurrentRpnNumber != inNumber)
+    {
+        const byte numMsb = 0x7f & (inNumber >> 7);
+        const byte numLsb = 0x7f & inNumber;
+        sendControlChange(RPNLSB, numLsb, inChannel);
+        sendControlChange(RPNMSB, numMsb, inChannel);
+        mCurrentRpnNumber = inNumber;
+    }
+}
+
+/*! \brief Send a 14-bit value for the currently selected RPN number.
+ \param inValue  The 14-bit value of the selected RPN.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendRpnValue(unsigned inValue,
+                                                              Channel inChannel)
+{;
+    const byte valMsb = 0x7f & (inValue >> 7);
+    const byte valLsb = 0x7f & inValue;
+    sendControlChange(DataEntryLSB, valLsb, inChannel);
+    sendControlChange(DataEntryMSB, valMsb, inChannel);
+}
+
+/*! \brief Send separate MSB/LSB values for the currently selected RPN number.
+ \param inMsb The MSB part of the value to send. Meaning depends on RPN number.
+ \param inLsb The LSB part of the value to send. Meaning depends on RPN number.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendRpnValue(byte inMsb,
+                                                              byte inLsb,
+                                                              Channel inChannel)
+{
+    sendControlChange(DataEntryLSB, inLsb, inChannel);
+    sendControlChange(DataEntryMSB, inMsb, inChannel);
+}
+
+/* \brief Increment the value of the currently selected RPN number by the specified amount.
+ \param inAmount The amount to add to the currently selected RPN value.
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendRpnIncrement(byte inAmount,
+                                                                  Channel inChannel)
+{
+    sendControlChange(DataIncrement, inAmount, inChannel);
+}
+
+/* \brief Decrement the value of the currently selected RPN number by the specified amount.
+ \param inAmount The amount to subtract to the currently selected RPN value.
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendRpnDecrement(byte inAmount,
+                                                                  Channel inChannel)
+{
+    sendControlChange(DataDecrement, inAmount, inChannel);
+}
+
+/*! \brief Terminate an RPN frame.
+This will send a Null Function to deselect the currently selected RPN.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::endRpn(Channel inChannel)
+{
+    sendControlChange(RPNLSB, 0x7f, inChannel);
+    sendControlChange(RPNMSB, 0x7f, inChannel);
+    mCurrentRpnNumber = 0xffff;
+}
+
+
+
+/*! \brief Start a Non-Registered Parameter Number frame.
+ \param inNumber The 14-bit number of the NRPN you want to select.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::beginNrpn(unsigned inNumber,
+                                                           Channel inChannel)
+{
+    if (mCurrentNrpnNumber != inNumber)
+    {
+        const byte numMsb = 0x7f & (inNumber >> 7);
+        const byte numLsb = 0x7f & inNumber;
+        sendControlChange(NRPNLSB, numLsb, inChannel);
+        sendControlChange(NRPNMSB, numMsb, inChannel);
+        mCurrentNrpnNumber = inNumber;
+    }
+}
+
+/*! \brief Send a 14-bit value for the currently selected NRPN number.
+ \param inValue  The 14-bit value of the selected NRPN.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(unsigned inValue,
+                                                               Channel inChannel)
+{;
+    const byte valMsb = 0x7f & (inValue >> 7);
+    const byte valLsb = 0x7f & inValue;
+    sendControlChange(DataEntryLSB, valLsb, inChannel);
+    sendControlChange(DataEntryMSB, valMsb, inChannel);
+}
+
+/*! \brief Send separate MSB/LSB values for the currently selected NRPN number.
+ \param inMsb The MSB part of the value to send. Meaning depends on NRPN number.
+ \param inLsb The LSB part of the value to send. Meaning depends on NRPN number.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(byte inMsb,
+                                                               byte inLsb,
+                                                               Channel inChannel)
+{
+    sendControlChange(DataEntryLSB, inLsb, inChannel);
+    sendControlChange(DataEntryMSB, inMsb, inChannel);
+}
+
+/* \brief Increment the value of the currently selected NRPN number by the specified amount.
+ \param inAmount The amount to add to the currently selected NRPN value.
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendNrpnIncrement(byte inAmount,
+                                                                   Channel inChannel)
+{
+    sendControlChange(DataIncrement, inAmount, inChannel);
+}
+
+/* \brief Decrement the value of the currently selected NRPN number by the specified amount.
+ \param inAmount The amount to subtract to the currently selected NRPN value.
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::sendNrpnDecrement(byte inAmount,
+                                                                   Channel inChannel)
+{
+    sendControlChange(DataDecrement, inAmount, inChannel);
+}
+
+/*! \brief Terminate an NRPN frame.
+This will send a Null Function to deselect the currently selected NRPN.
+ \param inChannel The channel on which the message will be sent (1 to 16).
+*/
+template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::endNrpn(Channel inChannel)
+{
+    sendControlChange(NRPNLSB, 0x7f, inChannel);
+    sendControlChange(NRPNMSB, 0x7f, inChannel);
+    mCurrentNrpnNumber = 0xffff;
+}
+
 /*! @} */ // End of doc group MIDI Output
 
 // -----------------------------------------------------------------------------

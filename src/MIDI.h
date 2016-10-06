@@ -97,6 +97,33 @@ public:
     inline void sendTuneRequest();
     inline void sendRealTime(MidiType inType);
 
+    inline void beginRpn(unsigned inNumber,
+                         Channel inChannel);
+    inline void sendRpnValue(unsigned inValue,
+                             Channel inChannel);
+    inline void sendRpnValue(byte inMsb,
+                             byte inLsb,
+                             Channel inChannel);
+    inline void sendRpnIncrement(byte inAmount,
+                                 Channel inChannel);
+    inline void sendRpnDecrement(byte inAmount,
+                                 Channel inChannel);
+    inline void endRpn(Channel inChannel);
+
+    inline void beginNrpn(unsigned inNumber,
+                          Channel inChannel);
+    inline void sendNrpnValue(unsigned inValue,
+                              Channel inChannel);
+    inline void sendNrpnValue(byte inMsb,
+                              byte inLsb,
+                              Channel inChannel);
+    inline void sendNrpnIncrement(byte inAmount,
+                                  Channel inChannel);
+    inline void sendNrpnDecrement(byte inAmount,
+                                  Channel inChannel);
+    inline void endNrpn(Channel inChannel);
+
+
 public:
     void send(MidiType inType,
               DataByte inData1,
@@ -210,6 +237,8 @@ private:
     byte        mPendingMessage[3];
     unsigned    mPendingMessageExpectedLenght;
     unsigned    mPendingMessageIndex;
+    unsigned    mCurrentRpnNumber;
+    unsigned    mCurrentNrpnNumber;
     MidiMessage mMessage;
 
 private:

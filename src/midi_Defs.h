@@ -107,7 +107,7 @@ enum MidiControlChangeNumber
     // CC3 undefined
     FootController              = 4,
     PortamentoTime              = 5,
-    DataEntry                   = 6,
+    DataEntryMSB                = 6,
     ChannelVolume               = 7,
     Balance                     = 8,
     // CC9 undefined
@@ -156,9 +156,9 @@ enum MidiControlChangeNumber
     Effects5                    = 95,   ///< Phaser depth
     DataIncrement               = 96,
     DataDecrement               = 97,
-    NRPN                        = 98,   ///< Non-Registered Parameter Number (LSB)
+    NRPNLSB                     = 98,   ///< Non-Registered Parameter Number (LSB)
     NRPNMSB                     = 99,   ///< Non-Registered Parameter Number (MSB)
-    RPN                         = 100,  ///< Registered Parameter Number (LSB)
+    RPNLSB                      = 100,  ///< Registered Parameter Number (LSB)
     RPNMSB                      = 101,  ///< Registered Parameter Number (MSB)
 
     // Channel Mode messages ---------------------------------------------------
