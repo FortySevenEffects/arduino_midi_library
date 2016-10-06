@@ -192,4 +192,14 @@ void setup()
 void loop()
 {
     MIDI.read();
+
+    // Send a RPN sequence (Pitch Bend sensitivity) on channel 1
+    {
+        const midi::Channel channel = 1;
+        const byte semitones = 12;
+        const byte cents     = 42;
+        MIDI.startRpn(midi::PitchBendSensitivity, channel);
+        MIDI.sendRpnValue(semitones, cents, channel);
+        MIDI.endRpn(channel);
+    }
 }
