@@ -39,6 +39,8 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     , mRunningStatus_TX(InvalidType)
     , mPendingMessageExpectedLenght(0)
     , mPendingMessageIndex(0)
+    , mCurrentRpnNumber(0xffff)
+    , mCurrentNrpnNumber(0xffff)
 {
     mNoteOffCallback                = 0;
     mNoteOnCallback                 = 0;
@@ -93,6 +95,9 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
 
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
+
+    mCurrentRpnNumber  = 0xffff;
+    mCurrentNrpnNumber = 0xffff;
 
     mMessage.valid   = false;
     mMessage.type    = InvalidType;
