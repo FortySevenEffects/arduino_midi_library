@@ -289,7 +289,8 @@ template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::sendPitchBend(double inPitchValue,
                                                         Channel inChannel)
 {
-    const int value = int(inPitchValue * double(MIDI_PITCHBEND_MAX));
+    const int scale = inPitchValue > 0.0 ? MIDI_PITCHBEND_MAX : MIDI_PITCHBEND_MIN;
+    const int value = int(inPitchValue * double(scale));
     sendPitchBend(value, inChannel);
 }
 
