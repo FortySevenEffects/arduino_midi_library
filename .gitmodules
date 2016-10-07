@@ -1,6 +1,3 @@
 [submodule "external/google-test"]
 	path = external/google-test
 	url = https://github.com/google/googletest.git
-[submodule "external/coveralls-cmake"]
-	path = external/coveralls-cmake
-	url = https://github.com/JoakimSoderberg/coveralls-cmake.git
