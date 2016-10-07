@@ -272,25 +272,202 @@ TEST(MidiOutput, RPN)
     }
     // MSB/LSB Single Frame
     {
+        buffer.clear();
+        buffer.resize(13);
 
+        midi.begin();
+        midi.beginRpn(1242, 12);
+        midi.sendRpnValue(12, 42, 12);
+        midi.endRpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 13);
+        serial.mTxBuffer.read(&buffer[0], 13);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x64, 0x5a,
+                                              0x65, 0x09,
+                                              0x06, 0x0c,
+                                              0x26, 0x2a,
+                                              0x64, 0x7f,
+                                              0x65, 0x7f}));
     }
     // Increment Single Frame
     {
+        buffer.clear();
+        buffer.resize(11);
 
+        midi.begin();
+        midi.beginRpn(1242, 12);
+        midi.sendRpnIncrement(42, 12);
+        midi.endRpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 11);
+        serial.mTxBuffer.read(&buffer[0], 11);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x64, 0x5a,
+                                              0x65, 0x09,
+                                              0x60, 0x2a,
+                                              0x64, 0x7f,
+                                              0x65, 0x7f}));
     }
     // Decrement Single Frame
     {
+        buffer.clear();
+        buffer.resize(11);
 
+        midi.begin();
+        midi.beginRpn(1242, 12);
+        midi.sendRpnDecrement(42, 12);
+        midi.endRpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 11);
+        serial.mTxBuffer.read(&buffer[0], 11);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x64, 0x5a,
+                                              0x65, 0x09,
+                                              0x61, 0x2a,
+                                              0x64, 0x7f,
+                                              0x65, 0x7f}));
     }
     // Multi Frame
     {
+        buffer.clear();
+        buffer.resize(21);
 
+        midi.begin();
+        midi.beginRpn(1242, 12);
+        midi.sendRpnValue(12345, 12);
+        midi.sendRpnValue(12, 42, 12);
+        midi.sendRpnIncrement(42, 12);
+        midi.sendRpnDecrement(42, 12);
+        midi.endRpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 21);
+        serial.mTxBuffer.read(&buffer[0], 21);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x64, 0x5a,
+                                              0x65, 0x09,
+                                              0x06, 0x60,
+                                              0x26, 0x39,
+                                              0x06, 0x0c,
+                                              0x26, 0x2a,
+                                              0x60, 0x2a,
+                                              0x61, 0x2a,
+                                              0x64, 0x7f,
+                                              0x65, 0x7f}));
     }
 }
 
 TEST(MidiOutput, NRPN)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    std::vector<test_mocks::uint8> buffer;
 
+    // 14-bit Value Single Frame
+    {
+        buffer.clear();
+        buffer.resize(13);
+
+        midi.begin();
+        midi.beginNrpn(1242, 12);
+        midi.sendNrpnValue(12345, 12);
+        midi.endNrpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 13);
+        serial.mTxBuffer.read(&buffer[0], 13);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x62, 0x5a,
+                                              0x63, 0x09,
+                                              0x06, 0x60,
+                                              0x26, 0x39,
+                                              0x62, 0x7f,
+                                              0x63, 0x7f}));
+    }
+    // MSB/LSB Single Frame
+    {
+        buffer.clear();
+        buffer.resize(13);
+
+        midi.begin();
+        midi.beginNrpn(1242, 12);
+        midi.sendNrpnValue(12, 42, 12);
+        midi.endNrpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 13);
+        serial.mTxBuffer.read(&buffer[0], 13);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x62, 0x5a,
+                                              0x63, 0x09,
+                                              0x06, 0x0c,
+                                              0x26, 0x2a,
+                                              0x62, 0x7f,
+                                              0x63, 0x7f}));
+    }
+    // Increment Single Frame
+    {
+        buffer.clear();
+        buffer.resize(11);
+
+        midi.begin();
+        midi.beginNrpn(1242, 12);
+        midi.sendNrpnIncrement(42, 12);
+        midi.endNrpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 11);
+        serial.mTxBuffer.read(&buffer[0], 11);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x62, 0x5a,
+                                              0x63, 0x09,
+                                              0x60, 0x2a,
+                                              0x62, 0x7f,
+                                              0x63, 0x7f}));
+    }
+    // Decrement Single Frame
+    {
+        buffer.clear();
+        buffer.resize(11);
+
+        midi.begin();
+        midi.beginNrpn(1242, 12);
+        midi.sendNrpnDecrement(42, 12);
+        midi.endNrpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 11);
+        serial.mTxBuffer.read(&buffer[0], 11);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x62, 0x5a,
+                                              0x63, 0x09,
+                                              0x61, 0x2a,
+                                              0x62, 0x7f,
+                                              0x63, 0x7f}));
+    }
+    // Multi Frame
+    {
+        buffer.clear();
+        buffer.resize(21);
+
+        midi.begin();
+        midi.beginNrpn(1242, 12);
+        midi.sendNrpnValue(12345, 12);
+        midi.sendNrpnValue(12, 42, 12);
+        midi.sendNrpnIncrement(42, 12);
+        midi.sendNrpnDecrement(42, 12);
+        midi.endNrpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 21);
+        serial.mTxBuffer.read(&buffer[0], 21);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x62, 0x5a,
+                                              0x63, 0x09,
+                                              0x06, 0x60,
+                                              0x26, 0x39,
+                                              0x06, 0x0c,
+                                              0x26, 0x2a,
+                                              0x60, 0x2a,
+                                              0x61, 0x2a,
+                                              0x62, 0x7f,
+                                              0x63, 0x7f}));
+    }
 }
 
 END_UNNAMED_NAMESPACE
