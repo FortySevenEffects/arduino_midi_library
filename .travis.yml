@@ -50,9 +50,9 @@ before_install:
 script:
   - build_main_platforms
   - mkdir build && cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER ..
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Debug ..
   - make
-  - test/unit-tests/unit-tests
+  - ctest -V
 
 notifications:
   email: false
