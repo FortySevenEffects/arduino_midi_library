@@ -471,8 +471,8 @@ inline void MidiInterface<SerialPort, Settings>::sendRpnValue(unsigned inValue,
 {;
     const byte valMsb = 0x7f & (inValue >> 7);
     const byte valLsb = 0x7f & inValue;
-    sendControlChange(DataEntryLSB, valLsb, inChannel);
     sendControlChange(DataEntryMSB, valMsb, inChannel);
+    sendControlChange(DataEntryLSB, valLsb, inChannel);
 }
 
 /*! \brief Send separate MSB/LSB values for the currently selected RPN number.
@@ -485,8 +485,8 @@ inline void MidiInterface<SerialPort, Settings>::sendRpnValue(byte inMsb,
                                                               byte inLsb,
                                                               Channel inChannel)
 {
-    sendControlChange(DataEntryLSB, inLsb, inChannel);
     sendControlChange(DataEntryMSB, inMsb, inChannel);
+    sendControlChange(DataEntryLSB, inLsb, inChannel);
 }
 
 /* \brief Increment the value of the currently selected RPN number by the specified amount.
@@ -551,8 +551,8 @@ inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(unsigned inValue,
 {;
     const byte valMsb = 0x7f & (inValue >> 7);
     const byte valLsb = 0x7f & inValue;
-    sendControlChange(DataEntryLSB, valLsb, inChannel);
     sendControlChange(DataEntryMSB, valMsb, inChannel);
+    sendControlChange(DataEntryLSB, valLsb, inChannel);
 }
 
 /*! \brief Send separate MSB/LSB values for the currently selected NRPN number.
@@ -565,8 +565,8 @@ inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(byte inMsb,
                                                                byte inLsb,
                                                                Channel inChannel)
 {
-    sendControlChange(DataEntryLSB, inLsb, inChannel);
     sendControlChange(DataEntryMSB, inMsb, inChannel);
+    sendControlChange(DataEntryLSB, inLsb, inChannel);
 }
 
 /* \brief Increment the value of the currently selected NRPN number by the specified amount.

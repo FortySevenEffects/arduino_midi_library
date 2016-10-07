@@ -244,4 +244,53 @@ TEST(MidiOutput, sendRealTime)
 
 }
 
+TEST(MidiOutput, RPN)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    std::vector<test_mocks::uint8> buffer;
+
+    // 14-bit Value Single Frame
+    {
+        buffer.clear();
+        buffer.resize(13);
+
+        midi.begin();
+        midi.beginRpn(1242, 12);
+        midi.sendRpnValue(12345, 12);
+        midi.endRpn(12);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 13);
+        serial.mTxBuffer.read(&buffer[0], 13);
+        EXPECT_THAT(buffer, ElementsAreArray({0xbb,
+                                              0x64, 0x5a,
+                                              0x65, 0x09,
+                                              0x06, 0x60,
+                                              0x26, 0x39,
+                                              0x64, 0x7f,
+                                              0x65, 0x7f}));
+    }
+    // MSB/LSB Single Frame
+    {
+
+    }
+    // Increment Single Frame
+    {
+
+    }
+    // Decrement Single Frame
+    {
+
+    }
+    // Multi Frame
+    {
+
+    }
+}
+
+TEST(MidiOutput, NRPN)
+{
+
+}
+
 END_UNNAMED_NAMESPACE
