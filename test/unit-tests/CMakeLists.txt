@@ -1,3 +1,5 @@
+include(CMakeToolsHelpers OPTIONAL)
+
 project(unit-tests)
 
 include_directories(
