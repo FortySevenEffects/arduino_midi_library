@@ -225,7 +225,17 @@ TEST(MidiOutput, sendPitchBend)
 
 TEST(MidiOutput, sendPolyPressure)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    Buffer buffer;
+    buffer.resize(5);
 
+    midi.begin();
+    midi.sendPolyPressure(42, 12, 12);
+    midi.sendPolyPressure(47, 12, 12);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
+    serial.mTxBuffer.read(&buffer[0], 5);
+    EXPECT_THAT(buffer, ElementsAreArray({0xab, 42, 12, 47, 12}));
 }
 
 TEST(MidiOutput, sendAfterTouch)
