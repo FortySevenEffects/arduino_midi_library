@@ -31,3 +31,7 @@ target_link_libraries(unit-tests
 )
 
 add_test(unit-tests ${unit-tests_BINARY_DIR}/unit-tests --gtest_color=yes)
+add_custom_target(build-and-run-unit-tests
+    COMMAND ${CMAKE_CTEST_COMMAND} -V
+    DEPENDS unit-tests
+)
