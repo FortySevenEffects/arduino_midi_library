@@ -1,4 +1,6 @@
+# Kudos to these guys:
 # http://genbattle.bitbucket.org/blog/2016/01/17/c++-travis-ci/
+# https://github.com/ticapix/arduino-toolbox/blob/master/.travis.yml
 
 # Ubuntu 14.04 Trusty support
 sudo: required
@@ -45,14 +47,38 @@ matrix:
 
 before_install:
   - sudo apt-get update -qq
+  - sudo apt-get install lcov
   - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
 
+install:
+  # Install lcov from source
+  - wget http://ftp.fr.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz
+  - tar xf lcov_1.11.orig.tar.gz
+  - sudo make -C lcov-1.11/ install
+  - gem install coveralls-lcov
+  - lcov --version
+
+before_script:
+  # init coverage to 0 (optional)
+  - lcov --directory . --zerocounters
+
 script:
+  # Build examples with Arduino IDE on each available platform / board
   - build_main_platforms
+
+  # Build and run unit tests with regular C++ compiler
   - mkdir build && cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Debug ..
-  - make
-  - ctest -V
+  - make all
+  - ctest --verbose
+
+after_success:
+  # Generate code coverage information & send to Coveralls
+  - cd build
+  - lcov --directory . --capture --output-file coverage.info
+  - lcov --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
+  - lcov --list coverage.info
+  - coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
 
 notifications:
   email: false

@@ -1,12 +1,9 @@
 cmake_minimum_required(VERSION 2.8.7)
-project(arduino_midi_library)
+project(arduino_midi_library CXX)
 
-set(ROOT_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-include_directories(${ROOT_SOURCE_DIR})
+add_subdirectory(builder)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-enable_testing()
+setup_builder()
 
 add_subdirectory(external)
 add_subdirectory(src)
