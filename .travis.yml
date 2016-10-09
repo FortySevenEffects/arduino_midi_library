@@ -1,63 +1,60 @@
 # Kudos to these guys:
 # http://genbattle.bitbucket.org/blog/2016/01/17/c++-travis-ci/
 # https://github.com/ticapix/arduino-toolbox/blob/master/.travis.yml
+# https://github.com/Return-To-The-Roots/s25client/blob/master/.travis.yml
 
-# Ubuntu 14.04 Trusty support
-sudo: required
-dist: trusty
-
+sudo: false
 language: cpp
 
-matrix:
-  include:
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-      env: COMPILER=g++-4.9
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env: COMPILER=g++-5
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-          packages:
-            - clang-3.6
-      env: COMPILER=clang++-3.6
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-          packages:
-            - clang-3.7
-      env: COMPILER=clang++-3.7
+os:
+  - linux
+
+compiler:
+  - clang
+  - g++
+
+env:
+  - BUILD_TYPE=Debug
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.5
+    packages:
+      - g++-4.8
+      - clang-3.5
+      - llvm-3.5
+      - cmake
 
 before_install:
   - sudo apt-get update -qq
   # - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
 
 install:
-  # Install lcov from source
-  # - wget http://ftp.fr.debian.org/debian/pool/main/l/lcov/lcov_1.12.orig.tar.gz
-  # - tar xf lcov_1.12.orig.tar.gz
-  # - sudo make -C lcov-1.12/ install
-  # - sudo apt-get install ggcov
-  - gem install coveralls-lcov
-  - lcov --version
-  - gcov --version
+  # Enable coverage analysis only for clang
+  - |
+    if [ "$CXX" = "g++" ]; then
+      # GCov 4.6 cannot handle the file structure
+      export CXX="g++-4.8"
+      export GCOV="gcov-4.8"
+
+      # Install newer lcov (1.9 seems to fail: http://gronlier.fr/blog/2015/01/adding-code-coverage-to-your-c-project/)
+      export LCOV_ROOT="$HOME/lcov"
+      mkdir -p "$LCOV_ROOT"
+      wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.12.orig.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
+      tar xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C $LCOV_ROOT
+      export PATH="$LCOV_ROOT/bin:$PATH"
+      which lcov
+
+      # Install coveralls tool
+      gem install coveralls-lcov
+
+    else
+      export GCOV="gcov" # Just to have anything valid
+    fi
+  # Use clang 3.5
+  - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5"; export CC="clang-3.5"; fi
 
 script:
   # Build examples with Arduino IDE on each available platform / board
@@ -65,14 +62,14 @@ script:
 
   # Build and run unit tests with regular C++ compiler
   - mkdir build && cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Debug ..
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=${BUILD_TYPE} --generator="Unix Makefiles" ..
   - make all
   - ctest --verbose
 
 after_success:
   # Generate code coverage information & send to Coveralls
-  - lcov --directory . --capture --output-file coverage.info
-  - lcov --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
+  - lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
+  - lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
   - lcov --list coverage.info
   - coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
 
