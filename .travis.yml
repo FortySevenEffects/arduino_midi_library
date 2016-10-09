@@ -10,8 +10,8 @@ os:
   - linux
 
 compiler:
-  - clang
   - g++
+  - clang
 
 env:
   - BUILD_TYPE=Debug
@@ -28,10 +28,10 @@ addons:
       - cmake
 
 before_install:
-  # - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
+  - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
 
 install:
-  # Enable coverage analysis only for clang
+  # Enable coverage analysis only for GCC
   - |
     if [ "$CXX" = "g++" ]; then
       # GCov 4.6 cannot handle the file structure
@@ -48,16 +48,18 @@ install:
 
       # Install coveralls tool
       gem install coveralls-lcov
+      export GENERATE_COVERAGE=1
 
     else
       export GCOV="gcov" # Just to have anything valid
+      export GENERATE_COVERAGE=0
     fi
   # Use clang 3.5
   - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5"; export CC="clang-3.5"; fi
 
 script:
   # Build examples with Arduino IDE on each available platform / board
-  # - build_main_platforms
+  - build_main_platforms
 
   # Build and run unit tests with regular C++ compiler
   - mkdir build && cd build
@@ -66,11 +68,14 @@ script:
   - ctest --verbose
 
 after_success:
-  # Generate code coverage information & send to Coveralls
-  - lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
-  - lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
-  - lcov --list coverage.info
-  - coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
+  - |
+    if [ "${GENERATE_COVERAGE}" ]; then
+      # Generate code coverage information & send to Coveralls
+      lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
+      lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
+      lcov --list coverage.info
+      coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
+    fi
 
 notifications:
   email: false
