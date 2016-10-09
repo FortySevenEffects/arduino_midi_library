@@ -28,7 +28,6 @@ addons:
       - cmake
 
 before_install:
-  - sudo apt-get update -qq
   # - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
 
 install:
