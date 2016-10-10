@@ -6,7 +6,7 @@
 
 MIDI_CREATE_DEFAULT_INSTANCE();
 
-static const ledPin = 13;               // LED pin on Arduino Uno
+static const unsigned ledPin = 13;      // LED pin on Arduino Uno
 
 void setup()
 {

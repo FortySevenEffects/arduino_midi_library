@@ -56,6 +56,7 @@ install:
     fi
   # Use clang 3.5
   - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5"; export CC="clang-3.5"; fi
+  - arduino --install-library "MIDIUSB"
 
 script:
   # Build examples with Arduino IDE on each available platform / board
