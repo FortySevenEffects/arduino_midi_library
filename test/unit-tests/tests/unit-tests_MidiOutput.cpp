@@ -355,31 +355,146 @@ TEST(MidiOutput, sendSysEx)
         serial.mTxBuffer.read(&buffer[0], frameLength + 2);
         EXPECT_THAT(buffer, ElementsAreArray(expected));
     }
+    // With boundaries included
+    {
+        static const byte frame[] = {
+            0xf0, 12, 17, 42, 47, 0xf7
+        };
+
+        buffer.clear();
+        buffer.resize(6);
+
+        midi.begin();
+        midi.sendSysEx(6, frame, true);
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+        serial.mTxBuffer.read(&buffer[0], 6);
+        EXPECT_THAT(buffer, ElementsAreArray(frame));
+    }
 }
 
 TEST(MidiOutput, sendTimeCodeQuarterFrame)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    Buffer buffer;
 
+    // Separate Nibbles
+    {
+        buffer.clear();
+        buffer.resize(4);
+
+        midi.begin();
+        midi.sendTimeCodeQuarterFrame(0x05, 0x0a);
+        midi.sendTimeCodeQuarterFrame(0xff, 0xff);
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 4);
+        serial.mTxBuffer.read(&buffer[0], 4);
+        EXPECT_THAT(buffer, ElementsAreArray({0xf1, 0x5a,
+                                              0xf1, 0x7f}));
+    }
+    // Pre-encoded nibbles
+    {
+        buffer.clear();
+        buffer.resize(4);
+
+        midi.begin();
+        midi.sendTimeCodeQuarterFrame(12);
+        midi.sendTimeCodeQuarterFrame(42);
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 4);
+        serial.mTxBuffer.read(&buffer[0], 4);
+        EXPECT_THAT(buffer, ElementsAreArray({0xf1, 0x0c,
+                                              0xf1, 0x2a}));
+    }
 }
 
 TEST(MidiOutput, sendSongPosition)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    Buffer buffer;
+    buffer.resize(6);
 
+    midi.begin();
+    midi.sendSongPosition(1234);
+    midi.sendSongPosition(4321);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({0xf2, 0x52, 0x09,
+                                          0xf2, 0x61, 0x21}));
 }
 
 TEST(MidiOutput, sendSongSelect)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    Buffer buffer;
+    buffer.resize(4);
 
+    midi.begin();
+    midi.sendSongSelect(12);
+    midi.sendSongSelect(42);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 4);
+    serial.mTxBuffer.read(&buffer[0], 4);
+    EXPECT_THAT(buffer, ElementsAreArray({0xf3, 12, 0xf3, 42}));
 }
 
 TEST(MidiOutput, sendTuneRequest)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    Buffer buffer;
+    buffer.resize(1);
 
+    midi.begin();
+    midi.sendTuneRequest();
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 1);
+    serial.mTxBuffer.read(&buffer[0], 1);
+    EXPECT_THAT(buffer, ElementsAreArray({0xf6}));
 }
 
 TEST(MidiOutput, sendRealTime)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    Buffer buffer;
 
+    // Test valid RealTime messages
+    {
+        buffer.clear();
+        buffer.resize(6);
+
+        midi.begin();
+        midi.sendRealTime(midi::Clock);
+        midi.sendRealTime(midi::Start);
+        midi.sendRealTime(midi::Continue);
+        midi.sendRealTime(midi::Stop);
+        midi.sendRealTime(midi::ActiveSensing);
+        midi.sendRealTime(midi::SystemReset);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+        serial.mTxBuffer.read(&buffer[0], 6);
+        EXPECT_THAT(buffer, ElementsAreArray({
+            0xf8, 0xfa, 0xfb, 0xfc, 0xfe, 0xff
+        }));
+    }
+    // Test invalid messages
+    {
+        midi.begin();
+        midi.sendRealTime(midi::InvalidType);
+        midi.sendRealTime(midi::NoteOff);
+        midi.sendRealTime(midi::NoteOn);
+        midi.sendRealTime(midi::AfterTouchPoly);
+        midi.sendRealTime(midi::ControlChange);
+        midi.sendRealTime(midi::ProgramChange);
+        midi.sendRealTime(midi::AfterTouchChannel);
+        midi.sendRealTime(midi::PitchBend);
+        midi.sendRealTime(midi::SystemExclusive);
+        midi.sendRealTime(midi::TimeCodeQuarterFrame);
+        midi.sendRealTime(midi::SongPosition);
+        midi.sendRealTime(midi::SongSelect);
+        midi.sendRealTime(midi::TuneRequest);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    }
 }
 
 TEST(MidiOutput, RPN)
