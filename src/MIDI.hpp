@@ -176,7 +176,7 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
             mSerial.write(inData2);
         }
     }
-    else if (inType >= TuneRequest && inType <= SystemReset)
+    else if (inType >= Clock && inType <= SystemReset)
     {
         sendRealTime(inType); // System Real-time and 1 byte.
     }
@@ -344,7 +344,12 @@ void MidiInterface<SerialPort, Settings>::sendSysEx(unsigned inLength,
 template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::sendTuneRequest()
 {
-    sendRealTime(TuneRequest);
+    mSerial.write(TuneRequest);
+
+    if (Settings::UseRunningStatus)
+    {
+        mRunningStatus_TX = InvalidType;
+    }
 }
 
 /*! \brief Send a MIDI Time Code Quarter Frame.
@@ -412,15 +417,16 @@ void MidiInterface<SerialPort, Settings>::sendSongSelect(DataByte inSongNumber)
 
  \param inType    The available Real Time types are:
  Start, Stop, Continue, Clock, ActiveSensing and SystemReset.
- You can also send a Tune Request with this method.
  @see MidiType
  */
 template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::sendRealTime(MidiType inType)
 {
+    // Do not invalidate Running Status for real-time messages
+    // as they can be interleaved within any message.
+
     switch (inType)
     {
-        case TuneRequest: // Not really real-time, but one byte anyway.
         case Clock:
         case Start:
         case Stop:
@@ -432,14 +438,6 @@ void MidiInterface<SerialPort, Settings>::sendRealTime(MidiType inType)
         default:
             // Invalid Real Time marker
             break;
-    }
-
-    // Do not cancel Running Status for real-time messages as they can be
-    // interleaved within any message. Though, TuneRequest can be sent here,
-    // and as it is a System Common message, it must reset Running Status.
-    if (Settings::UseRunningStatus && inType == TuneRequest)
-    {
-        mRunningStatus_TX = InvalidType;
     }
 }
 

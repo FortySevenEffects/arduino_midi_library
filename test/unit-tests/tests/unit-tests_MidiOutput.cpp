@@ -126,10 +126,9 @@ TEST(MidiOutput, sendGenericRealTimeShortcut)
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
-    buffer.resize(7);
+    buffer.resize(6);
 
     midi.begin();
-    midi.send(midi::TuneRequest,    47, 42, 12);
     midi.send(midi::Clock,          47, 42, 12);
     midi.send(midi::Start,          47, 42, 12);
     midi.send(midi::Continue,       47, 42, 12);
@@ -137,9 +136,9 @@ TEST(MidiOutput, sendGenericRealTimeShortcut)
     midi.send(midi::ActiveSensing,  47, 42, 12);
     midi.send(midi::SystemReset,    47, 42, 12);
 
-    EXPECT_EQ(serial.mTxBuffer.getLength(), 7);
-    serial.mTxBuffer.read(&buffer[0], 7);
-    EXPECT_THAT(buffer, ElementsAreArray({0xf6, 0xf8, 0xfa, 0xfb, 0xfc, 0xfe, 0xff}));
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({0xf8, 0xfa, 0xfb, 0xfc, 0xfe, 0xff}));
 }
 
 // --
