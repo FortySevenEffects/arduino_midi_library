@@ -29,19 +29,45 @@
 #pragma once
 
 #include "midi_Defs.h"
+#include "midi_RingBuffer.h"
+#include <MIDIUSB.h>
 
 BEGIN_MIDI_NAMESPACE
 
+template<unsigned BuffersSize>
 class UsbTransport
 {
 public:
     inline UsbTransport();
+    inline ~UsbTransport();
 
 public: // Serial / Stream API required for template compatibility
     inline void begin(unsigned inBaudrate);
-    inline int available() const;
+    inline unsigned available();
     inline byte read();
-    inline void write(byte);
+    inline void write(byte inData);
+
+private:
+    inline bool pollUsbMidi();
+    inline void recomposeAndSendTxPackets();
+    inline void resetTx();
+    static inline byte encodePacketHeader(StatusByte inStatusByte);
+    static inline int getPacketLength(const midiEventPacket_t& inPacket);
+
+private:
+    typedef RingBuffer<byte, BuffersSize> Buffer;
+    Buffer mTxBuffer;
+    Buffer mRxBuffer;
+
+    union TxPacket
+    {
+        byte mDataArray[4];
+        midiEventPacket_t mPacket;
+    };
+    TxPacket mCurrentTxPacket;
+    int mCurrentTxPacketByteIndex;
 };
 
 END_MIDI_NAMESPACE
+
+#include "midi_UsbTransport.hpp"
