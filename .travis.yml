@@ -63,7 +63,7 @@ script:
 
   # Build and run unit tests with regular C++ compiler
   - mkdir build && cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=${BUILD_TYPE} --generator="Unix Makefiles" ..
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILDER_ENABLE_PROFILING=${GENERATE_COVERAGE} --generator="Unix Makefiles" ..
   - make all
   - ctest --verbose
 
