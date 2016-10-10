@@ -123,7 +123,6 @@ public:
                                   Channel inChannel);
     inline void endNrpn(Channel inChannel);
 
-
 public:
     void send(MidiType inType,
               DataByte inData1,
