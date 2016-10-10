@@ -30,6 +30,22 @@ typedef std::vector<uint8_t> Buffer;
 
 // --
 
+TEST(MidiOutput, sendInvalid)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+
+    midi.begin();
+    midi.send(midi::NoteOn, 42, 42, 42);                // Invalid channel > OFF
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+
+    midi.send(midi::InvalidType, 0, 0, 12);             // Invalid type
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+
+    midi.send(midi::NoteOn, 12, 42, MIDI_CHANNEL_OMNI); // OMNI not allowed
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+}
+
 TEST(MidiOutput, sendGenericSingle)
 {
     SerialMock serial;
