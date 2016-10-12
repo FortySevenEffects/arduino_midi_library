@@ -51,9 +51,9 @@ struct CodeIndexNumbers
 
         sysExEnds2Bytes         = 0x06,
         sysExEnds3Bytes         = 0x07,
-        noteOn                  = 0x08,
-        noteOff                 = 0x09,
-        polyKeyPress            = 0x0A,
+        noteOff                 = 0x08,
+        noteOn                  = 0x09,
+        polyPressure            = 0x0A,
         controlChange           = 0x0B,
         programChange           = 0x0C,
         channelPressure         = 0x0D,
@@ -61,9 +61,9 @@ struct CodeIndexNumbers
         singleByte              = 0x0F,
     };
 
-    inline byte getSize(byte inCIN)
+    static inline byte getSize(byte inCodeIndexNumber)
     {
-        switch (inCIN)
+        switch (inCodeIndexNumber)
         {
             case noteOn:
             case noteOff:
