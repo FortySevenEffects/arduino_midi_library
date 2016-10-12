@@ -99,7 +99,7 @@ struct UsbMidiEvent
             byte mCodeIndexNumber:4;
             byte mMidi[3];
         };
-        byte[4]     mDataArray;
+        byte     mDataArray[4];
     };
 };
 
