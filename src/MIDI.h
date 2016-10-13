@@ -230,9 +230,12 @@ private:
     typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 private:
+    SerialPort& mSerial;
+
+private:
+    Channel     mInputChannel;
     StatusByte  mRunningStatus_RX;
     StatusByte  mRunningStatus_TX;
-    Channel     mInputChannel;
     byte        mPendingMessage[3];
     unsigned    mPendingMessageExpectedLenght;
     unsigned    mPendingMessageIndex;
@@ -243,9 +246,6 @@ private:
 private:
     inline StatusByte getStatus(MidiType inType,
                                 Channel inChannel) const;
-
-private:
-    SerialPort& mSerial;
 };
 
 // -----------------------------------------------------------------------------
