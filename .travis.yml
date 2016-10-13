@@ -60,7 +60,7 @@ install:
 
 script:
   # Build examples with Arduino IDE on each available platform / board
-  - build_main_platforms
+  # - build_main_platforms
 
   # Build and run unit tests with regular C++ compiler
   - mkdir build && cd build
