@@ -10,26 +10,26 @@
 cd "`dirname "${0}"`"
 
 root="${PWD}/.."
-build="$root/build/MIDI"
+build="$root/build/dist/MIDI"
 
 echo "root:  $root"
 echo "build: $build"
 
-# Create a temporary destination folder
-mkdir -p "$build"
+# Create a destination directory structure
 mkdir -p "$build/examples"
+mkdir -p "$build/src"
 
 # Copy sources
-cd "$root/src/"
-cp * "$build/"
+cp -rf "$root/src" "$build"
 
 # Copy resources
-cd "$root/res/"
-cp keywords.txt "$build/"
+cp -f "$root/keywords.txt"          "$build/"
+cp -f "$root/library.properties"    "$build/"
+cp -f "$root/library.json"          "$build/"
+cp -f "$root/LICENSE"               "$build/"
 
 # Copy examples
-cd "$root/res/examples/"
-cp -r * "$build/examples"
+cp -rf "$root/examples" "$build"
 
 # Generate package
 cd "$build/.."
