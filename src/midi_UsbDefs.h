@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include "midi_Namespace.h"
+#include "midi_Defs.h"
 
 BEGIN_MIDI_NAMESPACE
 
@@ -69,9 +69,10 @@ struct CodeIndexNumbers
             case noteOff:
             case controlChange:
             case pitchBend:
-            case polyKeyPress:
+            case polyPressure:
             case systemCommon3Bytes:
             case sysExEnds3Bytes:
+            case sysExStart:
                 return 3;
 
             case programChange:
@@ -87,7 +88,7 @@ struct CodeIndexNumbers
             default:
                 break;
         }
-        return 0;
+        return 0; // Can be any length (1, 2 or 3).
     }
 };
 
@@ -95,17 +96,50 @@ struct CodeIndexNumbers
 
 struct UsbMidiEventPacket
 {
-    union
+public:
+    inline UsbMidiEventPacket()
     {
-        uint32_t    mRawData;
-        struct
-        {
-            byte mCableNumber:4;
-            byte mCodeIndexNumber:4;
-            byte mMidi[3];
-        };
-        byte     mDataArray[4];
-    };
+        memset(mData, 0, 4 * sizeof(byte));
+    }
+
+public:
+    inline void setHeader(byte inCableNumber, byte inCodeIndexNumber)
+    {
+        const byte msb = (0x0f & inCableNumber) << 4;
+        const byte lsb = (0x0f & inCodeIndexNumber);
+        mData[0] = msb | lsb;
+    }
+    inline void setMidiData(const byte* inData)
+    {
+        mData[1] = *inData++;
+        mData[2] = *inData++;
+        mData[3] = *inData;
+    }
+    inline byte getCableNumber() const
+    {
+        return mData[0] >> 4;
+    }
+    inline byte getCodeIndexNumber() const
+    {
+        return mData[0] & 0x0f;
+    }
+    inline const byte* getMidiData() const
+    {
+        return mData + 1;
+    }
+    inline byte* getMidiData()
+    {
+        return mData + 1;
+    }
+    inline UsbMidiEventPacket& operator=(const byte* inData)
+    {
+        mData[0] = *inData++;
+        setMidiData(inData);
+        return *this;
+    }
+
+public:
+    byte mData[4];
 };
 
 END_MIDI_NAMESPACE
