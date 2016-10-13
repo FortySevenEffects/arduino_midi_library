@@ -21,7 +21,7 @@ TEST(Settings, hasTheRightDefaultValues)
     EXPECT_EQ(midi::DefaultSettings::HandleNullVelocityNoteOnAsNoteOff,  true);
     EXPECT_EQ(midi::DefaultSettings::Use1ByteParsing,                    true);
     EXPECT_EQ(midi::DefaultSettings::BaudRate,                           31250);
-    EXPECT_EQ(midi::DefaultSettings::SysExMaxSize,                       128);
+    EXPECT_EQ(midi::DefaultSettings::SysExMaxSize,                       unsigned(128));
 }
 
 END_UNNAMED_NAMESPACE

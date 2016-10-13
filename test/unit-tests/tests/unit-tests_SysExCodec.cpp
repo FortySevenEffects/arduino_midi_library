@@ -19,7 +19,7 @@ TEST(SysExCodec, Encoder)
         byte buffer[16];
         memset(buffer, 0, 16 * sizeof(byte));
         const unsigned encodedSize = midi::encodeSysEx(input, buffer, 13);
-        EXPECT_EQ(encodedSize, 15);
+        EXPECT_EQ(encodedSize, unsigned(15));
         const byte expected[16] = {
             0, 'H', 'e', 'l', 'l', 'o', ',', ' ',
             0, 'W', 'o', 'r', 'l', 'd', '!', 0,
@@ -36,7 +36,7 @@ TEST(SysExCodec, Encoder)
         byte buffer[16];
         memset(buffer, 0, 16 * sizeof(byte));
         const unsigned encodedSize = midi::encodeSysEx(input, buffer, 12);
-        EXPECT_EQ(encodedSize, 14);
+        EXPECT_EQ(encodedSize, unsigned(14));
         const byte expected[16] = {
         //  MSB    Data
             120,   54, 108, 39, 49, 61, 91, 120,
@@ -58,7 +58,7 @@ TEST(SysExCodec, Decoder)
         byte buffer[16];
         memset(buffer, 0, 16 * sizeof(byte));
         const unsigned decodedSize = midi::decodeSysEx(input, buffer, 15);
-        EXPECT_EQ(decodedSize, 13);
+        EXPECT_EQ(decodedSize, unsigned(13));
         const byte expected[16] = {
             'H', 'e', 'l', 'l', 'o', ',', ' ', 'W',
             'o', 'r', 'l', 'd', '!', 0, 0, 0,
@@ -76,7 +76,7 @@ TEST(SysExCodec, Decoder)
         byte buffer[16];
         memset(buffer, 0, 16 * sizeof(byte));
         const unsigned encodedSize = midi::decodeSysEx(input, buffer, 14);
-        EXPECT_EQ(encodedSize, 12);
+        EXPECT_EQ(encodedSize, unsigned(12));
         const byte expected[16] = {
             182, 236, 167, 177, 61, 91, 120,
             107, 94, 209, 87, 94, 0, 0,
@@ -97,9 +97,9 @@ TEST(SysExCodec, Codec)
         memset(buffer1, 0, 16 * sizeof(byte));
         memset(buffer2, 0, 16 * sizeof(byte));
         const unsigned encodedSize = midi::encodeSysEx(input, buffer1, 13);
-        EXPECT_EQ(encodedSize, 15);
+        EXPECT_EQ(encodedSize, unsigned(15));
         const unsigned decodedSize = midi::decodeSysEx(buffer1, buffer2, encodedSize);
-        EXPECT_EQ(decodedSize, 13);
+        EXPECT_EQ(decodedSize, unsigned(13));
         EXPECT_STREQ(reinterpret_cast<const char*>(buffer2),
                      reinterpret_cast<const char*>(input));
     }
@@ -115,9 +115,9 @@ TEST(SysExCodec, Codec)
         memset(buffer1, 0, 14 * sizeof(byte));
         memset(buffer2, 0, 12 * sizeof(byte));
         const unsigned encodedSize = midi::encodeSysEx(input, buffer1, 12);
-        EXPECT_EQ(encodedSize, 14);
+        EXPECT_EQ(encodedSize, unsigned(14));
         const unsigned decodedSize = midi::decodeSysEx(buffer1, buffer2, encodedSize);
-        EXPECT_EQ(decodedSize, 12);
+        EXPECT_EQ(decodedSize, unsigned(12));
         EXPECT_THAT(buffer2, ContainerEq(input));
     }
 }

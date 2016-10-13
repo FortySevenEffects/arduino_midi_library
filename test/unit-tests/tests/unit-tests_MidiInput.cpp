@@ -115,7 +115,7 @@ TEST(MidiInput, initMessage)
     EXPECT_EQ(midi.getChannel(),            0);
     EXPECT_EQ(midi.getData1(),              0);
     EXPECT_EQ(midi.getData2(),              0);
-    EXPECT_EQ(midi.getSysExArrayLength(),   0);
+    EXPECT_EQ(midi.getSysExArrayLength(),   unsigned(0));
     EXPECT_EQ(midi.check(),                 false);
 }
 

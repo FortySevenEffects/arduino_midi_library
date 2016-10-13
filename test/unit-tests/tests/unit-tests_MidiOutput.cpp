@@ -302,7 +302,7 @@ TEST(MidiOutput, sendSysEx)
     // Small frame
     {
         static const char* frame = "Hello, World!";
-        static const unsigned frameLength = strlen(frame);
+        static const int frameLength = strlen(frame);
         static const byte expected[] = {
             0xf0,
             'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!',
@@ -321,7 +321,7 @@ TEST(MidiOutput, sendSysEx)
     // Large frame
     {
         static const char* frame = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin maximus dui a massa maximus, a vestibulum mi venenatis. Cras sit amet ex id velit suscipit pharetra eget a turpis. Phasellus interdum metus ac sagittis cursus. Nam quis est at nisl ullamcorper egestas pulvinar eu erat. Duis a elit dignissim, vestibulum eros vel, tempus nisl. Aenean turpis nunc, cursus vel lacinia non, pharetra eget sapien. Duis condimentum, lacus at pulvinar tempor, leo libero volutpat nisl, eget porttitor lorem mi sed magna. Duis dictum, massa vel euismod interdum, lorem mi egestas elit, hendrerit tincidunt est arcu a libero. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur vehicula magna libero, at rhoncus sem ornare a. In elementum, elit et congue pulvinar, massa velit commodo velit, non elementum purus ligula eget lacus. Donec efficitur nisi eu ultrices efficitur. Donec neque dui, ullamcorper id molestie quis, consequat sit amet ligula.";
-        static const unsigned frameLength = strlen(frame);
+        static const int frameLength = strlen(frame);
         static const byte expected[] = {
             0xf0,
             'L','o','r','e','m',' ','i','p','s','u','m',' ','d','o','l','o','r',' ','s','i','t',' ','a','m','e','t',',',' ',
