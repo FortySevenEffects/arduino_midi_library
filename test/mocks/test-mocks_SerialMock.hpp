@@ -72,6 +72,12 @@ void RingBuffer<DataType, Size>::clear()
 // -----------------------------------------------------------------------------
 
 template<typename DataType, int Size>
+DataType RingBuffer<DataType, Size>::peek() const
+{
+    return *mReadHead;
+}
+
+template<typename DataType, int Size>
 DataType RingBuffer<DataType, Size>::read()
 {
     const DataType data = *mReadHead++;

@@ -22,6 +22,7 @@ public:
     void clear();
 
 public:
+    DataType peek() const;
     DataType read();
     void read(DataType* outData, int inSize);
 
