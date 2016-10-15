@@ -1,4 +1,5 @@
 #include "unit-tests.h"
+#include "unit-tests_Settings.h"
 #include <src/MIDI.h>
 #include <test/mocks/test-mocks_SerialMock.h>
 
@@ -10,19 +11,9 @@ END_MIDI_NAMESPACE
 
 BEGIN_UNNAMED_NAMESPACE
 
-template<bool RunningStatus, bool OneByteParsing>
-struct VariableSettings : public midi::DefaultSettings
-{
-    static const bool UseRunningStatus = RunningStatus;
-    static const bool Use1ByteParsing  = OneByteParsing;
-};
-
-template<bool A, bool B>
-const bool VariableSettings<A, B>::UseRunningStatus;
-template<bool A, bool B>
-const bool VariableSettings<A, B>::Use1ByteParsing;
-
 using namespace testing;
+USING_NAMESPACE_UNIT_TESTS;
+
 typedef test_mocks::SerialMock<32> SerialMock;
 typedef midi::MidiInterface<SerialMock> MidiInterface;
 
@@ -299,7 +290,7 @@ TEST(MidiOutput, sendSysEx)
     MidiInterface midi(serial);
     Buffer buffer;
 
-    // Small frame
+    // Short frame
     {
         static const char* frame = "Hello, World!";
         static const int frameLength = strlen(frame);
@@ -318,7 +309,7 @@ TEST(MidiOutput, sendSysEx)
         serial.mTxBuffer.read(&buffer[0], frameLength + 2);
         EXPECT_THAT(buffer, ElementsAreArray(expected));
     }
-    // Large frame
+    // Long frame
     {
         static const char* frame = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin maximus dui a massa maximus, a vestibulum mi venenatis. Cras sit amet ex id velit suscipit pharetra eget a turpis. Phasellus interdum metus ac sagittis cursus. Nam quis est at nisl ullamcorper egestas pulvinar eu erat. Duis a elit dignissim, vestibulum eros vel, tempus nisl. Aenean turpis nunc, cursus vel lacinia non, pharetra eget sapien. Duis condimentum, lacus at pulvinar tempor, leo libero volutpat nisl, eget porttitor lorem mi sed magna. Duis dictum, massa vel euismod interdum, lorem mi egestas elit, hendrerit tincidunt est arcu a libero. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur vehicula magna libero, at rhoncus sem ornare a. In elementum, elit et congue pulvinar, massa velit commodo velit, non elementum purus ligula eget lacus. Donec efficitur nisi eu ultrices efficitur. Donec neque dui, ullamcorper id molestie quis, consequat sit amet ligula.";
         static const int frameLength = strlen(frame);

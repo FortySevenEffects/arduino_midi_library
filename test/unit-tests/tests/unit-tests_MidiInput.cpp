@@ -1,4 +1,5 @@
 #include "unit-tests.h"
+#include "unit-tests_Settings.h"
 #include <src/MIDI.h>
 #include <test/mocks/test-mocks_SerialMock.h>
 
@@ -10,8 +11,16 @@ END_MIDI_NAMESPACE
 
 BEGIN_UNNAMED_NAMESPACE
 
+using namespace testing;
+USING_NAMESPACE_UNIT_TESTS
 typedef test_mocks::SerialMock<32> SerialMock;
 typedef midi::MidiInterface<SerialMock> MidiInterface;
+
+template<unsigned Size>
+struct VariableSysExSettings : midi::DefaultSettings
+{
+    static const unsigned SysExMaxSize = Size;
+};
 
 TEST(MidiInput, getTypeFromStatusByte)
 {
@@ -117,6 +126,269 @@ TEST(MidiInput, initMessage)
     EXPECT_EQ(midi.getData2(),              0);
     EXPECT_EQ(midi.getSysExArrayLength(),   unsigned(0));
     EXPECT_EQ(midi.check(),                 false);
+}
+
+TEST(MidiInput, channelFiltering)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 3;
+    static const byte rxData[rxSize] = { 0x9b, 12, 34 };
+    midi.begin(4); // Mistmatching channel
+    serial.mRxBuffer.write(rxData, rxSize);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+}
+
+TEST(MidiInput, noRxData)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    midi.begin();
+    EXPECT_EQ(midi.read(), false);
+}
+
+TEST(MidiInput, multiByteParsing)
+{
+    typedef VariableSettings<false, false> Settings;
+    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 3;
+    static const byte rxData[rxSize] = { 0x9b, 12, 34 };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
+    EXPECT_EQ(midi.read(), true);
+}
+
+TEST(MidiInput, noteOn)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 10;
+    static const byte rxData[rxSize] = {
+        0x9b, 12, 34,
+        0x9b, 56, 78,
+              12, 34,   // Running status
+              56, 0     // NoteOn with null velocity interpreted as NoteOff
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
+
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    // First NoteOn
+    EXPECT_EQ(midi.getType(),       midi::NoteOn);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::NoteOn);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      78);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::NoteOn);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      0);
+}
+
+TEST(MidiInput, noteOff)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 8;
+    static const byte rxData[rxSize] = {
+        0x8b, 12, 34,
+        0x8b, 56, 78,
+              12, 34,   // Running status
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
+
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    // First NoteOn
+    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      78);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+}
+
+TEST(MidiInput, programChange)
+{
+
+}
+
+TEST(MidiInput, controlChange)
+{
+
+}
+
+TEST(MidiInput, pitchBend)
+{
+
+}
+
+TEST(MidiInput, polyPressure)
+{
+
+}
+
+TEST(MidiInput, afterTouch)
+{
+
+}
+
+TEST(MidiInput, sysExWithinBufferSize)
+{
+    typedef VariableSysExSettings<1024> Settings;
+    typedef test_mocks::SerialMock<2048> SerialMock;
+    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+
+    SerialMock serial;
+    MidiInterface midi(serial);
+
+    // Short Frame < 256
+    {
+        static const unsigned frameLength = 15;
+        static const byte frame[frameLength] = {
+            0xf0, 'H','e','l','l','o',',',' ','W','o','r','l','d','!', 0xf7
+        };
+
+        midi.begin();
+        serial.mRxBuffer.write(frame, frameLength);
+        for (unsigned i = 0; i < frameLength - 1; ++i)
+        {
+            EXPECT_EQ(midi.read(), false);
+        }
+        EXPECT_EQ(midi.read(), true); // 0xf7
+
+        EXPECT_EQ(midi.getSysExArrayLength(), frameLength);
+        const std::vector<byte> sysExData(midi.getSysExArray(),
+                                          midi.getSysExArray() + frameLength);
+        EXPECT_THAT(sysExData, ElementsAreArray(frame));
+    }
+    // Long Frame
+    {
+        static const unsigned frameLength = 957;
+        static const byte frame[frameLength] = {
+            0xf0,
+            'L','o','r','e','m',' ','i','p','s','u','m',' ','d','o','l','o','r',' ','s','i','t',' ','a','m','e','t',',',' ',
+            'c','o','n','s','e','c','t','e','t','u','r',' ','a','d','i','p','i','s','c','i','n','g',' ','e','l','i','t','.',' ','P','r','o','i','n',' ','m','a','x','i','m','u','s',' ','d','u','i',' ','a',' ','m','a','s','s','a',' ','m','a','x','i','m','u','s',',',' ',
+            'a',' ','v','e','s','t','i','b','u','l','u','m',' ','m','i',' ','v','e','n','e','n','a','t','i','s','.',' ','C','r','a','s',' ','s','i','t',' ','a','m','e','t',' ','e','x',' ','i','d',' ','v','e','l','i','t',' ','s','u','s','c','i','p','i','t',' ','p','h','a','r','e','t','r','a',' ','e','g','e','t',            ' ','a',' ','t','u','r','p','i','s','.',' ','P','h','a','s','e','l','l','u','s',' ','i','n','t','e','r','d','u','m',' ','m','e','t','u','s',' ','a','c',' ','s','a','g','i','t','t','i','s',' ','c','u','r','s','u','s','.',' ','N','a','m',' ','q','u','i','s',' ','e','s','t',' ','a','t',' ','n','i','s',            'l',' ','u','l','l','a','m','c','o','r','p','e','r',' ','e','g','e','s','t','a','s',' ','p','u','l','v','i','n','a','r',' ','e','u',' ','e','r','a','t','.',' ','D','u','i','s',' ','a',' ','e','l','i','t',' ','d','i','g','n','i','s','s','i','m',',',' ',
+            'v','e','s','t','i','b','u','l','u','m',' ','e','r','o','s',' ','v','e','l',',',' ',
+            't','e','m','p','u','s',' ','n','i','s','l','.',' ','A','e','n','e','a','n',' ','t','u','r','p','i','s',' ','n','u','n','c',',',' ',
+            'c','u','r','s','u','s',' ','v','e','l',' ','l','a','c','i','n','i','a',' ','n','o','n',',',' ',
+            'p','h','a','r','e','t','r','a',' ','e','g','e','t',' ','s','a','p','i','e','n','.',' ','D','u','i','s',' ','c','o','n','d','i','m','e','n','t','u','m',',',' ',
+            'l','a','c','u','s',' ','a','t',' ','p','u','l','v','i','n','a','r',' ','t','e','m','p','o','r',',',' ',
+            'l','e','o',' ','l','i','b','e','r','o',' ','v','o','l','u','t','p','a','t',' ','n','i','s','l',',',' ',
+            'e','g','e','t',' ','p','o','r','t','t','i','t','o','r',' ','l','o','r','e','m',' ','m','i',' ','s','e','d',' ','m','a','g','n','a','.',' ','D','u','i','s',' ','d','i','c','t','u','m',',',' ',
+            'm','a','s','s','a',' ','v','e','l',' ','e','u','i','s','m','o','d',' ','i','n','t','e','r','d','u','m',',',' ',
+            'l','o','r','e','m',' ','m','i',' ','e','g','e','s','t','a','s',' ','e','l','i','t',',',' ',
+            'h','e','n','d','r','e','r','i','t',' ','t','i','n','c','i','d','u','n','t',' ','e','s','t',' ','a','r','c','u',' ','a',' ','l','i','b','e','r','o','.',' ','I','n','t','e','r','d','u','m',' ','e','t',' ','m','a','l','e','s','u','a','d','a',' ','f','a','m','e','s',' ','a','c',' ','a','n','t','e',' ',            'i','p','s','u','m',' ','p','r','i','m','i','s',' ','i','n',' ','f','a','u','c','i','b','u','s','.',' ','C','u','r','a','b','i','t','u','r',' ','v','e','h','i','c','u','l','a',' ','m','a','g','n','a',' ','l','i','b','e','r','o',',',' ',
+            'a','t',' ','r','h','o','n','c','u','s',' ','s','e','m',' ','o','r','n','a','r','e',' ','a','.',' ','I','n',' ','e','l','e','m','e','n','t','u','m',',',' ',
+            'e','l','i','t',' ','e','t',' ','c','o','n','g','u','e',' ','p','u','l','v','i','n','a','r',',',' ',
+            'm','a','s','s','a',' ','v','e','l','i','t',' ','c','o','m','m','o','d','o',' ','v','e','l','i','t',',',' ',
+            'n','o','n',' ','e','l','e','m','e','n','t','u','m',' ','p','u','r','u','s',' ','l','i','g','u','l','a',' ','e','g','e','t',' ','l','a','c','u','s','.',' ','D','o','n','e','c',' ','e','f','f','i','c','i','t','u','r',' ','n','i','s','i',' ','e','u',' ','u','l','t','r','i','c','e','s',' ','e','f','f',            'i','c','i','t','u','r','.',' ','D','o','n','e','c',' ','n','e','q','u','e',' ','d','u','i',',',' ',
+            'u','l','l','a','m','c','o','r','p','e','r',' ','i','d',' ','m','o','l','e','s','t','i','e',' ','q','u','i','s',',',' ',
+            'c','o','n','s','e','q','u','a','t',' ','s','i','t',' ','a','m','e','t',' ','l','i','g','u','l','a','.',
+            0xf7,
+        };
+        midi.begin();
+        serial.mRxBuffer.write(frame, frameLength);
+        for (unsigned i = 0; i < frameLength - 1; ++i)
+        {
+            EXPECT_EQ(midi.read(), false);
+        }
+        EXPECT_EQ(serial.mRxBuffer.getLength(), 1);
+        EXPECT_EQ(serial.mRxBuffer.peek(), 0xf7);
+        EXPECT_EQ(midi.read(), true);
+    }
+}
+
+TEST(MidiInput, sysExOverBufferSize)
+{
+    typedef VariableSysExSettings<8> Settings;
+    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+
+    SerialMock serial;
+    MidiInterface midi(serial);
+
+    static const unsigned frameLength = 15;
+    static const byte frame[frameLength] = {
+        0xf0, 'H','e','l','l','o',',',' ','W','o','r','l','d','!', 0xf7
+    };
+
+    midi.begin();
+    serial.mRxBuffer.write(frame, frameLength);
+
+    for (unsigned i = 0; i < frameLength - 1; ++i)
+    {
+        EXPECT_EQ(midi.read(), false);
+    }
+    EXPECT_EQ(midi.read(), false);
+}
+
+TEST(MidiInput, mtcQuarterFrame)
+{
+
+}
+
+TEST(MidiInput, songPosition)
+{
+
+}
+
+TEST(MidiInput, songSelect)
+{
+
+}
+
+TEST(MidiInput, realTime)
+{
+
 }
 
 END_UNNAMED_NAMESPACE

@@ -1,5 +1,4 @@
-#include "unit-tests.h"
-#include <src/midi_Settings.h>
+#include "unit-tests_Settings.h"
 
 BEGIN_MIDI_NAMESPACE
 
