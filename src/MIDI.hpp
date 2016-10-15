@@ -677,6 +677,19 @@ bool MidiInterface<SerialPort, Settings>::parse()
 
     const byte extracted = mSerial.read();
 
+    // Ignore Undefined
+    if (extracted == 0xf9 || extracted == 0xfd)
+    {
+        if (Settings::Use1ByteParsing)
+        {
+            return false;
+        }
+        else
+        {
+            return parse();
+        }
+    }
+
     if (mPendingMessageIndex == 0)
     {
         // Start a new pending message
@@ -717,10 +730,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 mMessage.data2   = 0;
                 mMessage.valid   = true;
 
-                // \fix Running Status broken when receiving Clock messages.
                 // Do not reset all input attributes, Running Status must remain unchanged.
-                //resetInput();
-
                 // We still need to reset these
                 mPendingMessageIndex = 0;
                 mPendingMessageExpectedLenght = 0;
@@ -828,8 +838,6 @@ bool MidiInterface<SerialPort, Settings>::parse()
                     mMessage.valid   = true;
                     return true;
 
-                    break;
-
                     // End of Exclusive
                 case 0xf7:
                     if (mMessage.sysexArray[0] == SystemExclusive)
@@ -854,7 +862,6 @@ bool MidiInterface<SerialPort, Settings>::parse()
                         return false;
                     }
 
-                    break;
                 default:
                     break;
             }
