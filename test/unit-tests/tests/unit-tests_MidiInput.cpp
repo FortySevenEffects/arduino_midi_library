@@ -149,6 +149,19 @@ TEST(MidiInput, noRxData)
     EXPECT_EQ(midi.read(), false);
 }
 
+TEST(MidiInput, inputDisabled)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 3;
+    static const byte rxData[rxSize] = { 0x9b, 12, 34 };
+    midi.begin(MIDI_CHANNEL_OFF); // Invalid channel
+    serial.mRxBuffer.write(rxData, rxSize);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+}
+
 TEST(MidiInput, multiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
@@ -258,27 +271,216 @@ TEST(MidiInput, noteOff)
 
 TEST(MidiInput, programChange)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 6;
+    static const byte rxData[rxSize] = {
+        0xc3, 12, 34,
+        0xc4, 56, 78
+    };
+    midi.begin(MIDI_CHANNEL_OMNI);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getChannel(),    4);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getChannel(),    4);
+    EXPECT_EQ(midi.getData1(),      34);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getChannel(),    5);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getChannel(),    5);
+    EXPECT_EQ(midi.getData1(),      78);
+    EXPECT_EQ(midi.getData2(),      0);
 }
 
 TEST(MidiInput, controlChange)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 8;
+    static const byte rxData[rxSize] = {
+        0xbb, 12, 34,
+        0xbb, 56, 78,
+              12, 34
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    // First NoteOn
+    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      78);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
 }
 
 TEST(MidiInput, pitchBend)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 8;
+    static const byte rxData[rxSize] = {
+        0xeb, 12, 34,
+        0xeb, 56, 78,
+              12, 34
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    // First NoteOn
+    EXPECT_EQ(midi.getType(),       midi::PitchBend);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::PitchBend);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      78);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::PitchBend);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
 }
 
-TEST(MidiInput, polyPressure)
+TEST(MidiInput, afterTouchPoly)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 8;
+    static const byte rxData[rxSize] = {
+        0xab, 12, 34,
+        0xab, 56, 78,
+              12, 34
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    // First NoteOn
+    EXPECT_EQ(midi.getType(),       midi::AfterTouchPoly);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::AfterTouchPoly);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      78);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::AfterTouchPoly);
+    EXPECT_EQ(midi.getChannel(),    12);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
 }
 
-TEST(MidiInput, afterTouch)
+TEST(MidiInput, afterTouchChannel)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 6;
+    static const byte rxData[rxSize] = {
+        0xd3, 12, 34,
+        0xd4, 56, 78
+    };
+    midi.begin(MIDI_CHANNEL_OMNI);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getChannel(),    4);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getChannel(),    4);
+    EXPECT_EQ(midi.getData1(),      34);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getChannel(),    5);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getChannel(),    5);
+    EXPECT_EQ(midi.getData1(),      78);
+    EXPECT_EQ(midi.getData2(),      0);
 }
 
 TEST(MidiInput, sysExWithinBufferSize)
@@ -373,22 +575,164 @@ TEST(MidiInput, sysExOverBufferSize)
 
 TEST(MidiInput, mtcQuarterFrame)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 4;
+    static const byte rxData[rxSize] = {
+        0xf1, 12,
+        0xf1, 42
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::TimeCodeQuarterFrame);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::TimeCodeQuarterFrame);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      42);
+    EXPECT_EQ(midi.getData2(),      0);
 }
 
 TEST(MidiInput, songPosition)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 6;
+    static const byte rxData[rxSize] = {
+        0xf2, 12, 34,
+        0xf2, 56, 78
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::SongPosition);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      34);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::SongPosition);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      56);
+    EXPECT_EQ(midi.getData2(),      78);
 }
 
 TEST(MidiInput, songSelect)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 4;
+    static const byte rxData[rxSize] = {
+        0xf3, 12,
+        0xf3, 42
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    // 1 byte parsing
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::SongSelect);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      12);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(midi.getType(),       midi::SongSelect);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      42);
+    EXPECT_EQ(midi.getData2(),      0);
+}
+
+TEST(MidiInput, tuneRequest)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 1;
+    static const byte rxData[rxSize] = {
+        0xf6
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
+
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.getType(),       midi::TuneRequest);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
 }
 
 TEST(MidiInput, realTime)
 {
+    SerialMock serial;
+    MidiInterface midi(serial);
+    static const unsigned rxSize = 8;
+    static const byte rxData[rxSize] = {
+        0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff
+    };
+    midi.begin(12);
+    serial.mRxBuffer.write(rxData, rxSize);
 
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.getType(),       midi::Clock);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), false); // 0xf9 = undefined
+
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.getType(),       midi::Start);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.getType(),       midi::Continue);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.getType(),       midi::Stop);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), false); // 0xfd = undefined
+
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.getType(),       midi::ActiveSensing);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
+
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.getType(),       midi::SystemReset);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
 }
 
 END_UNNAMED_NAMESPACE
