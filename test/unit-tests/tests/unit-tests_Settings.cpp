@@ -16,7 +16,7 @@ BEGIN_UNNAMED_NAMESPACE
 
 TEST(Settings, hasTheRightDefaultValues)
 {
-    EXPECT_EQ(midi::DefaultSettings::UseRunningStatus,                   true);
+    EXPECT_EQ(midi::DefaultSettings::UseRunningStatus,                   false);
     EXPECT_EQ(midi::DefaultSettings::HandleNullVelocityNoteOnAsNoteOff,  true);
     EXPECT_EQ(midi::DefaultSettings::Use1ByteParsing,                    true);
     EXPECT_EQ(midi::DefaultSettings::BaudRate,                           31250);

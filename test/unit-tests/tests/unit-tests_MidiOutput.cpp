@@ -53,6 +53,9 @@ TEST(MidiOutput, sendGenericSingle)
 
 TEST(MidiOutput, sendGenericWithRunningStatus)
 {
+    typedef VariableSettings<true, false> Settings;
+    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
@@ -139,14 +142,14 @@ TEST(MidiOutput, sendNoteOn)
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
-    buffer.resize(5);
+    buffer.resize(6);
 
     midi.begin();
     midi.sendNoteOn(10, 11, 12);
-    midi.sendNoteOn(12, 13, 12);
-    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
-    serial.mTxBuffer.read(&buffer[0], 5);
-    EXPECT_THAT(buffer, ElementsAreArray({0x9b, 10, 11, 12, 13}));
+    midi.sendNoteOn(12, 13, 4);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({0x9b, 10, 11, 0x93, 12, 13}));
 }
 
 TEST(MidiOutput, sendNoteOff)
@@ -154,14 +157,14 @@ TEST(MidiOutput, sendNoteOff)
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
-    buffer.resize(5);
+    buffer.resize(6);
 
     midi.begin();
     midi.sendNoteOff(10, 11, 12);
-    midi.sendNoteOff(12, 13, 12);
-    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
-    serial.mTxBuffer.read(&buffer[0], 5);
-    EXPECT_THAT(buffer, ElementsAreArray({0x8b, 10, 11, 12, 13}));
+    midi.sendNoteOff(12, 13, 4);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({0x8b, 10, 11, 0x83, 12, 13}));
 }
 
 TEST(MidiOutput, sendProgramChange)
@@ -169,14 +172,14 @@ TEST(MidiOutput, sendProgramChange)
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
-    buffer.resize(3);
+    buffer.resize(4);
 
     midi.begin();
     midi.sendProgramChange(42, 12);
-    midi.sendProgramChange(47, 12);
-    EXPECT_EQ(serial.mTxBuffer.getLength(), 3);
-    serial.mTxBuffer.read(&buffer[0], 3);
-    EXPECT_THAT(buffer, ElementsAreArray({0xcb, 42, 47}));
+    midi.sendProgramChange(47, 4);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 4);
+    serial.mTxBuffer.read(&buffer[0], 4);
+    EXPECT_THAT(buffer, ElementsAreArray({0xcb, 42, 0xc3, 47}));
 }
 
 TEST(MidiOutput, sendControlChange)
@@ -184,14 +187,14 @@ TEST(MidiOutput, sendControlChange)
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
-    buffer.resize(5);
+    buffer.resize(6);
 
     midi.begin();
     midi.sendControlChange(42, 12, 12);
-    midi.sendControlChange(47, 12, 12);
-    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
-    serial.mTxBuffer.read(&buffer[0], 5);
-    EXPECT_THAT(buffer, ElementsAreArray({0xbb, 42, 12, 47, 12}));
+    midi.sendControlChange(47, 12, 4);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({0xbb, 42, 12, 0xb3, 47, 12}));
 }
 
 TEST(MidiOutput, sendPitchBend)
@@ -203,50 +206,47 @@ TEST(MidiOutput, sendPitchBend)
     // Int signature - arbitrary values
     {
         buffer.clear();
-        buffer.resize(7);
+        buffer.resize(9);
 
         midi.begin();
-        midi.sendPitchBend(0, 12);
-        midi.sendPitchBend(100, 12);
-        midi.sendPitchBend(-100, 12);
-        EXPECT_EQ(serial.mTxBuffer.getLength(), 7);
-        serial.mTxBuffer.read(&buffer[0], 7);
-        EXPECT_THAT(buffer, ElementsAreArray({0xeb,
-                                              0x00, 0x40,
-                                              0x64, 0x40,
-                                              0x1c, 0x3f}));
+        midi.sendPitchBend(0,    12);
+        midi.sendPitchBend(100,  4);
+        midi.sendPitchBend(-100, 7);
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 9);
+        serial.mTxBuffer.read(&buffer[0], 9);
+        EXPECT_THAT(buffer, ElementsAreArray({0xeb, 0x00, 0x40,
+                                              0xe3, 0x64, 0x40,
+                                              0xe6, 0x1c, 0x3f}));
     }
     // Int signature - min/max
     {
         buffer.clear();
-        buffer.resize(7);
+        buffer.resize(9);
 
         midi.begin();
         midi.sendPitchBend(0, 12);
-        midi.sendPitchBend(MIDI_PITCHBEND_MAX, 12);
-        midi.sendPitchBend(MIDI_PITCHBEND_MIN, 12);
-        EXPECT_EQ(serial.mTxBuffer.getLength(), 7);
-        serial.mTxBuffer.read(&buffer[0], 7);
-        EXPECT_THAT(buffer, ElementsAreArray({0xeb,
-                                              0x00, 0x40,
-                                              0x7f, 0x7f,
-                                              0x00, 0x00}));
+        midi.sendPitchBend(MIDI_PITCHBEND_MAX, 4);
+        midi.sendPitchBend(MIDI_PITCHBEND_MIN, 7);
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 9);
+        serial.mTxBuffer.read(&buffer[0], 9);
+        EXPECT_THAT(buffer, ElementsAreArray({0xeb, 0x00, 0x40,
+                                              0xe3, 0x7f, 0x7f,
+                                              0xe6, 0x00, 0x00}));
     }
     // Float signature
     {
         buffer.clear();
-        buffer.resize(7);
+        buffer.resize(9);
 
         midi.begin();
         midi.sendPitchBend(0.0,  12);
-        midi.sendPitchBend(1.0,  12);
-        midi.sendPitchBend(-1.0, 12);
-        EXPECT_EQ(serial.mTxBuffer.getLength(), 7);
-        serial.mTxBuffer.read(&buffer[0], 7);
-        EXPECT_THAT(buffer, ElementsAreArray({0xeb,
-                                              0x00, 0x40,
-                                              0x7f, 0x7f,
-                                              0x00, 0x00}));
+        midi.sendPitchBend(1.0,  4);
+        midi.sendPitchBend(-1.0, 7);
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 9);
+        serial.mTxBuffer.read(&buffer[0], 9);
+        EXPECT_THAT(buffer, ElementsAreArray({0xeb, 0x00, 0x40,
+                                              0xe3, 0x7f, 0x7f,
+                                              0xe6, 0x00, 0x00}));
     }
 }
 
@@ -255,14 +255,14 @@ TEST(MidiOutput, sendPolyPressure)
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
-    buffer.resize(5);
+    buffer.resize(6);
 
     midi.begin();
     midi.sendPolyPressure(42, 12, 12);
-    midi.sendPolyPressure(47, 12, 12);
-    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
-    serial.mTxBuffer.read(&buffer[0], 5);
-    EXPECT_THAT(buffer, ElementsAreArray({0xab, 42, 12, 47, 12}));
+    midi.sendPolyPressure(47, 12, 4);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({0xab, 42, 12, 0xa3, 47, 12}));
 }
 
 TEST(MidiOutput, sendAfterTouch)
@@ -270,14 +270,14 @@ TEST(MidiOutput, sendAfterTouch)
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
-    buffer.resize(3);
+    buffer.resize(4);
 
     midi.begin();
     midi.sendAfterTouch(42, 12);
-    midi.sendAfterTouch(47, 12);
-    EXPECT_EQ(serial.mTxBuffer.getLength(), 3);
-    serial.mTxBuffer.read(&buffer[0], 3);
-    EXPECT_THAT(buffer, ElementsAreArray({0xdb, 42, 47}));
+    midi.sendAfterTouch(47, 4);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 4);
+    serial.mTxBuffer.read(&buffer[0], 4);
+    EXPECT_THAT(buffer, ElementsAreArray({0xdb, 42, 0xd3, 47}));
 }
 
 TEST(MidiOutput, sendSysEx)
@@ -490,6 +490,9 @@ TEST(MidiOutput, sendRealTime)
 
 TEST(MidiOutput, RPN)
 {
+    typedef VariableSettings<true, true> Settings;
+    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+
     SerialMock serial;
     MidiInterface midi(serial);
     std::vector<test_mocks::uint8> buffer;
@@ -603,6 +606,9 @@ TEST(MidiOutput, RPN)
 
 TEST(MidiOutput, NRPN)
 {
+    typedef VariableSettings<true, true> Settings;
+    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+
     SerialMock serial;
     MidiInterface midi(serial);
     std::vector<test_mocks::uint8> buffer;
