@@ -41,7 +41,7 @@ BEGIN_MIDI_NAMESPACE
  \code{.cpp}
  struct MySettings : public midi::DefaultSettings
  {
-    static const bool UseRunningStatus = false; // Messes with my old equipment!
+    static const unsigned SysExMaxSize = 1024; // Accept SysEx messages up to 1024 bytes long.
  };
 
  MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, midi, MySettings);
@@ -51,9 +51,9 @@ struct DefaultSettings
 {
     /*! Running status enables short messages when sending multiple values
     of the same type and channel.\n
-    Set to false if you have troubles controlling your hardware.
+    Warning: does not work with some hardware, enable with caution.
     */
-    static const bool UseRunningStatus = true;
+    static const bool UseRunningStatus = false;
 
     /*! NoteOn with 0 velocity should be handled as NoteOf.\n
     Set to true  to get NoteOff events when receiving null-velocity NoteOn messages.\n
