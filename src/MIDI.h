@@ -152,8 +152,7 @@ public:
 public:
     static inline MidiType getTypeFromStatusByte(byte inStatus);
     static inline Channel getChannelFromStatusByte(byte inStatus);
-	static inline bool isChannelMessage(MidiType inType);
-
+    static inline bool isChannelMessage(MidiType inType);
 
     // -------------------------------------------------------------------------
     // Input Callbacks
@@ -223,25 +222,24 @@ private:
     inline void resetInput();
 
 private:
-    bool            mThruActivated  : 1;
-    MidiFilterMode  mThruFilterMode : 7;
-
-private:
     typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 private:
     SerialPort& mSerial;
 
 private:
-    Channel     mInputChannel;
-    StatusByte  mRunningStatus_RX;
-    StatusByte  mRunningStatus_TX;
-    byte        mPendingMessage[3];
-    unsigned    mPendingMessageExpectedLenght;
-    unsigned    mPendingMessageIndex;
-    unsigned    mCurrentRpnNumber;
-    unsigned    mCurrentNrpnNumber;
-    MidiMessage mMessage;
+    Channel         mInputChannel;
+    StatusByte      mRunningStatus_RX;
+    StatusByte      mRunningStatus_TX;
+    byte            mPendingMessage[3];
+    unsigned        mPendingMessageExpectedLenght;
+    unsigned        mPendingMessageIndex;
+    unsigned        mCurrentRpnNumber;
+    unsigned        mCurrentNrpnNumber;
+    bool            mThruActivated  : 1;
+    MidiFilterMode  mThruFilterMode : 7;
+    MidiMessage     mMessage;
+
 
 private:
     inline StatusByte getStatus(MidiType inType,
@@ -254,7 +252,5 @@ unsigned encodeSysEx(const byte* inData,  byte* outSysEx, unsigned inLenght);
 unsigned decodeSysEx(const byte* inSysEx, byte* outData,  unsigned inLenght);
 
 END_MIDI_NAMESPACE
-
-// -----------------------------------------------------------------------------
 
 #include "MIDI.hpp"

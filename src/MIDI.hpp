@@ -41,6 +41,8 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
+    , mThruActivated(true)
+    , mThruFilterMode(Full)
 {
     mNoteOffCallback                = 0;
     mNoteOnCallback                 = 0;
@@ -781,9 +783,14 @@ bool MidiInterface<SerialPort, Settings>::parse()
 
             // Save data2 only if applicable
             if (mPendingMessageExpectedLenght == 3)
+            {
+                // todo: This code seems unreacheable, to clean up.
                 mMessage.data2 = mPendingMessage[2];
+            }
             else
+            {
                 mMessage.data2 = 0;
+            }
 
             mPendingMessageIndex = 0;
             mPendingMessageExpectedLenght = 0;
