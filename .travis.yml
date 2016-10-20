@@ -27,8 +27,8 @@ addons:
       - llvm-3.5
       - cmake
 
-before_install:
-  - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
+#before_install:
+#  - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
 
 install:
   # Enable coverage analysis only for GCC
@@ -56,7 +56,7 @@ install:
     fi
   # Use clang 3.5
   - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5"; export CC="clang-3.5"; fi
-  - arduino --install-library "MIDIUSB"
+  # - arduino --install-library "MIDIUSB"
 
 script:
   # Build examples with Arduino IDE on each available platform / board
