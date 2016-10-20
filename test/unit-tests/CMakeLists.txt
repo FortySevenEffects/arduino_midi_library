@@ -20,6 +20,7 @@ add_executable(unit-tests
     tests/unit-tests_SysExCodec.cpp
     tests/unit-tests_SerialMock.cpp
     tests/unit-tests_MidiInput.cpp
+    tests/unit-tests_MidiInputCallbacks.cpp
     tests/unit-tests_MidiOutput.cpp
     tests/unit-tests_MidiThru.cpp
     tests/unit-tests_MidiUsb.cpp
