@@ -77,6 +77,9 @@ TEST(MidiThru, setGet)
     midi.setThruFilterMode(midi::DifferentChannel);
     EXPECT_EQ(midi.getThruState(),  true);
     EXPECT_EQ(midi.getFilterMode(), midi::DifferentChannel);
+    midi.setThruFilterMode(midi::Off);
+    EXPECT_EQ(midi.getThruState(),  false);
+    EXPECT_EQ(midi.getFilterMode(), midi::Off);
 }
 
 END_UNNAMED_NAMESPACE
