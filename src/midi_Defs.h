@@ -84,12 +84,26 @@ enum MidiType
 // -----------------------------------------------------------------------------
 
 /*! Enumeration of Thru filter modes */
-enum MidiFilterMode
+struct Thru
 {
-    Off                   = 0,  ///< Thru disabled (nothing passes through).
-    Full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
-    SameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
-    DifferentChannel      = 3,  ///< All the messages but the ones on the Input Channel will be sent back.
+    enum Mode
+    {
+        off                   = 0,  ///< Thru disabled (nothing passes through).
+        full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
+        sameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
+        differentChannel      = 3,  ///< All the messages but the ones on the Input Channel will be sent back.
+    };
+};
+
+/*! Deprecated: use Thru::Mode instead.
+ Will be removed in v5.0.
+*/
+enum __attribute__ ((deprecated)) MidiFilterMode
+{
+    Off                   __attribute__((deprecated)) = Thru::off,
+    Full                  __attribute__((deprecated)) = Thru::full,
+    SameChannel           __attribute__((deprecated)) = Thru::sameChannel,
+    DifferentChannel      __attribute__((deprecated)) = Thru::differentChannel,
 };
 
 // -----------------------------------------------------------------------------
