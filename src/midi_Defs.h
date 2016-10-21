@@ -100,10 +100,10 @@ struct Thru
 */
 enum __attribute__ ((deprecated)) MidiFilterMode
 {
-    Off                   __attribute__((deprecated)) = Thru::off,
-    Full                  __attribute__((deprecated)) = Thru::full,
-    SameChannel           __attribute__((deprecated)) = Thru::sameChannel,
-    DifferentChannel      __attribute__((deprecated)) = Thru::differentChannel,
+    Off                 = Thru::off,
+    Full                = Thru::full,
+    SameChannel         = Thru::sameChannel,
+    DifferentChannel    = Thru::differentChannel,
 };
 
 // -----------------------------------------------------------------------------
