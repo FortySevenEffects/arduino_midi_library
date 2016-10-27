@@ -42,7 +42,7 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
     , mThruActivated(true)
-    , mThruFilterMode(Full)
+    , mThruFilterMode(Thru::Full)
 {
     mNoteOffCallback                = 0;
     mNoteOnCallback                 = 0;
@@ -107,7 +107,7 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
     mMessage.data1   = 0;
     mMessage.data2   = 0;
 
-    mThruFilterMode = Full;
+    mThruFilterMode = Thru::Full;
     mThruActivated  = true;
 }
 
@@ -1250,20 +1250,20 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
 /*! \brief Set the filter for thru mirroring
  \param inThruFilterMode a filter mode
 
- @see MidiFilterMode
+ @see Thru::Mode
  */
 template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::setThruFilterMode(MidiFilterMode inThruFilterMode)
+void MidiInterface<SerialPort, Settings>::setThruFilterMode(Thru::Mode inThruFilterMode)
 {
     mThruFilterMode = inThruFilterMode;
-    if (mThruFilterMode != Off)
+    if (mThruFilterMode != Thru::Off)
         mThruActivated = true;
     else
         mThruActivated = false;
 }
 
 template<class SerialPort, class Settings>
-MidiFilterMode MidiInterface<SerialPort, Settings>::getFilterMode() const
+Thru::Mode MidiInterface<SerialPort, Settings>::getFilterMode() const
 {
     return mThruFilterMode;
 }
@@ -1275,7 +1275,7 @@ bool MidiInterface<SerialPort, Settings>::getThruState() const
 }
 
 template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::turnThruOn(MidiFilterMode inThruFilterMode)
+void MidiInterface<SerialPort, Settings>::turnThruOn(Thru::Mode inThruFilterMode)
 {
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
@@ -1285,7 +1285,7 @@ template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::turnThruOff()
 {
     mThruActivated = false;
-    mThruFilterMode = Off;
+    mThruFilterMode = Thru::Off;
 }
 
 /*! @} */ // End of doc group MIDI Thru
@@ -1300,7 +1300,7 @@ template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
 {
     // If the feature is disabled, don't do anything.
-    if (!mThruActivated || (mThruFilterMode == Off))
+    if (!mThruActivated || (mThruFilterMode == Thru::Off))
         return;
 
     // First, check if the received message is Channel
@@ -1312,14 +1312,14 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
         // Now let's pass it to the output
         switch (mThruFilterMode)
         {
-            case Full:
+            case Thru::Full:
                 send(mMessage.type,
                      mMessage.data1,
                      mMessage.data2,
                      mMessage.channel);
                 break;
 
-            case SameChannel:
+            case Thru::SameChannel:
                 if (filter_condition)
                 {
                     send(mMessage.type,
@@ -1329,7 +1329,7 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
                 }
                 break;
 
-            case DifferentChannel:
+            case Thru::DifferentChannel:
                 if (!filter_condition)
                 {
                     send(mMessage.type,
@@ -1337,12 +1337,6 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
                          mMessage.data2,
                          mMessage.channel);
                 }
-                break;
-
-            case Off:
-                // Do nothing.
-                // Technically it's impossible to get there because
-                // the case was already tested earlier.
                 break;
 
             default:

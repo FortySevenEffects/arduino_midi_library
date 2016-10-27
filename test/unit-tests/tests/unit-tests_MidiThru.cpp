@@ -30,10 +30,10 @@ TEST(MidiThru, defaultValues)
     MidiInterface midi(serial);
 
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Full);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
     midi.begin(); // Should not change the state
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Full);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
 }
 
 TEST(MidiThru, beginEnablesThru)
@@ -43,10 +43,10 @@ TEST(MidiThru, beginEnablesThru)
 
     midi.turnThruOff();
     EXPECT_EQ(midi.getThruState(),  false);
-    EXPECT_EQ(midi.getFilterMode(), midi::Off);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Off);
     midi.begin();
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Full);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
 }
 
 TEST(MidiThru, setGet)
@@ -56,30 +56,30 @@ TEST(MidiThru, setGet)
 
     midi.turnThruOff();
     EXPECT_EQ(midi.getThruState(),  false);
-    EXPECT_EQ(midi.getFilterMode(), midi::Off);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Off);
 
     midi.turnThruOn();
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Full);
-    midi.turnThruOn(midi::SameChannel);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
+    midi.turnThruOn(midi::Thru::SameChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::SameChannel);
-    midi.turnThruOn(midi::DifferentChannel);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::SameChannel);
+    midi.turnThruOn(midi::Thru::DifferentChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::DifferentChannel);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::DifferentChannel);
 
-    midi.setThruFilterMode(midi::Full);
+    midi.setThruFilterMode(midi::Thru::Full);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Full);
-    midi.setThruFilterMode(midi::SameChannel);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
+    midi.setThruFilterMode(midi::Thru::SameChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::SameChannel);
-    midi.setThruFilterMode(midi::DifferentChannel);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::SameChannel);
+    midi.setThruFilterMode(midi::Thru::DifferentChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::DifferentChannel);
-    midi.setThruFilterMode(midi::Off);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::DifferentChannel);
+    midi.setThruFilterMode(midi::Thru::Off);
     EXPECT_EQ(midi.getThruState(),  false);
-    EXPECT_EQ(midi.getFilterMode(), midi::Off);
+    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Off);
 }
 
 END_UNNAMED_NAMESPACE

@@ -205,12 +205,12 @@ private:
     // MIDI Soft Thru
 
 public:
-    inline MidiFilterMode getFilterMode() const;
+    inline Thru::Mode getFilterMode() const;
     inline bool getThruState() const;
 
-    inline void turnThruOn(MidiFilterMode inThruFilterMode = Full);
+    inline void turnThruOn(Thru::Mode inThruFilterMode = Thru::Full);
     inline void turnThruOff();
-    inline void setThruFilterMode(MidiFilterMode inThruFilterMode);
+    inline void setThruFilterMode(Thru::Mode inThruFilterMode);
 
 private:
     void thruFilter(byte inChannel);
@@ -237,7 +237,7 @@ private:
     unsigned        mCurrentRpnNumber;
     unsigned        mCurrentNrpnNumber;
     bool            mThruActivated  : 1;
-    MidiFilterMode  mThruFilterMode : 7;
+    Thru::Mode      mThruFilterMode : 7;
     MidiMessage     mMessage;
 
 
