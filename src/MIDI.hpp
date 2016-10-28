@@ -251,6 +251,8 @@ void MidiInterface<SerialPort, Settings>::sendControlChange(DataByte inControlNu
  \param inNoteNumber  The note to apply AfterTouch to (0 to 127).
  \param inPressure    The amount of AfterTouch to apply (0 to 127).
  \param inChannel     The channel on which the message will be sent (1 to 16).
+ Note: this method is deprecated and will be removed in a future revision of the
+ library, @see sendAfterTouch to send polyphonic and monophonic AfterTouch messages.
  */
 template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::sendPolyPressure(DataByte inNoteNumber,
@@ -269,6 +271,20 @@ void MidiInterface<SerialPort, Settings>::sendAfterTouch(DataByte inPressure,
                                                          Channel inChannel)
 {
     send(AfterTouchChannel, inPressure, 0, inChannel);
+}
+
+/*! \brief Send a Polyphonic AfterTouch message (applies to a specified note)
+ \param inNoteNumber  The note to apply AfterTouch to (0 to 127).
+ \param inPressure    The amount of AfterTouch to apply (0 to 127).
+ \param inChannel     The channel on which the message will be sent (1 to 16).
+ @see Replaces sendPolyPressure (which is now deprecated).
+ */
+template<class SerialPort, class Settings>
+void MidiInterface<SerialPort, Settings>::sendAfterTouch(DataByte inNoteNumber,
+                                                         DataByte inPressure,
+                                                         Channel inChannel)
+{
+    send(AfterTouchPoly, inNoteNumber, inPressure, inChannel);
 }
 
 /*! \brief Send a Pitch Bend message using a signed integer value.

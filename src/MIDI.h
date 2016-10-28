@@ -79,9 +79,12 @@ public:
 
     inline void sendPolyPressure(DataByte inNoteNumber,
                                  DataByte inPressure,
-                                 Channel inChannel);
+                                 Channel inChannel) __attribute__ ((deprecated));
 
     inline void sendAfterTouch(DataByte inPressure,
+                               Channel inChannel);
+    inline void sendAfterTouch(DataByte inNoteNumber,
+                               DataByte inPressure,
                                Channel inChannel);
 
     inline void sendSysEx(unsigned inLength,
