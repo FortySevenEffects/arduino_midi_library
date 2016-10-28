@@ -252,6 +252,10 @@ TEST(MidiOutput, sendPitchBend)
 
 TEST(MidiOutput, sendPolyPressure)
 {
+    // Note: sendPolyPressure is deprecated in favor of sendAfterTouch, which
+    // now supports both mono and poly AfterTouch messages.
+    // This test is kept for coverage until removal of sendPolyPressure.
+
     SerialMock serial;
     MidiInterface midi(serial);
     Buffer buffer;
@@ -265,7 +269,7 @@ TEST(MidiOutput, sendPolyPressure)
     EXPECT_THAT(buffer, ElementsAreArray({0xab, 42, 12, 0xa3, 47, 12}));
 }
 
-TEST(MidiOutput, sendAfterTouch)
+TEST(MidiOutput, sendAfterTouchMono)
 {
     SerialMock serial;
     MidiInterface midi(serial);
@@ -278,6 +282,21 @@ TEST(MidiOutput, sendAfterTouch)
     EXPECT_EQ(serial.mTxBuffer.getLength(), 4);
     serial.mTxBuffer.read(&buffer[0], 4);
     EXPECT_THAT(buffer, ElementsAreArray({0xdb, 42, 0xd3, 47}));
+}
+
+TEST(MidiOutput, sendAfterTouchPoly)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+    Buffer buffer;
+    buffer.resize(6);
+
+    midi.begin();
+    midi.sendAfterTouch(42, 12, 12);
+    midi.sendAfterTouch(47, 12, 4);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({0xab, 42, 12, 0xa3, 47, 12}));
 }
 
 TEST(MidiOutput, sendSysEx)
