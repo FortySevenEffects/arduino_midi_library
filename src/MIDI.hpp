@@ -792,17 +792,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
             mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             mMessage.data1   = mPendingMessage[1];
-
-            // Save data2 only if applicable
-            if (mPendingMessageExpectedLenght == 3)
-            {
-                // todo: This code seems unreacheable, to clean up.
-                mMessage.data2 = mPendingMessage[2];
-            }
-            else
-            {
-                mMessage.data2 = 0;
-            }
+            mMessage.data2   = 0; // Completed new message has 1 data byte
 
             mPendingMessageIndex = 0;
             mPendingMessageExpectedLenght = 0;
@@ -914,10 +904,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             mMessage.data1 = mPendingMessage[1];
 
             // Save data2 only if applicable
-            if (mPendingMessageExpectedLenght == 3)
-                mMessage.data2 = mPendingMessage[2];
-            else
-                mMessage.data2 = 0;
+            mMessage.data2 = mPendingMessageExpectedLenght == 3 ? mPendingMessage[2] : 0;
 
             // Reset local variables
             mPendingMessageIndex = 0;
@@ -1240,9 +1227,10 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
         case TuneRequest:           if (mTuneRequestCallback != 0)           mTuneRequestCallback();    break;
 
         case SystemReset:           if (mSystemResetCallback != 0)           mSystemResetCallback();    break;
+
         case InvalidType:
         default:
-            break;
+            break; // LCOV_EXCL_LINE - Unreacheable code, but prevents unhandled case warning.
     }
 }
 
