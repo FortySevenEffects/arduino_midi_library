@@ -141,10 +141,6 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
         inChannel == MIDI_CHANNEL_OMNI ||
         inType < 0x80)
     {
-        if (Settings::UseRunningStatus)
-        {
-            mRunningStatus_TX = InvalidType;
-        }
         return; // Don't send anything
     }
 
