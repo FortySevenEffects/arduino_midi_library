@@ -882,7 +882,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
                     }
 
                 default:
-                    break;
+                    break; // LCOV_EXCL_LINE - Coverage blind spot
             }
         }
 
@@ -982,9 +982,6 @@ inline bool MidiInterface<SerialPort, Settings>::inputFilter(Channel inChannel)
 {
     // This method handles recognition of channel
     // (to know if the message is destinated to the Arduino)
-
-    if (mMessage.type == InvalidType)
-        return false;
 
     // First, check if the received message is Channel
     if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
@@ -1265,36 +1262,33 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
  @see Thru::Mode
  */
 template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::setThruFilterMode(Thru::Mode inThruFilterMode)
+inline void MidiInterface<SerialPort, Settings>::setThruFilterMode(Thru::Mode inThruFilterMode)
 {
     mThruFilterMode = inThruFilterMode;
-    if (mThruFilterMode != Thru::Off)
-        mThruActivated = true;
-    else
-        mThruActivated = false;
+    mThruActivated  = mThruFilterMode != Thru::Off;
 }
 
 template<class SerialPort, class Settings>
-Thru::Mode MidiInterface<SerialPort, Settings>::getFilterMode() const
+inline Thru::Mode MidiInterface<SerialPort, Settings>::getFilterMode() const
 {
     return mThruFilterMode;
 }
 
 template<class SerialPort, class Settings>
-bool MidiInterface<SerialPort, Settings>::getThruState() const
+inline bool MidiInterface<SerialPort, Settings>::getThruState() const
 {
     return mThruActivated;
 }
 
 template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::turnThruOn(Thru::Mode inThruFilterMode)
+inline void MidiInterface<SerialPort, Settings>::turnThruOn(Thru::Mode inThruFilterMode)
 {
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
 }
 
 template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::turnThruOff()
+inline void MidiInterface<SerialPort, Settings>::turnThruOff()
 {
     mThruActivated = false;
     mThruFilterMode = Thru::Off;
@@ -1387,8 +1381,9 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
             case TimeCodeQuarterFrame:
                 sendTimeCodeQuarterFrame(mMessage.data1,mMessage.data2);
                 break;
+
             default:
-                break;
+                break; // LCOV_EXCL_LINE - Unreacheable code, but prevents unhandled case warning.
         }
     }
 }
