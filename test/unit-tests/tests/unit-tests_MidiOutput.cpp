@@ -739,4 +739,102 @@ TEST(MidiOutput, NRPN)
     }
 }
 
+TEST(MidiOutput, runningStatusCancellation)
+{
+    typedef test_mocks::SerialMock<32> SerialMock;
+    typedef VariableSettings<true, false> Settings;
+    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+
+    SerialMock serial;
+    MidiInterface midi(serial);
+    std::vector<test_mocks::uint8> buffer;
+
+    static const unsigned sysExLength = 13;
+    static const byte sysEx[sysExLength] = {
+        'H','e','l','l','o',',',' ','W','o','r','l','d','!'
+    };
+
+    midi.begin();
+
+    midi.sendNoteOn(12, 34, 1);
+    midi.sendNoteOn(56, 78, 1);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
+
+    buffer.clear();
+    buffer.resize(5);
+    serial.mTxBuffer.read(&buffer[0], 5);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0x90, 12, 34, 56, 78
+    }));
+
+    midi.sendRealTime(midi::Clock);     // Should not reset running status.
+    midi.sendNoteOn(12, 34, 1);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 3);
+    buffer.clear();
+    buffer.resize(3);
+    serial.mTxBuffer.read(&buffer[0], 3);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0xf8, 12, 34
+    }));
+
+    midi.sendSysEx(sysExLength, sysEx); // Should reset running status.
+    midi.sendNoteOn(12, 34, 1);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 18);
+    buffer.clear();
+    buffer.resize(18);
+    serial.mTxBuffer.read(&buffer[0], 18);
+    {
+        static const byte expected[] = {
+            0xf0, 'H','e','l','l','o',',',' ','W','o','r','l','d','!', 0xf7,
+            0x90, 12, 34
+        };
+        EXPECT_THAT(buffer, ElementsAreArray(expected));
+    }
+
+    midi.sendTimeCodeQuarterFrame(42);  // Should reset running status.
+    midi.sendNoteOn(12, 34, 1);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
+    buffer.clear();
+    buffer.resize(5);
+    serial.mTxBuffer.read(&buffer[0], 5);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0xf1, 42,
+        0x90, 12, 34
+    }));
+
+    midi.sendSongPosition(42);          // Should reset running status.
+    midi.sendNoteOn(12, 34, 1);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
+    buffer.clear();
+    buffer.resize(6);
+    serial.mTxBuffer.read(&buffer[0], 6);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0xf2, 42, 0,
+        0x90, 12, 34
+    }));
+
+    midi.sendSongSelect(42);            // Should reset running status.
+    midi.sendNoteOn(12, 34, 1);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
+    buffer.clear();
+    buffer.resize(5);
+    serial.mTxBuffer.read(&buffer[0], 5);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0xf3, 42,
+        0x90, 12, 34
+    }));
+
+    midi.sendTuneRequest();             // Should reset running status.
+    midi.sendNoteOn(12, 34, 1);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 4);
+    buffer.clear();
+    buffer.resize(4);
+    serial.mTxBuffer.read(&buffer[0], 4);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0xf6,
+        0x90, 12, 34
+    }));
+
+}
+
 END_UNNAMED_NAMESPACE
