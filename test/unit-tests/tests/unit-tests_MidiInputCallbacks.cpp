@@ -13,14 +13,16 @@ BEGIN_UNNAMED_NAMESPACE
 
 using namespace testing;
 USING_NAMESPACE_UNIT_TESTS
-typedef test_mocks::SerialMock<32> SerialMock;
-typedef midi::MidiInterface<SerialMock> MidiInterface;
 
 template<unsigned Size>
 struct VariableSysExSettings : midi::DefaultSettings
 {
     static const unsigned SysExMaxSize = Size;
 };
+
+typedef test_mocks::SerialMock<256> SerialMock;
+typedef VariableSysExSettings<256> Settings;
+typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
 
 MidiInterface* midi;
 
@@ -329,6 +331,50 @@ TEST_F(MidiInputCallbacks, sysEx)
     static const unsigned rxSize = 15;
     static const byte rxData[rxSize] = {
         0xf0, 'H','e','l','l','o',',',' ','W','o','r','l','d','!', 0xf7
+    };
+    mSerial.mRxBuffer.write(rxData, rxSize);
+
+    for (unsigned i = 0; i < rxSize - 1; ++i)
+    {
+        EXPECT_EQ(mMidi.read(), false);
+    }
+    EXPECT_EQ(mMidi.read(), true);
+    EXPECT_EQ(mMidi.getType(),              midi::SystemExclusive);
+    EXPECT_EQ(mMidi.getChannel(),           0);
+    EXPECT_EQ(mMidi.getSysExArrayLength(),  rxSize);
+
+    EXPECT_EQ(unsigned(mSerial.mTxBuffer.getLength()), rxSize);
+    const std::vector<byte> sysExData(mMidi.getSysExArray(),
+                                      mMidi.getSysExArray() + rxSize);
+    EXPECT_THAT(sysExData, ElementsAreArray(rxData));
+}
+
+TEST_F(MidiInputCallbacks, sysExLong)
+{
+    mMidi.setHandleSystemExclusive(handleSysEx);
+    mMidi.begin(MIDI_CHANNEL_OMNI);
+    mMidi.turnThruOff();
+
+    static const unsigned rxSize = 210;
+    static const byte rxData[rxSize] = {
+        0xf0,
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+            'H','e','l','l','o',',',' ','W','o','r','l','d','!',
+        0xf7
     };
     mSerial.mRxBuffer.write(rxData, rxSize);
 
