@@ -347,4 +347,25 @@ TEST(MidiThru, withTxRunningStatus)
     }));
 }
 
+TEST(MidiThru, invalidMode)
+{
+    SerialMock serial;
+    MidiInterface midi(serial);
+
+    midi.begin(MIDI_CHANNEL_OMNI);
+    midi.setThruFilterMode(midi::Thru::Mode(42));
+
+    static const unsigned rxSize = 6;
+    static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
+    serial.mRxBuffer.write(rxData, rxSize);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+}
+
 END_UNNAMED_NAMESPACE
