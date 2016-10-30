@@ -8,6 +8,9 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 The complexity of this example resides in the fact that keeping a state
 of all the 16384 * 2 RPN/NRPN values would not fit in memory.
 As we're only interested in a few of them, we use a separate state map.
+
+If you'd like to go further, have a look at this thread:
+https://github.com/FortySevenEffects/arduino_midi_library/issues/60
 */
 
 template<class State, byte MsbSelectCCNumber, byte LsbSelectCCNumber>
