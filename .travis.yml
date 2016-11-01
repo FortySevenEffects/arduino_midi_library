@@ -1,82 +1,91 @@
 # Kudos to these guys:
-# http://genbattle.bitbucket.org/blog/2016/01/17/c++-travis-ci/
-# https://github.com/ticapix/arduino-toolbox/blob/master/.travis.yml
 # https://github.com/Return-To-The-Roots/s25client/blob/master/.travis.yml
+# http://docs.platformio.org/en/stable/ci/travis.html
 
 sudo: false
-language: cpp
+language: python
 
 os:
-  - linux
+    - linux
 
-compiler:
-  - g++
-  - clang
+python:
+    - "2.7"
+
+# Cache PlatformIO packages using Travis CI container-based infrastructure
+cache:
+    directories:
+        - "~/.platformio"
 
 env:
-  - BUILD_TYPE=Debug
+    global:
+        - BUILD_TYPE=Debug
+    matrix:
+        - BUILD_UNIT_TESTS=1
+        - PLATFORMIO_CI_SRC=examples/Basic_IO
+        - PLATFORMIO_CI_SRC=examples/Bench
+        - PLATFORMIO_CI_SRC=examples/Callbacks
+        - PLATFORMIO_CI_SRC=examples/DualMerger
+        - PLATFORMIO_CI_SRC=examples/Input
+        - PLATFORMIO_CI_SRC=examples/MidiUSB
+        - PLATFORMIO_CI_SRC=examples/RPN_NRPN
+        - PLATFORMIO_CI_SRC=examples/SimpleSynth
 
 addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.5
-    packages:
-      - g++-4.8
-      - clang-3.5
-      - llvm-3.5
-      - cmake
-
-#before_install:
-#  - source <(curl -SLs https://raw.githubusercontent.com/fortyseveneffects/travis-ci-arduino/master/install.sh)
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-4.8
+            - cmake
 
 install:
-  # Enable coverage analysis only for GCC
-  - |
-    if [ "$CXX" = "g++" ]; then
-      # GCov 4.6 cannot handle the file structure
-      export CXX="g++-4.8"
-      export GCOV="gcov-4.8"
+    - |
+    if [ "$BUILD_UNIT_TESTS" ]; then
+        # GCov 4.6 cannot handle the file structure
+        export CXX="g++-4.8"
+        export GCOV="gcov-4.8"
 
-      # Install newer lcov (1.9 seems to fail: http://gronlier.fr/blog/2015/01/adding-code-coverage-to-your-c-project/)
-      export LCOV_ROOT="$HOME/lcov"
-      mkdir -p "$LCOV_ROOT"
-      wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.12.orig.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
-      tar xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C $LCOV_ROOT
-      export PATH="$LCOV_ROOT/bin:$PATH"
-      which lcov
+        # Install newer lcov (1.9 seems to fail: http://gronlier.fr/blog/2015/01/adding-code-coverage-to-your-c-project/)
+        export LCOV_ROOT="$HOME/lcov"
+        mkdir -p "$LCOV_ROOT"
+        wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.12.orig.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
+        tar xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C $LCOV_ROOT
+        export PATH="$LCOV_ROOT/bin:$PATH"
+        which lcov
 
-      # Install coveralls tool
-      gem install coveralls-lcov
-      export GENERATE_COVERAGE=1
-
+        # Install coveralls tool
+        gem install coveralls-lcov
+        export GENERATE_COVERAGE=1
     else
-      export GCOV="gcov" # Just to have anything valid
-      export GENERATE_COVERAGE=0
+        # Install PlatformIO
+        pip install -U platformio
     fi
-  # Use clang 3.5
-  - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.5"; export CC="clang-3.5"; fi
-  # - arduino --install-library "MIDIUSB"
 
 script:
-  # Build examples with Arduino IDE on each available platform / board
-  # - build_main_platforms
+    # Build unit tests & generate code coverage
+    - |
+    if [ "${BUILD_UNIT_TESTS}" ]; then
+        mkdir build && cd build
+        cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILDER_ENABLE_PROFILING=${GENERATE_COVERAGE} --generator="Unix Makefiles" ..
+        make all
+        ctest --verbose
+    fi
 
-  # Build and run unit tests with regular C++ compiler
-  - mkdir build && cd build
-  - cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILDER_ENABLE_PROFILING=${GENERATE_COVERAGE} --generator="Unix Makefiles" ..
-  - make all
-  - ctest --verbose
+    # Build current example
+    - |
+    if [ ! "${BUILD_UNIT_TESTS}" ]; then
+        platformio ci --lib="." --board=uno --board="due" --board="zero" --board="leonardo"
+    fi
 
 after_success:
-  - |
+    - |
     if [ "${GENERATE_COVERAGE}" ]; then
-      # Generate code coverage information & send to Coveralls
-      lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
-      lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
-      lcov --list coverage.info
-      coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
+        # Generate code coverage information & send to Coveralls
+        lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
+        lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
+        lcov --list coverage.info
+        coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
     fi
 
 notifications:
-  email: false
+    email: false
