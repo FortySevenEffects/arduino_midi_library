@@ -1,4 +1,6 @@
 #include <MIDI.h>
+
+#if defined(USBCON)
 #include <midi_UsbTransport.h>
 
 static const unsigned sUsbTransportBufferSize = 16;
@@ -7,6 +9,10 @@ typedef midi::UsbTransport<sUsbTransportBufferSize> UsbTransport;
 UsbTransport sUsbTransport;
 
 MIDI_CREATE_INSTANCE(UsbTransport, sUsbTransport, MIDI);
+
+#else // No USB available, fallback to Serial
+MIDI_CREATE_DEFAULT_INSTANCE();
+#endif
 
 // --
 
