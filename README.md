@@ -47,7 +47,7 @@ This library enables MIDI I/O communications on the Arduino serial ports.
 
 ## Documentation
 
-- [Doxygen Extended Documentation](http://arduinomidilib.fortyseveneffects.com) ([Mirror](http://fortyseveneffects.github.io/arduino_midi_library/)).
+- [Doxygen Extended Documentation](http://fortyseveneffects.github.io/arduino_midi_library/).
 - [GitHub wiki](https://github.com/FortySevenEffects/arduino_midi_library/wiki).
 
 ## Contact
