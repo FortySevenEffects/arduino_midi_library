@@ -62,7 +62,7 @@ TEST(MidiOutput, sendGenericWithRunningStatus)
     buffer.resize(5);
 
     midi.begin();
-    EXPECT_EQ(MidiInterface::Settings::UseRunningStatus, true);
+    EXPECT_EQ(RsMidiInterface::Settings::UseRunningStatus, true);
     EXPECT_EQ(serial.mTxBuffer.isEmpty(), true);
     midi.send(midi::NoteOn, 47, 42, 12);
     midi.send(midi::NoteOn, 42, 47, 12);

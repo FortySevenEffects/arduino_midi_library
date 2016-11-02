@@ -305,7 +305,6 @@ TEST(MidiThru, multiByteThru)
 TEST(MidiThru, withTxRunningStatus)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef test_mocks::SerialMock<32> SerialMock;
     typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
