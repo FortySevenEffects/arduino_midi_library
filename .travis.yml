@@ -75,9 +75,9 @@ script:
     - |
         if [ ! "${BUILD_UNIT_TESTS}" ]; then
             if [ "${REQUIRES_USB}" ]; then
-                platformio ci --lib="." --lib=external/midi-usb --board="due" --board="zero" --board="leonardo"
+                platformio ci --lib="." --lib=external/midi-usb --board="due" --board="dueUSB" --board="zero" --board="seroUSB" --board="leonardo" --board="teensy20" --board="teensy20pp" --board="teensy30" --board="teensy31"
             else
-                platformio ci --lib="." --board=uno --board="due" --board="zero" --board="leonardo"
+                platformio ci --lib="." --board=uno --board="due" --board="zero" --board="leonardo" --board="micro" --board="nanoatmega328" --board="megaatmega2560" --board="teensy20" --board="teensy20pp" --board="teensy30" --board="teensy31"
             fi
         fi
 
