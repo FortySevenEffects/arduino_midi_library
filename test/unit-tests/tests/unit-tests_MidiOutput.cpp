@@ -54,10 +54,10 @@ TEST(MidiOutput, sendGenericSingle)
 TEST(MidiOutput, sendGenericWithRunningStatus)
 {
     typedef VariableSettings<true, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    RsMidiInterface midi(serial);
     Buffer buffer;
     buffer.resize(5);
 
@@ -74,10 +74,10 @@ TEST(MidiOutput, sendGenericWithRunningStatus)
 TEST(MidiOutput, sendGenericWithoutRunningStatus)
 {
     typedef VariableSettings<false, true> Settings; // No running status
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> NoRsMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    NoRsMidiInterface midi(serial);
     Buffer buffer;
     buffer.resize(6);
 
@@ -301,12 +301,11 @@ TEST(MidiOutput, sendAfterTouchPoly)
 
 TEST(MidiOutput, sendSysEx)
 {
-    typedef test_mocks::SerialMock<1024> SerialMock;
-    typedef midi::MidiInterface<SerialMock> MidiInterface;
+    typedef test_mocks::SerialMock<1024> LargeSerialMock;
+    typedef midi::MidiInterface<LargeSerialMock> LargeMidiInterface;
 
-
-    SerialMock serial;
-    MidiInterface midi(serial);
+    LargeSerialMock serial;
+    LargeMidiInterface midi(serial);
     Buffer buffer;
 
     // Short frame
@@ -510,11 +509,11 @@ TEST(MidiOutput, sendRealTime)
 TEST(MidiOutput, RPN)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
-    std::vector<test_mocks::uint8> buffer;
+    RsMidiInterface midi(serial);
+    Buffer buffer;
 
     // 14-bit Value Single Frame
     {
@@ -626,11 +625,11 @@ TEST(MidiOutput, RPN)
 TEST(MidiOutput, NRPN)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
-    std::vector<test_mocks::uint8> buffer;
+    RsMidiInterface midi(serial);
+    Buffer buffer;
 
     // 14-bit Value Single Frame
     {
@@ -741,13 +740,12 @@ TEST(MidiOutput, NRPN)
 
 TEST(MidiOutput, runningStatusCancellation)
 {
-    typedef test_mocks::SerialMock<32> SerialMock;
     typedef VariableSettings<true, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
-    std::vector<test_mocks::uint8> buffer;
+    RsMidiInterface midi(serial);
+    Buffer buffer;
 
     static const unsigned sysExLength = 13;
     static const byte sysEx[sysExLength] = {
@@ -834,7 +832,6 @@ TEST(MidiOutput, runningStatusCancellation)
         0xf6,
         0x90, 12, 34
     }));
-
 }
 
 END_UNNAMED_NAMESPACE

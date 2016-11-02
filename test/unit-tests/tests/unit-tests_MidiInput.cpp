@@ -165,10 +165,10 @@ TEST(MidiInput, inputDisabled)
 TEST(MidiInput, multiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    MultiByteMidiInterface midi(serial);
     static const unsigned rxSize = 3;
     static const byte rxData[rxSize] = { 0x9b, 12, 34 };
     midi.begin(12);
@@ -486,11 +486,11 @@ TEST(MidiInput, afterTouchChannel)
 TEST(MidiInput, sysExWithinBufferSize)
 {
     typedef VariableSysExSettings<1024> Settings;
-    typedef test_mocks::SerialMock<2048> SerialMock;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef test_mocks::SerialMock<2048> LargerSerialMock;
+    typedef midi::MidiInterface<LargerSerialMock, Settings> LargerMidiInterface;
 
-    SerialMock serial;
-    MidiInterface midi(serial);
+    LargerSerialMock serial;
+    LargerMidiInterface midi(serial);
 
     // Short Frame < 256
     {
@@ -553,10 +553,10 @@ TEST(MidiInput, sysExWithinBufferSize)
 TEST(MidiInput, sysExOverBufferSize)
 {
     typedef VariableSysExSettings<8> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> SmallMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    SmallMidiInterface midi(serial);
 
     static const unsigned frameLength = 15;
     static const byte frame[frameLength] = {
@@ -907,10 +907,10 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
 TEST(MidiInput, strayUndefinedMultiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    MultiByteMidiInterface midi(serial);
 
     static const unsigned rxSize = 4;
     static const byte rxData[rxSize] = {

@@ -275,12 +275,11 @@ TEST(MidiThru, differentChannelOmni) // Acts like off
 
 TEST(MidiThru, multiByteThru)
 {
-    typedef VariableSettings<false, false> Settings;
-    typedef test_mocks::SerialMock<32> SerialMock;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef VariableSettings<false, false> MultiByteParsing;
+    typedef midi::MidiInterface<SerialMock, MultiByteParsing> MultiByteMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    MultiByteMidiInterface midi(serial);
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
@@ -307,10 +306,10 @@ TEST(MidiThru, withTxRunningStatus)
 {
     typedef VariableSettings<true, true> Settings;
     typedef test_mocks::SerialMock<32> SerialMock;
-    typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    RsMidiInterface midi(serial);
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
