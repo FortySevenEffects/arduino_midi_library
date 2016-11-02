@@ -111,6 +111,7 @@ Continue	LITERAL1
 ActiveSensing	LITERAL1
 SystemReset	LITERAL1
 InvalidType	LITERAL1
+Thru	LITERAL1
 Off	LITERAL1
 Full	LITERAL1
 SameChannel	LITERAL1
