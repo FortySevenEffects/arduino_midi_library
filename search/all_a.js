@@ -1,30 +1,5 @@
 var searchData=
 [
-  ['midi_20input',['MIDI Input',['../a00025.html',1,'']]],
-  ['message',['Message',['../a00014.html',1,'']]],
-  ['message_3c_20settings_3a_3asysexmaxsize_20_3e',['Message&lt; Settings::SysExMaxSize &gt;',['../a00014.html',1,'']]],
-  ['midi_2ecpp',['MIDI.cpp',['../a00017.html',1,'']]],
-  ['midi_2eh',['MIDI.h',['../a00018.html',1,'']]],
-  ['midi_2ehpp',['MIDI.hpp',['../a00019.html',1,'']]],
-  ['midi_5fchannel_5foff',['MIDI_CHANNEL_OFF',['../a00020.html#ae5f8dc293002c1090c3551ba40f6aee8',1,'midi_Defs.h']]],
-  ['midi_5fchannel_5fomni',['MIDI_CHANNEL_OMNI',['../a00020.html#ac60eaa68c9d91e29fca58a6128c3d1cf',1,'midi_Defs.h']]],
-  ['midi_5fcreate_5fcustom_5finstance',['MIDI_CREATE_CUSTOM_INSTANCE',['../a00020.html#a95faae7d93fc1a603f99cc7ad92d72bf',1,'midi_Defs.h']]],
-  ['midi_5fcreate_5fdefault_5finstance',['MIDI_CREATE_DEFAULT_INSTANCE',['../a00020.html#af0378001dcec67ea873914c090a03450',1,'midi_Defs.h']]],
-  ['midi_5fcreate_5finstance',['MIDI_CREATE_INSTANCE',['../a00020.html#a83fed545a39b0bd6e50adf2b85e89fb1',1,'midi_Defs.h']]],
-  ['midi_5fdefs_2eh',['midi_Defs.h',['../a00020.html',1,'']]],
-  ['midi_5fdoxygenmainpage_2eh',['midi_DoxygenMainPage.h',['../a00016.html',1,'']]],
-  ['midi_5fmessage_2eh',['midi_Message.h',['../a00021.html',1,'']]],
-  ['midi_5fnamespace',['MIDI_NAMESPACE',['../a00022.html#a6690f18c03533dfb99f45d37aab6e735',1,'midi_Namespace.h']]],
-  ['midi_5fnamespace_2eh',['midi_Namespace.h',['../a00022.html',1,'']]],
-  ['midi_5fpitchbend_5fmax',['MIDI_PITCHBEND_MAX',['../a00020.html#a64c068d11cf783d19db59712387716f8',1,'midi_Defs.h']]],
-  ['midi_5fpitchbend_5fmin',['MIDI_PITCHBEND_MIN',['../a00020.html#aac06a2c787b4c090f9e31fe3ffa483ab',1,'midi_Defs.h']]],
-  ['midi_5fsettings_2eh',['midi_Settings.h',['../a00023.html',1,'']]],
-  ['midicontrolchangenumber',['MidiControlChangeNumber',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92',1,'midi_Defs.h']]],
-  ['midifiltermode',['MidiFilterMode',['../a00020.html#a71217491dd9526eadf7da27452a1ae4f',1,'midi_Defs.h']]],
-  ['midiinterface',['MidiInterface',['../a00015.html',1,'MidiInterface&lt; SerialPort, Settings &gt;'],['../a00015.html#aac93370735f6709267cff334878e724e',1,'MidiInterface::MidiInterface()']]],
-  ['miditype',['MidiType',['../a00020.html#af8bb3cf501a6b530be54ef36864af943',1,'midi_Defs.h']]],
-  ['modulationwheel',['ModulationWheel',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a541ce910dd64f0f4de1bb7bbc4ee488b',1,'midi_Defs.h']]],
-  ['monomodeon',['MonoModeOn',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a17d664129c6ad243a369f026cf1b51a1',1,'midi_Defs.h']]],
-  ['midi_20output',['MIDI Output',['../a00024.html',1,'']]],
-  ['midi_20thru',['MIDI Thru',['../a00027.html',1,'']]]
+  ['legato',['Legato',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92ac3b5e4b280ea7b852d4ee1e1a4c904f7',1,'midi_Defs.h']]],
+  ['localcontrol',['LocalControl',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a1be862ad663b07b873f29e2170b994c5',1,'midi_Defs.h']]]
 ];

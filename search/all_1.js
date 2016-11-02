@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['balance',['Balance',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a5dbc35c72252e48e38e11a93fab41655',1,'midi_Defs.h']]],
-  ['bankselect',['BankSelect',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92ad35194f91f02370bc6a3370a8038cecf',1,'midi_Defs.h']]],
-  ['baudrate',['BaudRate',['../a00013.html#a3af54ace87effb366e1ec455be22b52a',1,'DefaultSettings']]],
-  ['begin',['begin',['../a00015.html#a0d438900bdb796d134cf9996a12493cf',1,'MidiInterface']]],
-  ['begin_5fmidi_5fnamespace',['BEGIN_MIDI_NAMESPACE',['../a00022.html#adf6b690441eb0a31c4abd3bc4fb99673',1,'midi_Namespace.h']]],
-  ['breathcontroller',['BreathController',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a96b4207d98300fb7ebbef4a63f0ba25a',1,'midi_Defs.h']]],
-  ['byte',['byte',['../a00020.html#ab8ef12fab634c171394422d0ee8baf94',1,'midi_Defs.h']]]
+  ['activesensing',['ActiveSensing',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a55c1135b4b41d3cff4b7832b81352823',1,'midi_Defs.h']]],
+  ['aftertouchchannel',['AfterTouchChannel',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a040c84d19624cf23edd3f54c2d432793',1,'midi_Defs.h']]],
+  ['aftertouchpoly',['AfterTouchPoly',['../a00008.html#af8bb3cf501a6b530be54ef36864af943aef074e16a30d86e0a42b873dd6843cd2',1,'midi_Defs.h']]],
+  ['allnotesoff',['AllNotesOff',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a0ff39bd822a95c907b989d90e9c8f945',1,'midi_Defs.h']]],
+  ['allsoundoff',['AllSoundOff',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a980953c0f8a2bfed6ff76ee05885a908',1,'midi_Defs.h']]],
+  ['available',['available',['../a00080.html#ad850ea7fa2dfe63ea199bb841c535402',1,'UsbTransport']]],
+  ['arduino_20midi_20library',['Arduino MIDI Library',['../index.html',1,'']]]
 ];

@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['decodesysex',['decodeSysEx',['../a00017.html#ae5b3935e2eeca1f7be983da095dcf056',1,'decodeSysEx(const byte *inSysEx, byte *outData, unsigned inLength):&#160;MIDI.cpp'],['../a00018.html#acd6ba88e8a9b7d47226e1288539758d6',1,'decodeSysEx(const byte *inSysEx, byte *outData, unsigned inLenght):&#160;MIDI.cpp']]],
-  ['disconnectcallbackfromtype',['disconnectCallbackFromType',['../a00026.html#gaf25bdf5fb1cf6780b855400e4a210dcd',1,'MidiInterface']]]
+  ['begin',['begin',['../a00048.html#a0d438900bdb796d134cf9996a12493cf',1,'MidiInterface::begin()'],['../a00080.html#afc6e724fdcc96fb83af0285c5e583741',1,'UsbTransport::begin()']]],
+  ['beginnrpn',['beginNrpn',['../a00041.html#gaf5cb8554777fbfab8fb02417572f3a39',1,'MidiInterface']]],
+  ['beginrpn',['beginRpn',['../a00041.html#gad8187cac8d24d76be47f3b22d8534b39',1,'MidiInterface']]]
 ];

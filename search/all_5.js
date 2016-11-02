@@ -1,6 +1,15 @@
 var searchData=
 [
-  ['filtermode',['FilterMode',['../a00020.html#a6f8b374e6eb3328986bff00ee778f42b',1,'midi_Defs.h']]],
-  ['footcontroller',['FootController',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a998c8740d90691c0dfd234878e7179da',1,'midi_Defs.h']]],
-  ['full',['Full',['../a00020.html#a71217491dd9526eadf7da27452a1ae4fa8b7c5cd8bd8eb51ee6d3fd0eac584679',1,'midi_Defs.h']]]
+  ['effectcontrol1',['EffectControl1',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a007c68eee6efc054ddff36e2f53ab297',1,'midi_Defs.h']]],
+  ['effectcontrol2',['EffectControl2',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a6035a320ca5239b2427a3ccd1c321af7',1,'midi_Defs.h']]],
+  ['effects1',['Effects1',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92af2cae2e3c1c33acfd3456f734b0ab3f4',1,'midi_Defs.h']]],
+  ['effects2',['Effects2',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a9d9e92bd3b9f58ee5b6b4134e864ab39',1,'midi_Defs.h']]],
+  ['effects3',['Effects3',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92acd349b8ac59e8bfae022371eebb87dfc',1,'midi_Defs.h']]],
+  ['effects4',['Effects4',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a8c49608110c3ae962fd03baba7035cd4',1,'midi_Defs.h']]],
+  ['effects5',['Effects5',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a0dc38c33e5374079f20c15ba5fc89f1f',1,'midi_Defs.h']]],
+  ['encodesysex',['encodeSysEx',['../a00035.html#afe7c42d0b3ebed55378f19fc25c2c00b',1,'encodeSysEx(const byte *inData, byte *outSysEx, unsigned inLength):&#160;MIDI.cpp'],['../a00002.html#a658e91a27ea7f4172798d9503508d702',1,'encodeSysEx(const byte *inData, byte *outSysEx, unsigned inLenght):&#160;MIDI.cpp']]],
+  ['end_5fmidi_5fnamespace',['END_MIDI_NAMESPACE',['../a00014.html#abf831eff386c2ded4d253fb11321028e',1,'midi_Namespace.h']]],
+  ['endnrpn',['endNrpn',['../a00041.html#ga04f625204db36a59fc06555b7fdb7733',1,'MidiInterface']]],
+  ['endrpn',['endRpn',['../a00041.html#ga16d239c638c25134a0bb22bcb28d593b',1,'MidiInterface']]],
+  ['expressioncontroller',['ExpressionController',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a509f7b72d90141c2b6b586014b4c007a',1,'midi_Defs.h']]]
 ];

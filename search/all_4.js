@@ -1,13 +1,14 @@
 var searchData=
 [
-  ['effectcontrol1',['EffectControl1',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a007c68eee6efc054ddff36e2f53ab297',1,'midi_Defs.h']]],
-  ['effectcontrol2',['EffectControl2',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a6035a320ca5239b2427a3ccd1c321af7',1,'midi_Defs.h']]],
-  ['effects1',['Effects1',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92af2cae2e3c1c33acfd3456f734b0ab3f4',1,'midi_Defs.h']]],
-  ['effects2',['Effects2',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a9d9e92bd3b9f58ee5b6b4134e864ab39',1,'midi_Defs.h']]],
-  ['effects3',['Effects3',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92acd349b8ac59e8bfae022371eebb87dfc',1,'midi_Defs.h']]],
-  ['effects4',['Effects4',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a8c49608110c3ae962fd03baba7035cd4',1,'midi_Defs.h']]],
-  ['effects5',['Effects5',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a0dc38c33e5374079f20c15ba5fc89f1f',1,'midi_Defs.h']]],
-  ['encodesysex',['encodeSysEx',['../a00017.html#afe7c42d0b3ebed55378f19fc25c2c00b',1,'encodeSysEx(const byte *inData, byte *outSysEx, unsigned inLength):&#160;MIDI.cpp'],['../a00018.html#a658e91a27ea7f4172798d9503508d702',1,'encodeSysEx(const byte *inData, byte *outSysEx, unsigned inLenght):&#160;MIDI.cpp']]],
-  ['end_5fmidi_5fnamespace',['END_MIDI_NAMESPACE',['../a00022.html#abf831eff386c2ded4d253fb11321028e',1,'midi_Namespace.h']]],
-  ['expressioncontroller',['ExpressionController',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a509f7b72d90141c2b6b586014b4c007a',1,'midi_Defs.h']]]
+  ['data1',['data1',['../a00060.html#a92150532e5720f95013e16a2f49a8df8',1,'Message']]],
+  ['data2',['data2',['../a00060.html#af6ca8f3ba3f77fe769a259de3b88c36c',1,'Message']]],
+  ['databyte',['DataByte',['../a00008.html#a7c1eccfe3d7d44de8ee9138d5378cd91',1,'midi_Defs.h']]],
+  ['datadecrement',['DataDecrement',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a9bb7dfbb53f5b4a0557ed32e990296e4',1,'midi_Defs.h']]],
+  ['dataentrylsb',['DataEntryLSB',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a3590d8f51be9c696e2f4e26d9cc0bbd2',1,'midi_Defs.h']]],
+  ['dataentrymsb',['DataEntryMSB',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a3a5b1a3b28a2b9208894374092b5209c',1,'midi_Defs.h']]],
+  ['dataincrement',['DataIncrement',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a1b3c72b1a8ceebe54b17b9e0f06c9d56',1,'midi_Defs.h']]],
+  ['decodesysex',['decodeSysEx',['../a00035.html#ae5b3935e2eeca1f7be983da095dcf056',1,'decodeSysEx(const byte *inSysEx, byte *outData, unsigned inLength):&#160;MIDI.cpp'],['../a00002.html#acd6ba88e8a9b7d47226e1288539758d6',1,'decodeSysEx(const byte *inSysEx, byte *outData, unsigned inLenght):&#160;MIDI.cpp']]],
+  ['defaultsettings',['DefaultSettings',['../a00068.html',1,'']]],
+  ['differentchannel',['DifferentChannel',['../a00052.html#ad19abe318ba3710100aefdea1895fbbba3373022e0fab2ac4f65fdc1ce670c9bb',1,'Thru']]],
+  ['disconnectcallbackfromtype',['disconnectCallbackFromType',['../a00043.html#gaf25bdf5fb1cf6780b855400e4a210dcd',1,'MidiInterface']]]
 ];

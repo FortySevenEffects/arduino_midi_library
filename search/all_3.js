@@ -1,11 +1,16 @@
 var searchData=
 [
-  ['data1',['data1',['../a00014.html#a92150532e5720f95013e16a2f49a8df8',1,'Message']]],
-  ['data2',['data2',['../a00014.html#af6ca8f3ba3f77fe769a259de3b88c36c',1,'Message']]],
-  ['databyte',['DataByte',['../a00020.html#a7c1eccfe3d7d44de8ee9138d5378cd91',1,'midi_Defs.h']]],
-  ['dataentry',['DataEntry',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a70ccf4d88bdf4165c830ce935d71548d',1,'midi_Defs.h']]],
-  ['decodesysex',['decodeSysEx',['../a00017.html#ae5b3935e2eeca1f7be983da095dcf056',1,'decodeSysEx(const byte *inSysEx, byte *outData, unsigned inLength):&#160;MIDI.cpp'],['../a00018.html#acd6ba88e8a9b7d47226e1288539758d6',1,'decodeSysEx(const byte *inSysEx, byte *outData, unsigned inLenght):&#160;MIDI.cpp']]],
-  ['defaultsettings',['DefaultSettings',['../a00013.html',1,'']]],
-  ['differentchannel',['DifferentChannel',['../a00020.html#a71217491dd9526eadf7da27452a1ae4fa406da1028bd17ebf898e4e5ac3a19a4e',1,'midi_Defs.h']]],
-  ['disconnectcallbackfromtype',['disconnectCallbackFromType',['../a00026.html#gaf25bdf5fb1cf6780b855400e4a210dcd',1,'MidiInterface']]]
+  ['cableevent',['cableEvent',['../a00072.html#a1851d20b86ce424efaf63fd17281c508a912a0a5a15a989eab40d0714f1e8a0ab',1,'CodeIndexNumbers']]],
+  ['callbacks',['Callbacks',['../a00043.html',1,'']]],
+  ['channel',['channel',['../a00060.html#a3e088d88b4c2c84efd78f080a6ba3384',1,'Message::channel()'],['../a00008.html#af0fba1bdf23d6f77614ea9697290325d',1,'Channel():&#160;midi_Defs.h']]],
+  ['channelcoarsetuning',['ChannelCoarseTuning',['../a00056.html#a1871767a88ee0ff4dc06943a94b49742a7468aca7d7ca5a635896322db47632c0',1,'RPN']]],
+  ['channelfinetuning',['ChannelFineTuning',['../a00056.html#a1871767a88ee0ff4dc06943a94b49742a3810636a8ceea03e1032802a29de0549',1,'RPN']]],
+  ['channelpressure',['channelPressure',['../a00072.html#a1851d20b86ce424efaf63fd17281c508ad3f0e09aec30a29aae850884e984b540',1,'CodeIndexNumbers']]],
+  ['channelvolume',['ChannelVolume',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a3909dfba26e88cb4b7346b5b80a97c7d',1,'midi_Defs.h']]],
+  ['check',['check',['../a00042.html#ga14362d20af2353f5450d127bdbe3a0cc',1,'MidiInterface']]],
+  ['clear',['clear',['../a00064.html#a88d68cb12b382c21d35fd419d0feed1b',1,'RingBuffer']]],
+  ['clock',['Clock',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a4b52d61cc39d9427f91d3b8606319e2c',1,'midi_Defs.h']]],
+  ['codeindexnumbers',['CodeIndexNumbers',['../a00072.html',1,'']]],
+  ['continue',['Continue',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a45a66636ecd16b869e4aadd738813583',1,'midi_Defs.h']]],
+  ['controlchange',['controlChange',['../a00072.html#a1851d20b86ce424efaf63fd17281c508a7c8a3fccbe1b6a7dc9020f57a369415d',1,'CodeIndexNumbers::controlChange()'],['../a00008.html#af8bb3cf501a6b530be54ef36864af943ac150258f2e69ec1e535cee9df3f5bb1e',1,'ControlChange():&#160;midi_Defs.h']]]
 ];

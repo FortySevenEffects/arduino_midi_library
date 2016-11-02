@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['invalidtype',['InvalidType',['../a00020.html#af8bb3cf501a6b530be54ef36864af943a791c6b5c1e5f30ce6c7b0937e93adbbb',1,'midi_Defs.h']]],
-  ['ischannelmessage',['isChannelMessage',['../a00025.html#ga833885e236de37d75838cb6447fdc694',1,'MidiInterface']]]
+  ['handlenullvelocitynoteonasnoteoff',['HandleNullVelocityNoteOnAsNoteOff',['../a00068.html#a13c8f26edeade3374921764fa8650ac9',1,'DefaultSettings']]],
+  ['hold',['Hold',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a571d09809707bfae8410e696210a2e62',1,'midi_Defs.h']]]
 ];

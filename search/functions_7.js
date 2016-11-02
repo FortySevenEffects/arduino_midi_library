@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['read',['read',['../a00025.html#ga77b72b026ff0096aa7157d012405e365',1,'MidiInterface::read()'],['../a00025.html#gafc4cd3ade3754607de336a9b0ef51562',1,'MidiInterface::read(Channel inChannel)']]]
+  ['ischannelmessage',['isChannelMessage',['../a00042.html#ga833885e236de37d75838cb6447fdc694',1,'MidiInterface']]],
+  ['isempty',['isEmpty',['../a00064.html#a74f3129b2c026604cc5877962ca45b59',1,'RingBuffer']]]
 ];

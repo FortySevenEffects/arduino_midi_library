@@ -1,7 +1,9 @@
 var a00022 =
 [
-    [ "BEGIN_MIDI_NAMESPACE", "a00022.html#adf6b690441eb0a31c4abd3bc4fb99673", null ],
-    [ "END_MIDI_NAMESPACE", "a00022.html#abf831eff386c2ded4d253fb11321028e", null ],
-    [ "MIDI_NAMESPACE", "a00022.html#a6690f18c03533dfb99f45d37aab6e735", null ],
-    [ "USING_NAMESPACE_MIDI", "a00022.html#a8064897c61213d14c9353caeee7c0225", null ]
+    [ "UsbTransport", "a00022.html#acb8ca31730e8ea4e9058b17b2f41202b", null ],
+    [ "~UsbTransport", "a00022.html#ab74990a39fc08cbe523e6b42a11bbe35", null ],
+    [ "available", "a00022.html#ad850ea7fa2dfe63ea199bb841c535402", null ],
+    [ "begin", "a00022.html#afc6e724fdcc96fb83af0285c5e583741", null ],
+    [ "read", "a00022.html#a3e2a189763c0075a18761a438f385b05", null ],
+    [ "write", "a00022.html#aedfc3deea0759ec00c4baf0dced87672", null ]
 ];

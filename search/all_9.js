@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['legato',['Legato',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92ac3b5e4b280ea7b852d4ee1e1a4c904f7',1,'midi_Defs.h']]],
-  ['localcontrol',['LocalControl',['../a00020.html#ade475dd0413662853b5a7cd8dbe8ed92a1be862ad663b07b873f29e2170b994c5',1,'midi_Defs.h']]]
+  ['invalidtype',['InvalidType',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a791c6b5c1e5f30ce6c7b0937e93adbbb',1,'midi_Defs.h']]],
+  ['ischannelmessage',['isChannelMessage',['../a00042.html#ga833885e236de37d75838cb6447fdc694',1,'MidiInterface']]],
+  ['isempty',['isEmpty',['../a00064.html#a74f3129b2c026604cc5877962ca45b59',1,'RingBuffer']]]
 ];
