@@ -2,7 +2,6 @@
  *  @file       MIDI.hpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Inline implementations
- *  @version    4.3
  *  @author     Francois Best
  *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best

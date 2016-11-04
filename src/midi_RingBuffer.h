@@ -2,7 +2,6 @@
  *  @file       midi_RingBuffer.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for Arduino - Ring Buffer
- *  @version    4.3
  *  @author     Francois Best
  *  @date       10/10/2016
  *  @license    MIT - Copyright (c) 2016 Francois Best
