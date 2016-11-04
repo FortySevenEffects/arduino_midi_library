@@ -215,10 +215,10 @@ struct RPN
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
     midi::MidiInterface<Type> Name((Type&)SerialPort);
 
-#if defined(ARDUINO_SAM_DUE) || defined(USBCON)
-    // Leonardo, Due and other USB boards use Serial1 by default.
+#if defined(SERIAL_PORT_HARDWARE_OPEN)
+    // Use recommended default external serial port.
     #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
-        MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
+        MIDI_CREATE_INSTANCE(HardwareSerial, SERIAL_PORT_HARDWARE_OPEN, MIDI);
 #else
     /*! \brief Create an instance of the library with default name, serial port
     and settings, for compatibility with sketches written with pre-v4.2 MIDI Lib,
