@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Arduino MIDI Library
-   &#160;<span id="projectnumber">Version 4.3</span>
+   &#160;<span id="projectnumber">Version 4.3.1</span>
    </div>
   </td>
  </tr>
@@ -109,7 +109,7 @@ Static Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Default Settings for the MIDI Library. </p>
 <p>To change the default settings, don't edit them there, create a subclass and override the values in that subclass, then use the MIDI_CREATE_CUSTOM_INSTANCE macro to create your instance. The settings you don't override will keep their default value. Eg: </p><div class="fragment"><div class="line"><span class="keyword">struct </span>MySettings : <span class="keyword">public</span> midi::DefaultSettings</div><div class="line">{</div><div class="line">   <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <a class="code" href="a00068.html#a73aea97c0031aa265e71a9106bd5fd3b">SysExMaxSize</a> = 1024; <span class="comment">// Accept SysEx messages up to 1024 bytes long.</span></div><div class="line">};</div><div class="line"></div><div class="line"><a class="code" href="a00008.html#a95faae7d93fc1a603f99cc7ad92d72bf">MIDI_CREATE_CUSTOM_INSTANCE</a>(HardwareSerial, Serial2, midi, MySettings);</div></div><!-- fragment --> 
-<p>Definition at line <a class="el" href="a00023_source.html#l00050">50</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
+<p>Definition at line <a class="el" href="a00023_source.html#l00049">49</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="a3af54ace87effb366e1ec455be22b52a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3af54ace87effb366e1ec455be22b52a">&sect;&nbsp;</a></span>BaudRate</h2>
@@ -133,7 +133,7 @@ Static Public Attributes</h2></td></tr>
 <p>Override the default MIDI baudrate to transmit over USB serial, to a decoding program such as Hairless MIDI (set baudrate to 115200)<br />
 <a href="http://projectgus.github.io/hairless-midiserial/">http://projectgus.github.io/hairless-midiserial/</a> </p>
 
-<p>Definition at line <a class="el" href="a00023_source.html#l00074">74</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
+<p>Definition at line <a class="el" href="a00023_source.html#l00073">73</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
 
 </div>
 </div>
@@ -160,7 +160,7 @@ Static Public Attributes</h2></td></tr>
 Set to true to get NoteOff events when receiving null-velocity NoteOn messages.<br />
 Set to false to get NoteOn events when receiving null-velocity NoteOn messages. </p>
 
-<p>Definition at line <a class="el" href="a00023_source.html#l00062">62</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
+<p>Definition at line <a class="el" href="a00023_source.html#l00061">61</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
 
 </div>
 </div>
@@ -185,7 +185,7 @@ Set to false to get NoteOn events when receiving null-velocity NoteOn messages. 
 </div><div class="memdoc">
 <p>Maximum size of SysEx receivable. Decrease to save RAM if you don't expect to receive SysEx, or adjust accordingly. </p>
 
-<p>Definition at line <a class="el" href="a00023_source.html#l00079">79</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
+<p>Definition at line <a class="el" href="a00023_source.html#l00078">78</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
 
 </div>
 </div>
@@ -210,7 +210,7 @@ Set to false to get NoteOn events when receiving null-velocity NoteOn messages. 
 </div><div class="memdoc">
 <p>Setting this to true will make MIDI.read parse only one byte of data for each call when data is available. This can speed up your application if receiving a lot of traffic, but might induce MIDI <a class="el" href="a00052.html">Thru</a> and treatment latency. </p>
 
-<p>Definition at line <a class="el" href="a00023_source.html#l00068">68</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
+<p>Definition at line <a class="el" href="a00023_source.html#l00067">67</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
 
 </div>
 </div>
@@ -236,7 +236,7 @@ Set to false to get NoteOn events when receiving null-velocity NoteOn messages. 
 <p>Running status enables short messages when sending multiple values of the same type and channel.<br />
 Warning: does not work with some hardware, enable with caution. </p>
 
-<p>Definition at line <a class="el" href="a00023_source.html#l00056">56</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
+<p>Definition at line <a class="el" href="a00023_source.html#l00055">55</a> of file <a class="el" href="a00023_source.html">midi_Settings.h</a>.</p>
 
 </div>
 </div>
@@ -249,7 +249,7 @@ Warning: does not work with some hardware, enable with caution. </p>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="a00068.html">DefaultSettings</a></li>
-    <li class="footer">Generated on Wed Nov 2 2016 20:12:21 for Arduino MIDI Library by
+    <li class="footer">Generated on Fri Nov 4 2016 10:54:55 for Arduino MIDI Library by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.12 </li>
   </ul>
