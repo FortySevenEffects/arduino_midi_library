@@ -1,11 +1,11 @@
 /*!
- *  @file       midi_Namespace.h
+ *  @file       midi_RingBuffer.h
  *  Project     Arduino MIDI Library
- *  @brief      MIDI Library for the Arduino - Namespace declaration
+ *  @brief      MIDI Library for Arduino - Ring Buffer
  *  @version    4.3
  *  @author     Francois Best
- *  @date       24/02/11
- *  @license    MIT - Copyright (c) 2015 Francois Best
+ *  @date       10/10/2016
+ *  @license    MIT - Copyright (c) 2016 Francois Best
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,36 @@
 
 #pragma once
 
-#define MIDI_NAMESPACE                  midi
-#define BEGIN_MIDI_NAMESPACE            namespace MIDI_NAMESPACE {
-#define END_MIDI_NAMESPACE              }
-
-#define USING_NAMESPACE_MIDI            using namespace MIDI_NAMESPACE;
+#include "midi_Namespace.h"
 
 BEGIN_MIDI_NAMESPACE
 
+template<typename DataType, int Size>
+class RingBuffer
+{
+public:
+     RingBuffer();
+    ~RingBuffer();
+
+public:
+    int getLength() const;
+    bool isEmpty() const;
+
+public:
+    void write(DataType inData);
+    void write(const DataType* inData, int inSize);
+    void clear();
+
+public:
+    DataType read();
+    void read(DataType* outData, int inSize);
+
+private:
+    DataType mData[Size];
+    DataType* mWriteHead;
+    DataType* mReadHead;
+};
+
 END_MIDI_NAMESPACE
+
+#include "midi_RingBuffer.hpp"

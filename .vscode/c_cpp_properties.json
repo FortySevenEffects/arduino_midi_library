@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/include",
+                "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino"
+            ],
+            "browse" : {
+                "limitSymbolsToIncludedHeaders" : true,
+                "databaseFilename" : ""
+            }
+        },
+        {
+            "name": "Linux",
+            "includePath": ["/usr/include"],
+            "browse" : {
+                "limitSymbolsToIncludedHeaders" : true,
+                "databaseFilename" : ""
+            }
+        },
+        {
+            "name": "Win32",
+            "includePath": ["c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include"],
+            "browse" : {
+                "limitSymbolsToIncludedHeaders" : true,
+                "databaseFilename" : ""
+            }
+        }
+    ]
+}

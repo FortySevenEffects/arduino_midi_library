@@ -2,23 +2,28 @@
  *  @file       midi_Defs.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Definitions
- *  @version    4.2
+ *  @version    4.3
  *  @author     Francois Best
  *  @date       24/02/11
- *  @license    GPL v3.0 - Copyright Forty Seven Effects 2014
+ *  @license    MIT - Copyright (c) 2015 Francois Best
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 #pragma once
@@ -33,6 +38,11 @@ typedef uint8_t byte;
 #endif
 
 BEGIN_MIDI_NAMESPACE
+
+#define MIDI_LIBRARY_VERSION        0x040300
+#define MIDI_LIBRARY_VERSION_MAJOR  4
+#define MIDI_LIBRARY_VERSION_MINOR  3
+#define MIDI_LIBRARY_VERSION_PATCH  0
 
 // -----------------------------------------------------------------------------
 
@@ -79,12 +89,26 @@ enum MidiType
 // -----------------------------------------------------------------------------
 
 /*! Enumeration of Thru filter modes */
-enum MidiFilterMode
+struct Thru
 {
-    Off                   = 0,  ///< Thru disabled (nothing passes through).
-    Full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
-    SameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
-    DifferentChannel      = 3,  ///< All the messages but the ones on the Input Channel will be sent back.
+    enum Mode
+    {
+        Off                   = 0,  ///< Thru disabled (nothing passes through).
+        Full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
+        SameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
+        DifferentChannel      = 3,  ///< All the messages but the ones on the Input Channel will be sent back.
+    };
+};
+
+/*! Deprecated: use Thru::Mode instead.
+ Will be removed in v5.0.
+*/
+enum __attribute__ ((deprecated)) MidiFilterMode
+{
+    Off                 = Thru::Off,
+    Full                = Thru::Full,
+    SameChannel         = Thru::SameChannel,
+    DifferentChannel    = Thru::DifferentChannel,
 };
 
 // -----------------------------------------------------------------------------
@@ -102,7 +126,7 @@ enum MidiControlChangeNumber
     // CC3 undefined
     FootController              = 4,
     PortamentoTime              = 5,
-    DataEntry                   = 6,
+    DataEntryMSB                = 6,
     ChannelVolume               = 7,
     Balance                     = 8,
     // CC9 undefined
@@ -116,6 +140,8 @@ enum MidiControlChangeNumber
     GeneralPurposeController2   = 17,
     GeneralPurposeController3   = 18,
     GeneralPurposeController4   = 19,
+
+    DataEntryLSB                = 38,
 
     // Switches ----------------------------------------------------------------
     Sustain                     = 64,
@@ -147,6 +173,12 @@ enum MidiControlChangeNumber
     Effects3                    = 93,   ///< Chorus send level
     Effects4                    = 94,   ///< Celeste depth
     Effects5                    = 95,   ///< Phaser depth
+    DataIncrement               = 96,
+    DataDecrement               = 97,
+    NRPNLSB                     = 98,   ///< Non-Registered Parameter Number (LSB)
+    NRPNMSB                     = 99,   ///< Non-Registered Parameter Number (MSB)
+    RPNLSB                      = 100,  ///< Registered Parameter Number (LSB)
+    RPNMSB                      = 101,  ///< Registered Parameter Number (MSB)
 
     // Channel Mode messages ---------------------------------------------------
     AllSoundOff                 = 120,
@@ -157,6 +189,20 @@ enum MidiControlChangeNumber
     OmniModeOn                  = 125,
     MonoModeOn                  = 126,
     PolyModeOn                  = 127
+};
+
+struct RPN
+{
+    enum RegisteredParameterNumbers
+    {
+        PitchBendSensitivity    = 0x0000,
+        ChannelFineTuning       = 0x0001,
+        ChannelCoarseTuning     = 0x0002,
+        SelectTuningProgram     = 0x0003,
+        SelectTuningBank        = 0x0004,
+        ModulationDepthRange    = 0x0005,
+        NullFunction            = (0x7f << 7) + 0x7f,
+    };
 };
 
 // -----------------------------------------------------------------------------

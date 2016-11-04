@@ -2,23 +2,28 @@
  *  @file       MIDI.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino
- *  @version    4.2
+ *  @version    4.3
  *  @author     Francois Best
  *  @date       24/02/11
- *  @license    GPL v3.0 - Copyright Forty Seven Effects 2014
+ *  @license    MIT - Copyright (c) 2015 Francois Best
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 #pragma once
@@ -37,9 +42,12 @@ the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
 or ak47's Uart classes. The only requirement is that the class implements
 the begin, read, write and available methods.
  */
-template<class SerialPort, class Settings = DefaultSettings>
+template<class SerialPort, class _Settings = DefaultSettings>
 class MidiInterface
 {
+public:
+    typedef _Settings Settings;
+
 public:
     inline  MidiInterface(SerialPort& inSerial);
     inline ~MidiInterface();
@@ -71,9 +79,12 @@ public:
 
     inline void sendPolyPressure(DataByte inNoteNumber,
                                  DataByte inPressure,
-                                 Channel inChannel);
+                                 Channel inChannel) __attribute__ ((deprecated));
 
     inline void sendAfterTouch(DataByte inPressure,
+                               Channel inChannel);
+    inline void sendAfterTouch(DataByte inNoteNumber,
+                               DataByte inPressure,
                                Channel inChannel);
 
     inline void sendSysEx(unsigned inLength,
@@ -88,6 +99,32 @@ public:
     inline void sendSongSelect(DataByte inSongNumber);
     inline void sendTuneRequest();
     inline void sendRealTime(MidiType inType);
+
+    inline void beginRpn(unsigned inNumber,
+                         Channel inChannel);
+    inline void sendRpnValue(unsigned inValue,
+                             Channel inChannel);
+    inline void sendRpnValue(byte inMsb,
+                             byte inLsb,
+                             Channel inChannel);
+    inline void sendRpnIncrement(byte inAmount,
+                                 Channel inChannel);
+    inline void sendRpnDecrement(byte inAmount,
+                                 Channel inChannel);
+    inline void endRpn(Channel inChannel);
+
+    inline void beginNrpn(unsigned inNumber,
+                          Channel inChannel);
+    inline void sendNrpnValue(unsigned inValue,
+                              Channel inChannel);
+    inline void sendNrpnValue(byte inMsb,
+                              byte inLsb,
+                              Channel inChannel);
+    inline void sendNrpnIncrement(byte inAmount,
+                                  Channel inChannel);
+    inline void sendNrpnDecrement(byte inAmount,
+                                  Channel inChannel);
+    inline void endNrpn(Channel inChannel);
 
 public:
     void send(MidiType inType,
@@ -118,8 +155,7 @@ public:
 public:
     static inline MidiType getTypeFromStatusByte(byte inStatus);
     static inline Channel getChannelFromStatusByte(byte inStatus);
-	static inline bool isChannelMessage(MidiType inType);
-
+    static inline bool isChannelMessage(MidiType inType);
 
     // -------------------------------------------------------------------------
     // Input Callbacks
@@ -172,12 +208,12 @@ private:
     // MIDI Soft Thru
 
 public:
-    inline MidiFilterMode getFilterMode() const;
+    inline Thru::Mode getFilterMode() const;
     inline bool getThruState() const;
 
-    inline void turnThruOn(MidiFilterMode inThruFilterMode = Full);
+    inline void turnThruOn(Thru::Mode inThruFilterMode = Thru::Full);
     inline void turnThruOff();
-    inline void setThruFilterMode(MidiFilterMode inThruFilterMode);
+    inline void setThruFilterMode(Thru::Mode inThruFilterMode);
 
 private:
     void thruFilter(byte inChannel);
@@ -189,27 +225,28 @@ private:
     inline void resetInput();
 
 private:
-    bool            mThruActivated  : 1;
-    MidiFilterMode  mThruFilterMode : 7;
-
-private:
     typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 private:
-    StatusByte  mRunningStatus_RX;
-    StatusByte  mRunningStatus_TX;
-    Channel     mInputChannel;
-    byte        mPendingMessage[3];
-    unsigned    mPendingMessageExpectedLenght;
-    unsigned    mPendingMessageIndex;
-    MidiMessage mMessage;
+    SerialPort& mSerial;
+
+private:
+    Channel         mInputChannel;
+    StatusByte      mRunningStatus_RX;
+    StatusByte      mRunningStatus_TX;
+    byte            mPendingMessage[3];
+    unsigned        mPendingMessageExpectedLenght;
+    unsigned        mPendingMessageIndex;
+    unsigned        mCurrentRpnNumber;
+    unsigned        mCurrentNrpnNumber;
+    bool            mThruActivated  : 1;
+    Thru::Mode      mThruFilterMode : 7;
+    MidiMessage     mMessage;
+
 
 private:
     inline StatusByte getStatus(MidiType inType,
                                 Channel inChannel) const;
-
-private:
-    SerialPort& mSerial;
 };
 
 // -----------------------------------------------------------------------------
@@ -218,7 +255,5 @@ unsigned encodeSysEx(const byte* inData,  byte* outSysEx, unsigned inLenght);
 unsigned decodeSysEx(const byte* inSysEx, byte* outData,  unsigned inLenght);
 
 END_MIDI_NAMESPACE
-
-// -----------------------------------------------------------------------------
 
 #include "MIDI.hpp"

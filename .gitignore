@@ -2,3 +2,4 @@
 *.pyc
 logs/
 build/
+.vscode/.cmaketools.json

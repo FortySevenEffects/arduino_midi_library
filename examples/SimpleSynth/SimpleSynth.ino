@@ -39,7 +39,7 @@ void handleNotesChanged(bool isFirstNote = false)
     if (midiNotes.empty())
     {
         handleGateChanged(false);
-        noTone(sAudioOutPin);
+        noTone(sAudioOutPin); // Remove to keep oscillator running during envelope release.
     }
     else
     {

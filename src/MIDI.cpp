@@ -2,23 +2,28 @@
  *  @file       MIDI.cpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino
- *  @version    4.2
+ *  @version    4.3
  *  @author     Francois Best
  *  @date       24/02/11
- *  @license    GPL v3.0 - Copyright Forty Seven Effects 2014
+ *  @license    MIT - Copyright (c) 2015 Francois Best
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 #include "MIDI.h"
@@ -50,7 +55,7 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
         const byte msb  = data >> 7;
         const byte body = data & 0x7f;
 
-        outSysEx[0] |= (msb << count);
+        outSysEx[0] |= (msb << (6 - count));
         outSysEx[1 + count] = body;
 
         if (count++ == 6)
@@ -79,17 +84,20 @@ unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
 {
     unsigned count  = 0;
     byte msbStorage = 0;
+    byte byteIndex  = 0;
 
     for (unsigned i = 0; i < inLength; ++i)
     {
         if ((i % 8) == 0)
         {
             msbStorage = inSysEx[i];
+            byteIndex  = 6;
         }
         else
         {
-            outData[count++] = inSysEx[i] | ((msbStorage & 1) << 7);
-            msbStorage >>= 1;
+            const byte body = inSysEx[i];
+            const byte msb  = ((msbStorage >> byteIndex--) & 1) << 7;
+            outData[count++] = msb | body;
         }
     }
     return count;

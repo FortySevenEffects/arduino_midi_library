@@ -1,0 +1,6 @@
+[submodule "external/google-test"]
+	path = external/google-test
+	url = https://github.com/google/googletest.git
+[submodule "external/midi-usb"]
+	path = external/midi-usb
+	url = https://github.com/arduino-libraries/MIDIUSB.git

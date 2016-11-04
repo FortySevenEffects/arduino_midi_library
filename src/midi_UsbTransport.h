@@ -1,11 +1,11 @@
 /*!
- *  @file       midi_Namespace.h
+ *  @file       midi_UsbTransport.h
  *  Project     Arduino MIDI Library
- *  @brief      MIDI Library for the Arduino - Namespace declaration
+ *  @brief      MIDI Library for the Arduino - Transport layer for USB MIDI
  *  @version    4.3
  *  @author     Francois Best
- *  @date       24/02/11
- *  @license    MIT - Copyright (c) 2015 Francois Best
+ *  @date       10/10/2016
+ *  @license    MIT - Copyright (c) 2016 Francois Best
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,46 @@
 
 #pragma once
 
-#define MIDI_NAMESPACE                  midi
-#define BEGIN_MIDI_NAMESPACE            namespace MIDI_NAMESPACE {
-#define END_MIDI_NAMESPACE              }
-
-#define USING_NAMESPACE_MIDI            using namespace MIDI_NAMESPACE;
+#include "midi_Defs.h"
+#include "midi_RingBuffer.h"
+#include <MIDIUSB.h>
 
 BEGIN_MIDI_NAMESPACE
 
+template<unsigned BuffersSize>
+class UsbTransport
+{
+public:
+    inline UsbTransport();
+    inline ~UsbTransport();
+
+public: // Serial / Stream API required for template compatibility
+    inline void begin(unsigned inBaudrate);
+    inline unsigned available();
+    inline byte read();
+    inline void write(byte inData);
+
+private:
+    inline bool pollUsbMidi();
+    inline void recomposeAndSendTxPackets();
+    inline void resetTx();
+    static inline byte encodePacketHeader(StatusByte inStatusByte);
+    static inline int getPacketLength(const midiEventPacket_t& inPacket);
+
+private:
+    typedef RingBuffer<byte, BuffersSize> Buffer;
+    Buffer mTxBuffer;
+    Buffer mRxBuffer;
+
+    union TxPacket
+    {
+        byte mDataArray[4];
+        midiEventPacket_t mPacket;
+    };
+    TxPacket mCurrentTxPacket;
+    int mCurrentTxPacketByteIndex;
+};
+
 END_MIDI_NAMESPACE
+
+#include "midi_UsbTransport.hpp"
