@@ -2,7 +2,6 @@
  *  @file       midi_Message.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Message struct definition
- *  @version    4.3
  *  @author     Francois Best
  *  @date       11/06/14
  *  @license    MIT - Copyright (c) 2015 Francois Best

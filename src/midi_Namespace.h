@@ -2,7 +2,6 @@
  *  @file       midi_Namespace.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Namespace declaration
- *  @version    4.3
  *  @author     Francois Best
  *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best
