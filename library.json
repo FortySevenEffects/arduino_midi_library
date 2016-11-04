@@ -17,7 +17,7 @@
     "url": "https://github.com/FortySevenEffects/arduino_midi_library.git",
     "branch": "master"
   },
-  "downloadUrl": "https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.3",
+  "downloadUrl": "https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.3.1",
   "include": "src",
   "examples": "examples/*/*.ino",
   "frameworks": "arduino",
