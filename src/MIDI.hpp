@@ -84,7 +84,7 @@ template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
 {
     // Initialise the Serial port
-#if defined(FSE_AVR)
+#if defined(AVR_CAKE)
     mSerial. template open<Settings::BaudRate>();
 #else
     mSerial.begin(Settings::BaudRate);
