@@ -30,7 +30,7 @@ This library enables MIDI I/O communications on the Arduino serial ports.
 
     void setup()
     {
-        MIDI.begin(MIDI_CHANNEL_OMNI);  // Listen to all incoming messages
+        Serial.begin(MIDI_CHANNEL_OMNI);  // Listen to all incoming messages
     }
 
     void loop()
