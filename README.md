@@ -21,6 +21,8 @@ This library enables MIDI I/O communications on the Arduino serial ports.
 ### Getting Started
 
 1. Use Arduino's Library Manager to install the library.
+![Type "MIDI" in the Arduino IDE Library Manager](res/library-manager.jpg)
+
 2. Start coding:
    ```c++
     #include <MIDI.h>
