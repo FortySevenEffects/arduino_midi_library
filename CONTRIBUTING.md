@@ -8,7 +8,8 @@ Requirements to build and run the unit tests:
 
 Pull Google Test / Google Mock subrepository:
 ```
-$ git init submodules
+$ git submodule init
+$ git submodule update
 ```
 
 Create build directory, run CMake, build and run unit tests:
