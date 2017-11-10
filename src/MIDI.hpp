@@ -62,6 +62,7 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     mStopCallback                   = 0;
     mActiveSensingCallback          = 0;
     mSystemResetCallback            = 0;
+    mInjectMessageByteCallback      = 0;
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -676,9 +677,20 @@ inline bool MidiInterface<SerialPort, Settings>::read(Channel inChannel)
 template<class SerialPort, class Settings>
 bool MidiInterface<SerialPort, Settings>::parse()
 {
-    if (mSerial.available() == 0)
-        // No data available.
+    byte extracted = 255;
+
+    if (mInjectMessageByteCallback != 0) {
+        extracted = mInjectMessageByteCallback();
+        // extracted will remain 255 if no data is enqueued
+    }
+
+    if (extracted == 255 && mSerial.available() != 0) {
+        extracted = mSerial.read();
+
+    } else if (extracted == 255) {
+        // No data available and no callback.
         return false;
+    }
 
     // Parsing algorithm:
     // Get a byte from the serial buffer.
@@ -688,8 +700,6 @@ bool MidiInterface<SerialPort, Settings>::parse()
     //    until the message is assembled or the buffer is empty.
     // Else, add the extracted byte to the pending message, and check validity.
     // When the message is done, store it.
-
-    const byte extracted = mSerial.read();
 
     // Ignore Undefined
     if (extracted == 0xf9 || extracted == 0xfd)
@@ -1165,6 +1175,7 @@ template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settin
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleStop(void (*fptr)(void))                                               { mStopCallback                 = fptr; }
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleActiveSensing(void (*fptr)(void))                                      { mActiveSensingCallback        = fptr; }
 template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSystemReset(void (*fptr)(void))                                        { mSystemResetCallback          = fptr; }
+template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleInjectMessageByte(byte (*fptr)(void))                                  { mInjectMessageByteCallback    = fptr; }
 
 /*! \brief Detach an external function from the given type.
 
