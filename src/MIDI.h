@@ -178,7 +178,6 @@ public:
     inline void setHandleStop(void (*fptr)(void));
     inline void setHandleActiveSensing(void (*fptr)(void));
     inline void setHandleSystemReset(void (*fptr)(void));
-    inline void setHandleInjectMessageByte(byte (*fptr)(void));
 
     inline void disconnectCallbackFromType(MidiType inType);
 
@@ -203,7 +202,6 @@ private:
     void (*mStopCallback)(void);
     void (*mActiveSensingCallback)(void);
     void (*mSystemResetCallback)(void);
-    byte (*mInjectMessageByteCallback)(void);
 
     // -------------------------------------------------------------------------
     // MIDI Soft Thru
