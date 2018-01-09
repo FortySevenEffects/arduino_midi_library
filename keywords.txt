@@ -77,8 +77,8 @@ setHandleSystemReset	KEYWORD2
 getTypeFromStatusByte	KEYWORD2
 getChannelFromStatusByte	KEYWORD2
 isChannelMessage	KEYWORD2
-encodeSysEx KEYWORD2
-decodeSysEx KEYWORD2
+encodeSysEx	KEYWORD2
+decodeSysEx	KEYWORD2
 
 
 #######################################
