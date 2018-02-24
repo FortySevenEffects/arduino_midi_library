@@ -333,9 +333,12 @@ void MidiInterface<SerialPort, Settings>::sendSysEx(unsigned inLength,
         mSerial.write(0xf0);
     }
 
-    for (unsigned i = 0; i < inLength; ++i)
+    for (unsigned i = 0; i < inLength; )
     {
-        mSerial.write(inArray[i]);
+        if (mSerial.availableForWrite() > 0) {
+            mSerial.write(inArray[i]);
+            i++;
+        }
     }
 
     if (writeBeginEndBytes)
