@@ -104,7 +104,7 @@ unsigned decodeSysEx(const byte* inSysEx,
         {
             const byte body     = inSysEx[i];
             const byte shift    = inFlipHeaderBits ? 6 - byteIndex : byteIndex;
-            const byte msb      = ((msbStorage >> shift) & 1) << 7;
+            const byte msb      = byte(((msbStorage >> shift) & 1) << 7);
             byteIndex--;
             outData[count++] = msb | body;
         }
