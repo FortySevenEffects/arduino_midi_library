@@ -292,7 +292,7 @@ template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::sendPitchBend(int inPitchValue,
                                                         Channel inChannel)
 {
-    const unsigned bend = inPitchValue - MIDI_PITCHBEND_MIN;
+    const unsigned bend = unsigned(inPitchValue - int(MIDI_PITCHBEND_MIN));
     send(PitchBend, (bend & 0x7f), (bend >> 7) & 0x7f, inChannel);
 }
 
