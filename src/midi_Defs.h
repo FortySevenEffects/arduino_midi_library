@@ -38,9 +38,9 @@ typedef uint8_t byte;
 
 BEGIN_MIDI_NAMESPACE
 
-#define MIDI_LIBRARY_VERSION        0x040300
+#define MIDI_LIBRARY_VERSION        0x040400
 #define MIDI_LIBRARY_VERSION_MAJOR  4
-#define MIDI_LIBRARY_VERSION_MINOR  3
+#define MIDI_LIBRARY_VERSION_MINOR  4
 #define MIDI_LIBRARY_VERSION_PATCH  0
 
 // -----------------------------------------------------------------------------
