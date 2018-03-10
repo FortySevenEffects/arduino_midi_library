@@ -84,4 +84,4 @@ void handleSysEx(byte* inData, unsigned inSize)
 }
 ```
 
-See original discussion in issue #92.
+See original discussion in issue [#92](FortySevenEffects/arduino_midi_library#92).
