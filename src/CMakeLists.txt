@@ -1,3 +1,5 @@
+increase_warning_level()
+
 project(midi)
 
 add_library(midi STATIC

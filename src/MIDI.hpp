@@ -292,7 +292,7 @@ template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::sendPitchBend(int inPitchValue,
                                                         Channel inChannel)
 {
-    const unsigned bend = inPitchValue - MIDI_PITCHBEND_MIN;
+    const unsigned bend = unsigned(inPitchValue - int(MIDI_PITCHBEND_MIN));
     send(PitchBend, (bend & 0x7f), (bend >> 7) & 0x7f, inChannel);
 }
 
@@ -375,7 +375,7 @@ template<class SerialPort, class Settings>
 void MidiInterface<SerialPort, Settings>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
                                                                    DataByte inValuesNibble)
 {
-    const byte data = (((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f));
+    const byte data = byte((((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f)));
     sendTimeCodeQuarterFrame(data);
 }
 
@@ -620,7 +620,7 @@ template<class SerialPort, class Settings>
 StatusByte MidiInterface<SerialPort, Settings>::getStatus(MidiType inType,
                                                           Channel inChannel) const
 {
-    return ((byte)inType | ((inChannel - 1) & 0x0f));
+    return StatusByte(((byte)inType | ((inChannel - 1) & 0x0f)));
 }
 
 // -----------------------------------------------------------------------------
@@ -856,7 +856,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
 
                         // Get length
                         mMessage.data1   = mPendingMessageIndex & 0xff; // LSB
-                        mMessage.data2   = mPendingMessageIndex >> 8;   // MSB
+                        mMessage.data2   = byte(mPendingMessageIndex >> 8);   // MSB
                         mMessage.channel = 0;
                         mMessage.valid   = true;
 
@@ -1116,7 +1116,7 @@ MidiType MidiInterface<SerialPort, Settings>::getTypeFromStatusByte(byte inStatu
 template<class SerialPort, class Settings>
 inline Channel MidiInterface<SerialPort, Settings>::getChannelFromStatusByte(byte inStatus)
 {
-    return (inStatus & 0x0f) + 1;
+    return Channel((inStatus & 0x0f) + 1);
 }
 
 template<class SerialPort, class Settings>
@@ -1221,7 +1221,7 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
 
             // Occasional messages
         case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != 0)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
-        case SongPosition:          if (mSongPositionCallback != 0)          mSongPositionCallback((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7));    break;
+        case SongPosition:          if (mSongPositionCallback != 0)          mSongPositionCallback(unsigned((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)));    break;
         case SongSelect:            if (mSongSelectCallback != 0)            mSongSelectCallback(mMessage.data1);    break;
         case TuneRequest:           if (mTuneRequestCallback != 0)           mTuneRequestCallback();    break;
 

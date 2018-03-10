@@ -95,7 +95,7 @@ unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
         else
         {
             const byte body = inSysEx[i];
-            const byte msb  = ((msbStorage >> byteIndex--) & 1) << 7;
+            const byte msb  = byte(((msbStorage >> byteIndex--) & 1) << 7);
             outData[count++] = msb | body;
         }
     }
