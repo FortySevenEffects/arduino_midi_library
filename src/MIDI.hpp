@@ -770,7 +770,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 break;
 
             case SystemExclusive:
-                // The message can be any lenght
+                // The message can be any length
                 // between 3 and MidiMessage::sSysExMaxSize bytes
                 mPendingMessageExpectedLength = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
@@ -1047,7 +1047,7 @@ inline const byte* MidiInterface<SerialPort, Settings>::getSysExArray() const
     return mMessage.sysexArray;
 }
 
-/*! \brief Get the lenght of the System Exclusive array.
+/*! \brief Get the length of the System Exclusive array.
 
  It is coded using data1 as LSB and data2 as MSB.
  \return The array's length, in bytes.
