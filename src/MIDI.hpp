@@ -36,7 +36,7 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     , mInputChannel(0)
     , mRunningStatus_RX(InvalidType)
     , mRunningStatus_TX(InvalidType)
-    , mPendingMessageExpectedLenght(0)
+    , mPendingMessageExpectedLength(0)
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
@@ -95,7 +95,7 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
     mRunningStatus_RX = InvalidType;
 
     mPendingMessageIndex = 0;
-    mPendingMessageExpectedLenght = 0;
+    mPendingMessageExpectedLength = 0;
 
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
@@ -746,7 +746,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 // Do not reset all input attributes, Running Status must remain unchanged.
                 // We still need to reset these
                 mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
+                mPendingMessageExpectedLength = 0;
 
                 return true;
                 break;
@@ -756,7 +756,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             case AfterTouchChannel:
             case TimeCodeQuarterFrame:
             case SongSelect:
-                mPendingMessageExpectedLenght = 2;
+                mPendingMessageExpectedLength = 2;
                 break;
 
                 // 3 bytes messages
@@ -766,13 +766,13 @@ bool MidiInterface<SerialPort, Settings>::parse()
             case PitchBend:
             case AfterTouchPoly:
             case SongPosition:
-                mPendingMessageExpectedLenght = 3;
+                mPendingMessageExpectedLength = 3;
                 break;
 
             case SystemExclusive:
                 // The message can be any lenght
                 // between 3 and MidiMessage::sSysExMaxSize bytes
-                mPendingMessageExpectedLenght = MidiMessage::sSysExMaxSize;
+                mPendingMessageExpectedLength = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
                 mMessage.sysexArray[0] = SystemExclusive;
                 break;
@@ -785,7 +785,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 break;
         }
 
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLength - 1))
         {
             // Reception complete
             mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
@@ -794,7 +794,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             mMessage.data2   = 0; // Completed new message has 1 data byte
 
             mPendingMessageIndex = 0;
-            mPendingMessageExpectedLenght = 0;
+            mPendingMessageExpectedLength = 0;
             mMessage.valid = true;
             return true;
         }
@@ -882,7 +882,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             mPendingMessage[mPendingMessageIndex] = extracted;
 
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLength - 1))
         {
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
@@ -903,11 +903,11 @@ bool MidiInterface<SerialPort, Settings>::parse()
             mMessage.data1 = mPendingMessage[1];
 
             // Save data2 only if applicable
-            mMessage.data2 = mPendingMessageExpectedLenght == 3 ? mPendingMessage[2] : 0;
+            mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;
 
             // Reset local variables
             mPendingMessageIndex = 0;
-            mPendingMessageExpectedLenght = 0;
+            mPendingMessageExpectedLength = 0;
 
             mMessage.valid = true;
 
@@ -996,7 +996,7 @@ template<class SerialPort, class Settings>
 inline void MidiInterface<SerialPort, Settings>::resetInput()
 {
     mPendingMessageIndex = 0;
-    mPendingMessageExpectedLenght = 0;
+    mPendingMessageExpectedLength = 0;
     mRunningStatus_RX = InvalidType;
 }
 
