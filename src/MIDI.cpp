@@ -37,8 +37,8 @@ BEGIN_MIDI_NAMESPACE
  data you want to send.
  \param inData The data to encode.
  \param outSysEx The output buffer where to store the encoded message.
- \param inLength The lenght of the input buffer.
- \return The lenght of the encoded output buffer.
+ \param inLength The length of the input buffer.
+ \return The length of the encoded output buffer.
  @see decodeSysEx
  Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */
@@ -74,8 +74,8 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
  your received message.
  \param inSysEx The SysEx data received from MIDI in.
  \param outData    The output buffer where to store the decrypted message.
- \param inLength The lenght of the input buffer.
- \return The lenght of the output buffer.
+ \param inLength The length of the input buffer.
+ \return The length of the output buffer.
  @see encodeSysEx @see getSysExArrayLength
  Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */

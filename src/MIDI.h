@@ -234,7 +234,7 @@ private:
     StatusByte      mRunningStatus_RX;
     StatusByte      mRunningStatus_TX;
     byte            mPendingMessage[3];
-    unsigned        mPendingMessageExpectedLenght;
+    unsigned        mPendingMessageExpectedLength;
     unsigned        mPendingMessageIndex;
     unsigned        mCurrentRpnNumber;
     unsigned        mCurrentNrpnNumber;
@@ -250,8 +250,8 @@ private:
 
 // -----------------------------------------------------------------------------
 
-unsigned encodeSysEx(const byte* inData,  byte* outSysEx, unsigned inLenght);
-unsigned decodeSysEx(const byte* inSysEx, byte* outData,  unsigned inLenght);
+unsigned encodeSysEx(const byte* inData,  byte* outSysEx, unsigned inLength);
+unsigned decodeSysEx(const byte* inSysEx, byte* outData,  unsigned inLength);
 
 END_MIDI_NAMESPACE
 
