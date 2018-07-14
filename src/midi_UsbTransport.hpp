@@ -81,7 +81,7 @@ inline bool UsbTransport<BufferSize>::pollUsbMidi()
     {
         received = true;
 
-        switch (packet.header << 4)
+        switch (packet.byte1)
         {
                 // 3 bytes messages
             case midi::NoteOff:
@@ -112,11 +112,11 @@ inline bool UsbTransport<BufferSize>::pollUsbMidi()
                 mRxBuffer.write(packet.byte1);
                 break;
 
-                // Special cases
-                // case midi::SystemExclusive:
-                // case midi::TimeCodeQuarterFrame:
-                // case midi::SongPosition:
-                // case midi::SongSelect:
+            // Special cases
+            // case midi::SystemExclusive:
+            // case midi::TimeCodeQuarterFrame:
+            // case midi::SongPosition:
+            // case midi::SongSelect:
                 //   break;
 
             default:
