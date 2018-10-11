@@ -27,13 +27,27 @@
 
 #pragma once
 
+BEGIN_UNNAMED_NAMESPACE
+
+template<int N>
+struct isPowerOfTwo
+{
+    static const bool value = N && !(N & (N - 1));
+};
+
+END_UNNAMED_NAMESPACE
+
+// --
+
 BEGIN_MIDI_NAMESPACE
 
 template<typename DataType, int Size>
 RingBuffer<DataType, Size>::RingBuffer()
-    : mWriteHead(mData)
-    , mReadHead(mData)
+    : mLength(0)
+    , mWriteHead(0)
+    , mReadHead(0)
 {
+    static_assert(isPowerOfTwo<Size>::value, "Size must be a power of two.");
     memset(mData, DataType(0), Size * sizeof(DataType));
 }
 
@@ -45,26 +59,15 @@ RingBuffer<DataType, Size>::~RingBuffer()
 // -----------------------------------------------------------------------------
 
 template<typename DataType, int Size>
-int RingBuffer<DataType, Size>::getLength() const
+inline int RingBuffer<DataType, Size>::getLength() const
 {
-    if (mReadHead == mWriteHead)
-    {
-        return 0;
-    }
-    else if (mWriteHead > mReadHead)
-    {
-        return int(mWriteHead - mReadHead);
-    }
-    else
-    {
-        return int(mWriteHead - mData) + Size - int(mReadHead - mData);
-    }
+    return mLength;
 }
 
 template<typename DataType, int Size>
-bool RingBuffer<DataType, Size>::isEmpty() const
+inline bool RingBuffer<DataType, Size>::isEmpty() const
 {
-    return mReadHead == mWriteHead;
+    return mLength == 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -72,10 +75,12 @@ bool RingBuffer<DataType, Size>::isEmpty() const
 template<typename DataType, int Size>
 void RingBuffer<DataType, Size>::write(DataType inData)
 {
-    *mWriteHead++ = inData;
-    if (mWriteHead >= mData + Size)
-    {
-        mWriteHead = mData;
+    mData[mWriteHead] = inData;
+    mWriteHead = (mWriteHead + 1) & sMask;
+    mLength++;
+    if (mLength > Size) {
+        mLength = Size;
+        mReadHead = (mReadHead + 1) & sMask;
     }
 }
 
@@ -92,8 +97,9 @@ template<typename DataType, int Size>
 void RingBuffer<DataType, Size>::clear()
 {
     memset(mData, DataType(0), Size * sizeof(DataType));
-    mReadHead  = mData;
-    mWriteHead = mData;
+    mReadHead  = 0;
+    mWriteHead = 0;
+    mLength = 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -101,11 +107,13 @@ void RingBuffer<DataType, Size>::clear()
 template<typename DataType, int Size>
 DataType RingBuffer<DataType, Size>::read()
 {
-    const DataType data = *mReadHead++;
-    if (mReadHead >= mData + Size)
-    {
-        mReadHead = mData;
+    mLength--;
+    if (mLength < 0) {
+        mLength = 0;
+        return 0;
     }
+    const DataType data = mData[mReadHead];
+    mReadHead = (mReadHead + 1) & sMask;
     return data;
 }
 

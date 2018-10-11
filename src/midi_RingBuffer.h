@@ -34,13 +34,16 @@ BEGIN_MIDI_NAMESPACE
 template<typename DataType, int Size>
 class RingBuffer
 {
+private:
+    static const int sMask = Size - 1;
+
 public:
      RingBuffer();
     ~RingBuffer();
 
 public:
-    int getLength() const;
-    bool isEmpty() const;
+    inline int getLength() const;
+    inline bool isEmpty() const;
 
 public:
     void write(DataType inData);
@@ -53,8 +56,9 @@ public:
 
 private:
     DataType mData[Size];
-    DataType* mWriteHead;
-    DataType* mReadHead;
+    int mLength;
+    int mWriteHead;
+    int mReadHead;
 };
 
 END_MIDI_NAMESPACE

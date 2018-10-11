@@ -18,6 +18,7 @@ add_executable(unit-tests
     tests/unit-tests_Settings.cpp
     tests/unit-tests_Settings.h
     tests/unit-tests_SysExCodec.cpp
+    tests/unit-tests_RingBuffer.cpp
     tests/unit-tests_SerialMock.cpp
     tests/unit-tests_MidiInput.cpp
     tests/unit-tests_MidiInputCallbacks.cpp

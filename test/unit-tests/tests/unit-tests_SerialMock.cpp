@@ -6,7 +6,7 @@ BEGIN_UNNAMED_NAMESPACE
 USING_NAMESPACE_TEST_MOCKS
 using namespace testing;
 
-TEST(RingBuffer, initialState)
+TEST(RingBufferMock, initialState)
 {
     typedef RingBuffer<uint8, 32> Buffer;
     Buffer buffer;
@@ -17,7 +17,7 @@ TEST(RingBuffer, initialState)
     EXPECT_EQ(buffer.isEmpty(),   true);
 }
 
-TEST(RingBuffer, uint8)
+TEST(RingBufferMock, uint8)
 {
     typedef RingBuffer<uint8, 8> Buffer;
     Buffer buffer;
@@ -48,7 +48,7 @@ TEST(RingBuffer, uint8)
     EXPECT_EQ(buffer.isEmpty(),   true);
 }
 
-TEST(RingBuffer, uint32)
+TEST(RingBufferMock, uint32)
 {
     typedef RingBuffer<uint32_t, 32> Buffer;
     Buffer buffer;
