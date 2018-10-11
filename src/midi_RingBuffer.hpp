@@ -27,15 +27,15 @@
 
 #pragma once
 
-BEGIN_UNNAMED_NAMESPACE
+namespace {
 
-template<int N>
-struct isPowerOfTwo
-{
-    static const bool value = N && !(N & (N - 1));
-};
+    template<int N>
+    struct isPowerOfTwo
+    {
+        static const bool value = N && !(N & (N - 1));
+    };
 
-END_UNNAMED_NAMESPACE
+}
 
 // --
 
