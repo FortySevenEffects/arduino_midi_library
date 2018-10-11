@@ -676,8 +676,10 @@ template<class SerialPort, class Settings>
 bool MidiInterface<SerialPort, Settings>::parse()
 {
     if (mSerial.available() == 0)
+    {
         // No data available.
         return false;
+    }
 
     // Parsing algorithm:
     // Get a byte from the serial buffer.
@@ -726,7 +728,9 @@ bool MidiInterface<SerialPort, Settings>::parse()
             // It will be updated upon completion of this message.
         }
 
-        switch (getTypeFromStatusByte(mPendingMessage[0]))
+        const MidiType pendingType = getTypeFromStatusByte(mPendingMessage[0]);
+
+        switch (pendingType)
         {
             // 1 byte messages
             case Start:
@@ -737,7 +741,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             case SystemReset:
             case TuneRequest:
                 // Handle the message type directly here.
-                mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
+                mMessage.type    = pendingType;
                 mMessage.channel = 0;
                 mMessage.data1   = 0;
                 mMessage.data2   = 0;
@@ -788,7 +792,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
         if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
         {
             // Reception complete
-            mMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
+            mMessage.type    = pendingType;
             mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             mMessage.data1   = mPendingMessage[1];
             mMessage.data2   = 0; // Completed new message has 1 data byte
