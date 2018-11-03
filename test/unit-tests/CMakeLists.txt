@@ -6,6 +6,7 @@ include_directories(
     ${unit-tests_SOURCE_DIR}
     ${gtest_SOURCE_DIR}/include
     ${gmock_SOURCE_DIR}/include
+    "../../external/midi-usb/src"
 )
 
 add_executable(unit-tests
