@@ -60,6 +60,45 @@ struct CodeIndexNumbers
         singleByte              = 0x0F,
     };
 
+    static inline byte fromStatus(StatusByte inStatus)
+    {
+        const byte statusWithoutChannel = inStatus & 0xf0;
+        if (statusWithoutChannel >= midi::NoteOff &&
+            statusWithoutChannel <= midi::PitchBend)
+        {
+            // Channel Voice Messages
+            return inStatus >> 4;
+        }
+        switch (inStatus)
+        {
+            // System Real Time Messages
+            case midi::Clock:
+            case midi::Start:
+            case midi::Continue:
+            case midi::Stop:
+            case midi::ActiveSensing:
+            case midi::SystemReset:
+                return CodeIndexNumbers::singleByte;
+
+            case midi::SystemExclusive:
+                return CodeIndexNumbers::sysExStart;
+
+            // System Common Messages
+            case midi::TimeCodeQuarterFrame:
+                return CodeIndexNumbers::systemCommon2Bytes;
+            case midi::SongPosition:
+                return CodeIndexNumbers::systemCommon3Bytes;
+            case midi::SongSelect:
+                return CodeIndexNumbers::systemCommon2Bytes;
+            case midi::TuneRequest:
+                return CodeIndexNumbers::systemCommon1Byte;
+
+            default:
+                return CodeIndexNumbers::reserved;
+        }
+
+    }
+
     static inline byte getSize(byte inCodeIndexNumber)
     {
         switch (inCodeIndexNumber)
@@ -89,56 +128,6 @@ struct CodeIndexNumbers
         }
         return 0; // Can be any length (1, 2 or 3).
     }
-};
-
-// -----------------------------------------------------------------------------
-
-struct UsbMidiEventPacket
-{
-public:
-    inline UsbMidiEventPacket()
-    {
-        memset(mData, 0, 4 * sizeof(byte));
-    }
-
-public:
-    inline void setHeader(byte inCableNumber, byte inCodeIndexNumber)
-    {
-        const byte msb = (0x0f & inCableNumber) << 4;
-        const byte lsb = (0x0f & inCodeIndexNumber);
-        mData[0] = msb | lsb;
-    }
-    inline void setMidiData(const byte* inData)
-    {
-        mData[1] = *inData++;
-        mData[2] = *inData++;
-        mData[3] = *inData;
-    }
-    inline byte getCableNumber() const
-    {
-        return mData[0] >> 4;
-    }
-    inline byte getCodeIndexNumber() const
-    {
-        return mData[0] & 0x0f;
-    }
-    inline const byte* getMidiData() const
-    {
-        return mData + 1;
-    }
-    inline byte* getMidiData()
-    {
-        return mData + 1;
-    }
-    inline UsbMidiEventPacket& operator=(const byte* inData)
-    {
-        mData[0] = *inData++;
-        setMidiData(inData);
-        return *this;
-    }
-
-public:
-    byte mData[4];
 };
 
 END_MIDI_NAMESPACE
