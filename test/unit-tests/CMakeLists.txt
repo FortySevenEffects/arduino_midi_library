@@ -25,7 +25,8 @@ add_executable(unit-tests
     tests/unit-tests_MidiInputCallbacks.cpp
     tests/unit-tests_MidiOutput.cpp
     tests/unit-tests_MidiThru.cpp
-    tests/unit-tests_MidiUsb.cpp
+    tests/unit-tests_MidiUsbDefs.cpp
+    tests/unit-tests_MidiUsbPacketInterface.cpp
 )
 
 target_link_libraries(unit-tests

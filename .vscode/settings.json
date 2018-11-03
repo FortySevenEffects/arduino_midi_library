@@ -1,6 +1,13 @@
 {
     "files.associations": {
         "cstddef": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "__locale": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "vector": "cpp",
+        "istream": "cpp"
     }
 }
