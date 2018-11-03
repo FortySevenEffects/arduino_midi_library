@@ -170,5 +170,34 @@ TEST(RingBuffer, readArrayOverflow)
     EXPECT_EQ(buffer.getLength(), 0);
 }
 
+TEST(RingBuffer, peek)
+{
+    Buffer buffer;
+    const uint8_t input[4] = {
+        1, 2, 3, 4
+    };
+
+    buffer.write(input, 4);
+    EXPECT_EQ(1, buffer.peek());
+    EXPECT_EQ(2, buffer.peek(1));
+    EXPECT_EQ(3, buffer.peek(2));
+    EXPECT_EQ(4, buffer.peek(3));
+    EXPECT_EQ(4, buffer.getLength()) << "Peek should not change buffer length";
+}
+
+TEST(RingBuffer, pop)
+{
+    Buffer buffer;
+    const uint8_t input[4] = {
+        1, 2, 3, 4
+    };
+
+    buffer.write(input, 4);
+    buffer.pop();
+    EXPECT_EQ(3, buffer.getLength());
+    buffer.pop(2);
+    EXPECT_EQ(1, buffer.getLength());
+}
+
 END_UNNAMED_NAMESPACE
 

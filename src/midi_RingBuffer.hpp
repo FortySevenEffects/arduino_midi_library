@@ -94,6 +94,15 @@ void RingBuffer<DataType, Size>::write(const DataType* inData, int inSize)
 }
 
 template<typename DataType, int Size>
+void RingBuffer<DataType, Size>::pop(int inNumberOfItems)
+{
+    for (int i = 0; i < inNumberOfItems; ++i)
+    {
+        read();
+    }
+}
+
+template<typename DataType, int Size>
 void RingBuffer<DataType, Size>::clear()
 {
     memset(mData, DataType(0), Size * sizeof(DataType));
@@ -103,6 +112,13 @@ void RingBuffer<DataType, Size>::clear()
 }
 
 // -----------------------------------------------------------------------------
+
+template<typename DataType, int Size>
+DataType RingBuffer<DataType, Size>::peek(int inOffset) const
+{
+    const int head = (mReadHead + inOffset) & sMask;
+    return mData[head];
+}
 
 template<typename DataType, int Size>
 DataType RingBuffer<DataType, Size>::read()

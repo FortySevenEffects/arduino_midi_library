@@ -48,9 +48,11 @@ public:
 public:
     void write(DataType inData);
     void write(const DataType* inData, int inSize);
+    void pop(int inNumberOfItems = 1);
     void clear();
 
 public:
+    DataType peek(int inOffset = 0) const;
     DataType read();
     void read(DataType* outData, int inSize);
 
