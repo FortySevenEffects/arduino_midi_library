@@ -40,6 +40,68 @@ bool composeTxPacket(Buffer& inBuffer, midiEventPacket_t& outPacket)
     const byte cin = midi::CodeIndexNumbers::fromStatus(status);
     const byte messageLength = midi::CodeIndexNumbers::getSize(cin);
 
+    if (status == 0xf0)
+    {
+        // Start of SysEx, check if it can end in one go.
+        if (bufferLength == 2 && inBuffer.peek(1) == 0xf7)
+        {
+            outPacket.header = midi::CodeIndexNumbers::sysExEnds2Bytes;
+            outPacket.byte1 = status;
+            outPacket.byte2 = 0xf7;
+            outPacket.byte3 = 0x00;
+            inBuffer.pop(2);
+            return true;
+        }
+        if (bufferLength >= 3 && inBuffer.peek(2) == 0xf7)
+        {
+            outPacket.header = midi::CodeIndexNumbers::sysExEnds3Bytes;
+            outPacket.byte1 = status;
+            outPacket.byte2 = inBuffer.peek(1);
+            outPacket.byte3 = 0xf7;
+            inBuffer.pop(3);
+            return true;
+        }
+    }
+
+    if ((status & 0x80) == 0x00)
+    {
+        // First byte is data, consider it's part of a running SysEx message.
+        // We look for the SysEx end byte in the next 2 bytes
+        // At this point, bufferLength should be 2 or more to continue.
+        if (bufferLength == 1)
+        {
+            return false; // Not enough data
+        }
+        if (bufferLength == 2)
+        {
+            const bool isSysExEnd = inBuffer.peek(1) == 0xf7;
+            if (!isSysExEnd)
+            {
+                return false; // Not enough data (eg: 0x12 0x42)
+            }
+            // eg: 0x42 0xf7
+            outPacket.header = midi::CodeIndexNumbers::sysExEnds2Bytes;
+            outPacket.byte1 = status;
+            outPacket.byte2 = inBuffer.peek(1);
+            outPacket.byte3 = 0x00;
+            inBuffer.pop(2);
+            return true;
+        }
+        else
+        {
+            // bufferLength > 2
+            const byte byte3 = inBuffer.peek(2);
+            outPacket.header = byte3 == 0xf7
+                ? midi::CodeIndexNumbers::sysExEnds3Bytes
+                : midi::CodeIndexNumbers::sysExContinue;
+            outPacket.byte1 = status;
+            outPacket.byte2 = inBuffer.peek(1);
+            outPacket.byte3 = byte3;
+            inBuffer.pop(3);
+            return true;
+        }
+    }
+
     if (bufferLength < messageLength) {
         return false; // Not enough data in the buffer to compose a full packet.
     }
@@ -53,7 +115,6 @@ bool composeTxPacket(Buffer& inBuffer, midiEventPacket_t& outPacket)
     return true;
 
     // todo: handle interleaved RealTime messages
-    // todo: handle SysEx
 }
 
 template<typename Buffer>

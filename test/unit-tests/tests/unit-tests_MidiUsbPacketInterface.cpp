@@ -304,6 +304,135 @@ TEST(MidiUsbPacketInterfaceTx, TimeCodeQuarterFrame)
     EXPECT_EQ(0, buffer.getLength());
 }
 
+// System Exclusive --
+
+TEST(MidiUsbPacketInterfaceTx, SysExNotEnoughData)
+{
+    midiEventPacket_t packet;
+    Buffer buffer;
+
+    buffer.write(0x12);
+    buffer.write(0x42);
+    EXPECT_FALSE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(2, buffer.getLength());
+}
+
+TEST(MidiUsbPacketInterfaceTx, SysExSinglePacket)
+{
+    midiEventPacket_t packet;
+    Buffer buffer;
+
+    // Two-byte SysEx (utterly useless)
+    buffer.write(0xf0);
+    buffer.write(0xf7);
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExEnds2Bytes, packet.header);
+    EXPECT_EQ(0xf0, packet.byte1);
+    EXPECT_EQ(0xf7, packet.byte2);
+    EXPECT_EQ(0x00, packet.byte3);
+    EXPECT_EQ(0, buffer.getLength());
+
+    // Single-data byte SysEx (non-spec conformant ?)
+    buffer.write(0xf0);
+    buffer.write(0x12);
+    buffer.write(0xf7);
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExEnds3Bytes, packet.header);
+    EXPECT_EQ(0xf0, packet.byte1);
+    EXPECT_EQ(0x12, packet.byte2);
+    EXPECT_EQ(0xf7, packet.byte3);
+    EXPECT_EQ(0, buffer.getLength());
+}
+
+TEST(MidiUsbPacketInterfaceTx, SysExTwoPackets)
+{
+    midiEventPacket_t packet;
+    Buffer buffer;
+
+    const byte deviceIdentityRequest[6] = {
+        0xf0, 0x7e, 0x7f, 0x06, 0x01, 0xf7
+    };
+
+    buffer.write(deviceIdentityRequest, 6);
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExStart, packet.header);
+    EXPECT_EQ(0xf0, packet.byte1);
+    EXPECT_EQ(0x7e, packet.byte2);
+    EXPECT_EQ(0x7f, packet.byte3);
+    EXPECT_EQ(3, buffer.getLength());
+
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExEnds3Bytes, packet.header);
+    EXPECT_EQ(0x06, packet.byte1);
+    EXPECT_EQ(0x01, packet.byte2);
+    EXPECT_EQ(0xf7, packet.byte3);
+    EXPECT_EQ(0, buffer.getLength());
+}
+
+TEST(MidiUsbPacketInterfaceTx, SysExMultiplePacketsEndingWith1Byte)
+{
+    midiEventPacket_t packet;
+    Buffer buffer;
+
+    const byte message[7] = {
+        0xf0, 0x01, 0x02, 0x03, 0x04, 0x05, 0xf7
+    };
+
+    buffer.write(message, 7);
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExStart, packet.header);
+    EXPECT_EQ(0xf0, packet.byte1);
+    EXPECT_EQ(0x01, packet.byte2);
+    EXPECT_EQ(0x02, packet.byte3);
+    EXPECT_EQ(4, buffer.getLength());
+
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExContinue, packet.header);
+    EXPECT_EQ(0x03, packet.byte1);
+    EXPECT_EQ(0x04, packet.byte2);
+    EXPECT_EQ(0x05, packet.byte3);
+    EXPECT_EQ(1, buffer.getLength());
+
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExEnds1Byte, packet.header);
+    EXPECT_EQ(0xf7, packet.byte1);
+    EXPECT_EQ(0x00, packet.byte2);
+    EXPECT_EQ(0x00, packet.byte3);
+    EXPECT_EQ(0, buffer.getLength());
+}
+
+TEST(MidiUsbPacketInterfaceTx, SysExMultiplePacketsEndingWith2Bytes)
+{
+    midiEventPacket_t packet;
+    Buffer buffer;
+
+    const byte message[8] = {
+        0xf0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0xf7
+    };
+
+    buffer.write(message, 8);
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExStart, packet.header);
+    EXPECT_EQ(0xf0, packet.byte1);
+    EXPECT_EQ(0x01, packet.byte2);
+    EXPECT_EQ(0x02, packet.byte3);
+    EXPECT_EQ(5, buffer.getLength());
+
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExContinue, packet.header);
+    EXPECT_EQ(0x03, packet.byte1);
+    EXPECT_EQ(0x04, packet.byte2);
+    EXPECT_EQ(0x05, packet.byte3);
+    EXPECT_EQ(2, buffer.getLength());
+
+    EXPECT_TRUE(midi::composeTxPacket(buffer, packet));
+    EXPECT_EQ(midi::CodeIndexNumbers::sysExEnds2Bytes, packet.header);
+    EXPECT_EQ(0x06, packet.byte1);
+    EXPECT_EQ(0xf7, packet.byte2);
+    EXPECT_EQ(0x00, packet.byte3);
+    EXPECT_EQ(0, buffer.getLength());
+}
+
 // -----------------------------------------------------------------------------
 
 TEST(MidiUsbPacketInterfaceRx, PacketParsing)

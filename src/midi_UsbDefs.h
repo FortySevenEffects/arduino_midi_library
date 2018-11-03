@@ -80,8 +80,11 @@ struct CodeIndexNumbers
             case midi::SystemReset:
                 return CodeIndexNumbers::singleByte;
 
+            // System Exclusive
             case midi::SystemExclusive:
                 return CodeIndexNumbers::sysExStart;
+            case 0xf7:
+                return CodeIndexNumbers::sysExEnds1Byte;
 
             // System Common Messages
             case midi::TimeCodeQuarterFrame:
@@ -119,7 +122,7 @@ struct CodeIndexNumbers
             case sysExEnds2Bytes:
                 return 2;
 
-            case systemCommon1Byte:
+            case systemCommon1Byte: // also sysExEnds1Byte
             case singleByte:
                 return 1;
 
