@@ -29,6 +29,7 @@
 
 #include "midi_Defs.h"
 #include "midi_RingBuffer.h"
+#include "midi_UsbPacketInterface.h"
 #include <MIDIUSB.h>
 
 BEGIN_MIDI_NAMESPACE
@@ -47,24 +48,13 @@ public: // Serial / Stream API required for template compatibility
     inline void write(byte inData);
 
 private:
-    inline bool pollUsbMidi();
+    inline void pollUsbMidi();
     inline void recomposeAndSendTxPackets();
-    inline void resetTx();
-    static inline byte encodePacketHeader(StatusByte inStatusByte);
-    static inline int getPacketLength(const midiEventPacket_t& inPacket);
 
 private:
     typedef RingBuffer<byte, BuffersSize> Buffer;
     Buffer mTxBuffer;
     Buffer mRxBuffer;
-
-    union TxPacket
-    {
-        byte mDataArray[4];
-        midiEventPacket_t mPacket;
-    };
-    TxPacket mCurrentTxPacket;
-    int mCurrentTxPacketByteIndex;
 };
 
 END_MIDI_NAMESPACE
