@@ -50,6 +50,7 @@ struct DefaultSettings
 {
     /*! Running status enables short messages when sending multiple values
     of the same type and channel.\n
+    Must be disabled to send USB MIDI messages to a computer
     Warning: does not work with some hardware, enable with caution.
     */
     static const bool UseRunningStatus = false;
