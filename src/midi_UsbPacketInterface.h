@@ -37,7 +37,7 @@ template<typename Buffer>
 bool composeTxPacket(Buffer& inBuffer, midiEventPacket_t& outPacket);
 
 template<typename Buffer>
-bool parseRxPacket(const midiEventPacket_t& inPacket, Buffer& outBuffer);
+void serialiseRxPacket(const midiEventPacket_t& inPacket, Buffer& outBuffer);
 
 END_MIDI_NAMESPACE
 

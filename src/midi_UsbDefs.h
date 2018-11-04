@@ -127,9 +127,8 @@ struct CodeIndexNumbers
                 return 1;
 
             default:
-                break;
+                return 0; // Can be any length (1, 2 or 3).
         }
-        return 0; // Can be any length (1, 2 or 3).
     }
 };
 

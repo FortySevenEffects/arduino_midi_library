@@ -118,9 +118,29 @@ bool composeTxPacket(Buffer& inBuffer, midiEventPacket_t& outPacket)
 }
 
 template<typename Buffer>
-bool parseRxPacket(const midiEventPacket_t& /*inPacket*/, Buffer& /*outBuffer*/)
+void serialiseRxPacket(const midiEventPacket_t& inPacket, Buffer& outBuffer)
 {
-    return false;
+    const byte cin = inPacket.header & 0x0f;
+    const byte messageLength = midi::CodeIndexNumbers::getSize(cin);
+    switch (messageLength)
+    {
+        case 1:
+            outBuffer.write(inPacket.byte1);
+            return;
+        case 2:
+            outBuffer.write(inPacket.byte1);
+            outBuffer.write(inPacket.byte2);
+            return;
+        case 3:
+            outBuffer.write(inPacket.byte1);
+            outBuffer.write(inPacket.byte2);
+            outBuffer.write(inPacket.byte3);
+            return;
+        case 0:
+        default:
+            // Invalid or ignored messages, don't serialise.
+            return;
+    }
 }
 
 END_MIDI_NAMESPACE
