@@ -35,7 +35,7 @@ bool composeTxPacket(Buffer& inBuffer, midiEventPacket_t& outPacket)
     if (inBuffer.isEmpty()) {
         return false;
     }
-    int bufferLength = inBuffer.getLength();
+    const int bufferLength = inBuffer.getLength();
     const byte status = inBuffer.peek();
     const byte cin = midi::CodeIndexNumbers::fromStatus(status);
     const byte messageLength = midi::CodeIndexNumbers::getSize(cin);
