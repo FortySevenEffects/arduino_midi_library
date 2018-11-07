@@ -25,7 +25,8 @@
             ],
             "forcedInclude": [
                 "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino/Arduino.h"
-            ]
+            ],
+            "configurationProvider": "vector-of-bool.cmake-tools"
         },
         {
             "name": "Linux",
