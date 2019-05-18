@@ -86,6 +86,8 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
     // Initialise the Serial port
 #if defined(AVR_CAKE)
     mSerial. template open<Settings::BaudRate>();
+#elif defined(ARDUINO_ARCH_ESP32)
+    mSerial.begin(Settings::BaudRate, SERIAL_8N1, Settings::RxPin, Settings::TxPin);
 #else
     mSerial.begin(Settings::BaudRate);
 #endif
