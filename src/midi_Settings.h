@@ -71,6 +71,13 @@ struct DefaultSettings
     http://projectgus.github.io/hairless-midiserial/
     */
     static const long BaudRate = 31250;
+ 
+    /*! Add support for ESP32 pins assignement.
+    Without pins re-mapping Serial1 cannot be used on many ESP32 dev boards.
+    Default Serial1 pins (RX1=GPIO9 TX1=GPIO10) are mainly used for flash memory.
+    */
+    static const int8_t RxPin = -1;
+    static const int8_t TxPin = -1;
 
     /*! Maximum size of SysEx receivable. Decrease to save RAM if you don't expect
     to receive SysEx, or adjust accordingly.
