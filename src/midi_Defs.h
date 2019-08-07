@@ -51,6 +51,40 @@ BEGIN_MIDI_NAMESPACE
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
 
+#define MIDI_SAMPLING_RATE_8KHZ			8000
+#define MIDI_SAMPLING_RATE_11KHZ		11025
+#define MIDI_SAMPLING_RATE_44K1HZ		44100
+#define MIDI_SAMPLING_RATE_48KHZ		48000
+#define MIDI_SAMPLING_RATE_88K2HZ		88200
+#define MIDI_SAMPLING_RATE_96KHZ		96000
+#define MIDI_SAMPLING_RATE_176K4HZ		176400
+#define MIDI_SAMPLING_RATE_192KHZ		192000
+#define MIDI_SAMPLING_RATE_DEFAULT		10000
+
+// MIDI Channel enumeration values
+#define MIDI_CHANNEL_1 0x00
+#define MIDI_CHANNEL_2 0x01
+#define MIDI_CHANNEL_3 0x02
+#define MIDI_CHANNEL_4 0x03
+#define MIDI_CHANNEL_5 0x04
+#define MIDI_CHANNEL_6 0x05
+#define MIDI_CHANNEL_7 0x06
+#define MIDI_CHANNEL_8 0x07
+#define MIDI_CHANNEL_9 0x08
+#define MIDI_CHANNEL_10 0x09
+#define MIDI_CHANNEL_11 0x0a
+#define MIDI_CHANNEL_12 0x0b
+#define MIDI_CHANNEL_13 0x0c
+#define MIDI_CHANNEL_14 0x0d
+#define MIDI_CHANNEL_15 0x0e
+#define MIDI_CHANNEL_16 0x0f
+#define MIDI_CHANNEL_BASE 0x10
+#define MIDI_CHANNEL_ALL 0x1f
+#define MIDI_CHANNEL_MASK 0x0f
+
+#define MIDI_LSB( v ) (v) & 0x7F
+#define MIDI_MSB( v ) ((v)>> 7)  & 0x7F
+
 // -----------------------------------------------------------------------------
 // Type definitions
 
@@ -203,36 +237,5 @@ struct RPN
         NullFunction            = (0x7f << 7) + 0x7f,
     };
 };
-
-// -----------------------------------------------------------------------------
-
-/*! \brief Create an instance of the library attached to a serial port.
- You can use HardwareSerial or SoftwareSerial for the serial port.
- Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
- Then call midi2.begin(), midi2.read() etc..
- */
-#define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
-    midi::MidiInterface<Type> Name((Type&)SerialPort);
-
-#if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
-    // Leonardo, Due and other USB boards use Serial1 by default.
-    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
-        MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
-#else
-    /*! \brief Create an instance of the library with default name, serial port
-    and settings, for compatibility with sketches written with pre-v4.2 MIDI Lib,
-    or if you don't bother using custom names, serial port or settings.
-    */
-    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
-        MIDI_CREATE_INSTANCE(HardwareSerial, Serial,  MIDI);
-#endif
-
-/*! \brief Create an instance of the library attached to a serial port with
- custom settings.
- @see DefaultSettings
- @see MIDI_CREATE_INSTANCE
- */
-#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
-    midi::MidiInterface<Type, Settings> Name((Type&)SerialPort);
 
 END_MIDI_NAMESPACE

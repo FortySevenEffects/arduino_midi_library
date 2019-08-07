@@ -46,7 +46,7 @@ BEGIN_MIDI_NAMESPACE
  MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, midi, MySettings);
  \endcode
  */
-struct DefaultSettings
+struct AbstractDefaultSettings
 {
     /*! Running status enables short messages when sending multiple values
     of the same type and channel.\n
@@ -65,12 +65,6 @@ struct DefaultSettings
     a lot of traffic, but might induce MIDI Thru and treatment latency.
     */
     static const bool Use1ByteParsing = true;
-
-    /*! Override the default MIDI baudrate to transmit over USB serial, to
-    a decoding program such as Hairless MIDI (set baudrate to 115200)\n
-    http://projectgus.github.io/hairless-midiserial/
-    */
-    static const long BaudRate = 31250;
 
     /*! Maximum size of SysEx receivable. Decrease to save RAM if you don't expect
     to receive SysEx, or adjust accordingly.

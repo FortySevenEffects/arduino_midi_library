@@ -41,21 +41,29 @@ the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
 or ak47's Uart classes. The only requirement is that the class implements
 the begin, read, write and available methods.
  */
-template<class SerialPort, class _Settings = DefaultSettings>
-class MidiInterface
+template<class _Settings = AbstractDefaultSettings>
+class AbstractMidiInterface
 {
 public:
     typedef _Settings Settings;
 
-public:
-    inline  MidiInterface(SerialPort& inSerial);
-    inline ~MidiInterface();
+protected:
+    inline AbstractMidiInterface();
 
-public:
-    void begin(Channel inChannel = 1);
+protected:
+    void begin(Channel inChannel);
 
-    // -------------------------------------------------------------------------
-    // MIDI Output
+	// -------------------------------------------------------------------------
+	// Abstract
+protected:
+	virtual void __beginWrite() {};
+	virtual void __write(byte) = 0;
+	virtual void __endWrite() {};
+	virtual int  __available() = 0;
+	virtual byte __read() = 0;
+
+	// -------------------------------------------------------------------------
+	// MIDI Output
 
 public:
     inline void sendNoteOn(DataByte inNoteNumber,
@@ -227,9 +235,6 @@ private:
     typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 private:
-    SerialPort& mSerial;
-
-private:
     Channel         mInputChannel;
     StatusByte      mRunningStatus_RX;
     StatusByte      mRunningStatus_TX;
@@ -256,3 +261,5 @@ unsigned decodeSysEx(const byte* inSysEx, byte* outData,  unsigned inLength);
 END_MIDI_NAMESPACE
 
 #include "MIDI.hpp"
+
+#include "midi_serial.h"
