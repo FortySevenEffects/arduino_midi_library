@@ -262,4 +262,4 @@ END_MIDI_NAMESPACE
 
 #include "MIDI.hpp"
 
-#include "midi_serial.h"
+#include "midi_Serial.h"
