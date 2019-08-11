@@ -26,6 +26,7 @@
  */
 
 #pragma once
+#pragma message ("git clone MIDI.hpp" )
 
 BEGIN_MIDI_NAMESPACE
 
@@ -140,11 +141,13 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
         inChannel == MIDI_CHANNEL_OMNI ||
         inType < 0x80)
     {
+        Serial.print("invalch: "); Serial.println(inType);
         return; // Don't send anything
     }
 
     if (inType <= PitchBend)  // Channel messages
     {
+        Serial.print("chmsg: "); Serial.println(inType);
         // Protection: remove MSBs on data
         inData1 &= 0x7f;
         inData2 &= 0x7f;
@@ -175,6 +178,7 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
     }
     else if (inType >= Clock && inType <= SystemReset)
     {
+        Serial.print("sendRT: "); Serial.println(inType);
         sendRealTime(inType); // System Real-time and 1 byte.
     }
 }
