@@ -62,7 +62,7 @@ typedef byte FilterMode;
 // -----------------------------------------------------------------------------
 
 /*! Enumeration of MIDI types */
-enum MidiType
+enum MidiType: uint8_t
 {
     InvalidType           = 0x00,    ///< For notifying errors
     NoteOff               = 0x80,    ///< Note Off
@@ -116,7 +116,7 @@ enum __attribute__ ((deprecated)) MidiFilterMode
  See the detailed controllers numbers & description here:
  http://www.somascape.org/midi/tech/spec.html#ctrlnums
  */
-enum MidiControlChangeNumber
+enum MidiControlChangeNumber: uint8_t
 {
     // High resolution Continuous Controllers MSB (+32 for LSB) ----------------
     BankSelect                  = 0,
@@ -192,7 +192,7 @@ enum MidiControlChangeNumber
 
 struct RPN
 {
-    enum RegisteredParameterNumbers
+    enum RegisteredParameterNumbers: uint16_t
     {
         PitchBendSensitivity    = 0x0000,
         ChannelFineTuning       = 0x0001,
