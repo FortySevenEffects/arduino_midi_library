@@ -3,3 +3,5 @@
 logs/
 build/
 .vscode/.cmaketools.json
+src/.DS_Store
+examples/.DS_Store
