@@ -135,16 +135,15 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
                                                DataByte inData2,
                                                Channel inChannel)
 {
-    // Then test if channel is valid
-    if (inChannel >= MIDI_CHANNEL_OFF  ||
-        inChannel == MIDI_CHANNEL_OMNI ||
-        inType < 0x80)
-    {
-        return; // Don't send anything
-    }
-
     if (inType <= PitchBend)  // Channel messages
     {
+        // Then test if channel is valid
+        if (inChannel >= MIDI_CHANNEL_OFF  ||
+            inChannel == MIDI_CHANNEL_OMNI ||
+            inType < 0x80)
+        {
+            return; // Don't send anything
+        }
         // Protection: remove MSBs on data
         inData1 &= 0x7f;
         inData2 &= 0x7f;
