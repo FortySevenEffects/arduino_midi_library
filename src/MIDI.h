@@ -241,6 +241,7 @@ private:
     bool            mThruActivated  : 1;
     Thru::Mode      mThruFilterMode : 7;
     MidiMessage     mMessage;
+    bool            mInSystemExclusiveBlock : 1;
 
 
 private:

@@ -42,6 +42,7 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     , mCurrentNrpnNumber(0xffff)
     , mThruActivated(true)
     , mThruFilterMode(Thru::Full)
+    , mInSystemExclusiveBlock(false)
 {
     mNoteOffCallback                = 0;
     mNoteOnCallback                 = 0;
@@ -702,7 +703,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
         }
     }
 
-    if (mPendingMessageIndex == 0)
+    if (mPendingMessageIndex == 0 && !mInSystemExclusiveBlock)
     {
         // Start a new pending message
         mPendingMessage[0] = extracted;
@@ -774,6 +775,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 mPendingMessageExpectedLength = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
                 mMessage.sysexArray[0] = SystemExclusive;
+                mInSystemExclusiveBlock = true;
                 break;
 
             case InvalidType:
@@ -847,17 +849,21 @@ bool MidiInterface<SerialPort, Settings>::parse()
 
                     // End of Exclusive
                 case 0xf7:
-                    if (mMessage.sysexArray[0] == SystemExclusive)
+                    if (mMessage.sysexArray[0] == SystemExclusive || mInSystemExclusiveBlock)
                     {
                         // Store the last byte (EOX)
                         mMessage.sysexArray[mPendingMessageIndex++] = 0xf7;
                         mMessage.type = SystemExclusive;
 
+                        if (mInSystemExclusiveBlock && mSystemExclusiveCallback != 0) {
+                          mSystemExclusiveCallback(mMessage.sysexArray, mPendingMessageIndex);
+                        }
                         // Get length
                         mMessage.data1   = mPendingMessageIndex & 0xff; // LSB
                         mMessage.data2   = byte(mPendingMessageIndex >> 8);   // MSB
                         mMessage.channel = 0;
                         mMessage.valid   = true;
+                        mInSystemExclusiveBlock = false;
 
                         resetInput();
                         return true;
@@ -875,7 +881,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
         }
 
         // Add extracted data byte to pending message
-        if (mPendingMessage[0] == SystemExclusive)
+        if (mPendingMessage[0] == SystemExclusive || mInSystemExclusiveBlock)
             mMessage.sysexArray[mPendingMessageIndex] = extracted;
         else
             mPendingMessage[mPendingMessageIndex] = extracted;
@@ -886,9 +892,13 @@ bool MidiInterface<SerialPort, Settings>::parse()
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
             // the buffer. If this happens, try increasing MidiMessage::sSysExMaxSize.
-            if (mPendingMessage[0] == SystemExclusive)
+            if (mPendingMessage[0] == SystemExclusive || mInSystemExclusiveBlock)
             {
-                resetInput();
+                if (mSystemExclusiveCallback != 0){
+                  mSystemExclusiveCallback(mMessage.sysexArray, MidiMessage::sSysExMaxSize);
+                }
+
+                mPendingMessageIndex = 0;
                 return false;
             }
 
@@ -1216,7 +1226,11 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
         case AfterTouchChannel:     if (mAfterTouchChannelCallback != 0)     mAfterTouchChannelCallback(mMessage.channel, mMessage.data1);    break;
 
         case ProgramChange:         if (mProgramChangeCallback != 0)         mProgramChangeCallback(mMessage.channel, mMessage.data1);    break;
-        case SystemExclusive:       if (mSystemExclusiveCallback != 0)       mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());    break;
+        case SystemExclusive:
+          if (mSystemExclusiveCallback != 0){
+            mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());
+          }
+          break;
 
             // Occasional messages
         case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != 0)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
@@ -1226,8 +1240,11 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
 
         case SystemReset:           if (mSystemResetCallback != 0)           mSystemResetCallback();    break;
 
-        case InvalidType:
+        case InvalidType:           break;
         default:
+            if (mInSystemExclusiveBlock && mSystemExclusiveCallback != 0) {
+              mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());
+            }
             break; // LCOV_EXCL_LINE - Unreacheable code, but prevents unhandled case warning.
     }
 }
