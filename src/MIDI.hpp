@@ -915,13 +915,13 @@ bool MidiInterface<SerialPort, Settings>::parse()
 
                 switch (mMessage.type)
                 {
-	                    case NoteOff:
-	                    case NoteOn:
-	                    case AfterTouchPoly:
-	                    case ControlChange:
-	                    case ProgramChange:
-	                    case AfterTouchChannel:
-	                    case PitchBend:
+                    case NoteOff:
+                    case NoteOn:
+                    case AfterTouchPoly:
+                    case ControlChange:
+                    case ProgramChange:
+                    case AfterTouchChannel:
+                    case PitchBend:
 	                    // Running status enabled: store it from received message
 	                    mRunningStatus_RX = mPendingMessage[0];
 	                    break;
