@@ -40,6 +40,8 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
+    , mActiveSensingActivated(false)
+    , mLastSendMessageTime(0)
     , mThruActivated(true)
     , mThruFilterMode(Thru::Full)
 {
@@ -99,6 +101,9 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
 
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
+
+    mActiveSensingActivated = false;
+    mLastSendMessageTime = millis();
 
     mMessage.valid   = false;
     mMessage.type    = InvalidType;
@@ -177,6 +182,9 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
     {
         sendRealTime(inType); // System Real-time and 1 byte.
     }
+
+    if (mActiveSensingActivated)
+        mLastSendMessageTime = millis();
 }
 
 // -----------------------------------------------------------------------------
@@ -311,6 +319,22 @@ void MidiInterface<SerialPort, Settings>::sendPitchBend(double inPitchValue,
     const int value = int(inPitchValue * double(scale));
     sendPitchBend(value, inChannel);
 }
+
+/*! \brief Send an Active Sensing message.
+ 
+  This message is intended to be sent
+  repeatedly to tell the receiver that a connection is alive. Use
+  of this message is optional. When initially received, the
+  receiver will expect to receive another Active Sensing
+  message each 300ms (max), and if it does not then it will
+  assume that the connection has been terminated.
+ */
+template<class Encoder, class Settings>
+void MidiInterface<Encoder, Settings>::sendActiveSensing()
+{
+    sendRealTime(ActiveSensing);
+}
+
 
 /*! \brief Generate and send a System Exclusive frame.
  \param inLength  The size of the array to send
@@ -650,6 +674,20 @@ inline bool MidiInterface<SerialPort, Settings>::read()
 template<class SerialPort, class Settings>
 inline bool MidiInterface<SerialPort, Settings>::read(Channel inChannel)
 {
+    // Active Sensing. This message is intended to be sent
+    // repeatedly to tell the receiver that a connection is alive. Use
+    // of this message is optional. When initially received, the
+    // receiver will expect to receive another Active Sensing
+    // message each 300ms (max), and if it does not then it will
+    // assume that the connection has been terminated. At
+    // termination, the receiver will turn off all voices and return to
+    // normal (non- active sensing) operation.
+    if (mActiveSensingActivated && (millis() - mLastSendMessageTime) > 250)
+    {
+      sendActiveSensing();
+      mLastSendMessageTime = millis();
+    }
+
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
 

@@ -86,6 +86,8 @@ public:
                                DataByte inPressure,
                                Channel inChannel);
 
+    inline void sendActiveSensing();
+    
     inline void sendSysEx(unsigned inLength,
                           const byte* inArray,
                           bool inArrayContainsBoundaries = false);
@@ -241,7 +243,8 @@ private:
     bool            mThruActivated  : 1;
     Thru::Mode      mThruFilterMode : 7;
     MidiMessage     mMessage;
-
+    unsigned long   mLastSendMessageTime;
+    bool            mActiveSensingActivated;
 
 private:
     inline StatusByte getStatus(MidiType inType,
