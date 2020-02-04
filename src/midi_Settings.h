@@ -61,6 +61,17 @@ struct DefaultSettings
     */
     static const bool HandleNullVelocityNoteOnAsNoteOff = true;
 
+    /*! Active Sensing is intended to be sent
+    repeatedly by the sender to tell the receiver that a connection is alive. Use
+    of this message is optional. When initially received, the
+    receiver will expect to receive another Active Sensing
+    message each 300ms (max), and if it does not then it will
+    assume that the connection has been terminated. At
+    termination, the receiver will turn off all voices and return to
+    normal (non- active sensing) operation..
+    */
+    static const bool UseSenderActiveSensing = true;
+
     /*! Setting this to true will make MIDI.read parse only one byte of data for each
     call when data is available. This can speed up your application if receiving
     a lot of traffic, but might induce MIDI Thru and treatment latency.

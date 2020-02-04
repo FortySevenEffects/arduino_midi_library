@@ -86,8 +86,6 @@ public:
                                DataByte inPressure,
                                Channel inChannel);
 
-    inline void sendActiveSensing();
-    
     inline void sendSysEx(unsigned inLength,
                           const byte* inArray,
                           bool inArrayContainsBoundaries = false);
@@ -242,9 +240,10 @@ private:
     unsigned        mCurrentNrpnNumber;
     bool            mThruActivated  : 1;
     Thru::Mode      mThruFilterMode : 7;
+    unsigned long   mLastMessageSentTime;
+    bool            mSenderActiveSensingActivated;
     MidiMessage     mMessage;
-    unsigned long   mLastSendMessageTime;
-    bool            mActiveSensingActivated;
+
 
 private:
     inline StatusByte getStatus(MidiType inType,
