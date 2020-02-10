@@ -795,12 +795,13 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 mPendingMessageExpectedLenght = 3;
                 break;
 
-            case SystemExclusive:
+            case SystemExclusiveStart:
+            case SystemExclusiveEnd:
                 // The message can be any lenght
                 // between 3 and MidiMessage::sSysExMaxSize bytes
                 mPendingMessageExpectedLenght = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
-                mMessage.sysexArray[0] = SystemExclusive;
+                mMessage.sysexArray[0] = pendingType;
                 break;
 
             case InvalidType:
@@ -873,11 +874,13 @@ bool MidiInterface<SerialPort, Settings>::parse()
                     return true;
 
                     // End of Exclusive
-                case 0xf7:
-                    if (mMessage.sysexArray[0] == SystemExclusive)
+                case SystemExclusiveStart:
+                case SystemExclusiveEnd:
+                    if ((mMessage.sysexArray[0] == SystemExclusiveStart)
+                    ||  (mMessage.sysexArray[0] == SystemExclusiveEnd))
                     {
                         // Store the last byte (EOX)
-                        mMessage.sysexArray[mPendingMessageIndex++] = 0xf7;
+                        mMessage.sysexArray[mPendingMessageIndex++] = extracted;
                         mMessage.type = SystemExclusive;
 
                         // Get length
@@ -902,7 +905,8 @@ bool MidiInterface<SerialPort, Settings>::parse()
         }
 
         // Add extracted data byte to pending message
-        if (mPendingMessage[0] == SystemExclusive)
+        if ((mPendingMessage[0] == SystemExclusiveStart)
+        ||  (mPendingMessage[0] == SystemExclusiveEnd))
             mMessage.sysexArray[mPendingMessageIndex] = extracted;
         else
             mPendingMessage[mPendingMessageIndex] = extracted;

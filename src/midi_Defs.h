@@ -73,10 +73,12 @@ enum MidiType: uint8_t
     AfterTouchChannel     = 0xD0,    ///< Channel (monophonic) AfterTouch
     PitchBend             = 0xE0,    ///< Pitch Bend
     SystemExclusive       = 0xF0,    ///< System Exclusive
+    SystemExclusiveStart  = SystemExclusive,   ///< System Exclusive Start
     TimeCodeQuarterFrame  = 0xF1,    ///< System Common - MIDI Time Code Quarter Frame
     SongPosition          = 0xF2,    ///< System Common - Song Position Pointer
     SongSelect            = 0xF3,    ///< System Common - Song Select
     TuneRequest           = 0xF6,    ///< System Common - Tune Request
+    SystemExclusiveEnd    = 0xF7,    ///< System Exclusive End
     Clock                 = 0xF8,    ///< System Real Time - Timing Clock
     Start                 = 0xFA,    ///< System Real Time - Start
     Continue              = 0xFB,    ///< System Real Time - Continue
