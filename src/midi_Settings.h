@@ -70,19 +70,13 @@ struct DefaultSettings
     termination, the receiver will turn off all voices and return to
     normal (non- active sensing) operation..
     */
-    static const bool UseSenderActiveSensing = true;
+    static const bool UseSenderActiveSensing = false;
 
     /*! Setting this to true will make MIDI.read parse only one byte of data for each
     call when data is available. This can speed up your application if receiving
     a lot of traffic, but might induce MIDI Thru and treatment latency.
     */
-    static const bool Use1ByteParsing = true;
-
-    /*! Override the default MIDI baudrate to transmit over USB serial, to
-    a decoding program such as Hairless MIDI (set baudrate to 115200)\n
-    http://projectgus.github.io/hairless-midiserial/
-    */
-    static const long BaudRate = 31250;
+    static const bool Use1ByteParsing = false;
 
     /*! Maximum size of SysEx receivable. Decrease to save RAM if you don't expect
     to receive SysEx, or adjust accordingly.

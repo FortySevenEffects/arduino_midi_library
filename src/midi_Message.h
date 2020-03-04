@@ -46,7 +46,7 @@ struct Message
     */
     inline Message()
         : channel(0)
-        , type(midi::InvalidType)
+        , type(MIDI_NAMESPACE::InvalidType)
         , data1(0)
         , data2(0)
         , valid(false)

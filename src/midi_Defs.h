@@ -73,12 +73,12 @@ enum MidiType: uint8_t
     AfterTouchChannel     = 0xD0,    ///< Channel (monophonic) AfterTouch
     PitchBend             = 0xE0,    ///< Pitch Bend
     SystemExclusive       = 0xF0,    ///< System Exclusive
-    SystemExclusiveStart  = SystemExclusive,   ///< System Exclusive Start
+	SystemExclusiveStart  = SystemExclusive,   ///< System Exclusive Start
     TimeCodeQuarterFrame  = 0xF1,    ///< System Common - MIDI Time Code Quarter Frame
     SongPosition          = 0xF2,    ///< System Common - Song Position Pointer
     SongSelect            = 0xF3,    ///< System Common - Song Select
     TuneRequest           = 0xF6,    ///< System Common - Tune Request
-    SystemExclusiveEnd    = 0xF7,    ///< System Exclusive End
+	SystemExclusiveEnd    = 0xF7,    ///< System Exclusive End
     Clock                 = 0xF8,    ///< System Real Time - Timing Clock
     Start                 = 0xFA,    ///< System Real Time - Start
     Continue              = 0xFB,    ///< System Real Time - Continue
@@ -205,36 +205,5 @@ struct RPN
         NullFunction            = (0x7f << 7) + 0x7f,
     };
 };
-
-// -----------------------------------------------------------------------------
-
-/*! \brief Create an instance of the library attached to a serial port.
- You can use HardwareSerial or SoftwareSerial for the serial port.
- Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
- Then call midi2.begin(), midi2.read() etc..
- */
-#define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
-    midi::MidiInterface<Type> Name((Type&)SerialPort);
-
-#if defined(SERIAL_PORT_HARDWARE_OPEN)
-    // Use recommended default external serial port.
-    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
-        MIDI_CREATE_INSTANCE(HardwareSerial, SERIAL_PORT_HARDWARE_OPEN, MIDI);
-#else
-    /*! \brief Create an instance of the library with default name, serial port
-    and settings, for compatibility with sketches written with pre-v4.2 MIDI Lib,
-    or if you don't bother using custom names, serial port or settings.
-    */
-    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
-        MIDI_CREATE_INSTANCE(HardwareSerial, Serial,  MIDI);
-#endif
-
-/*! \brief Create an instance of the library attached to a serial port with
- custom settings.
- @see DefaultSettings
- @see MIDI_CREATE_INSTANCE
- */
-#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
-    midi::MidiInterface<Type, Settings> Name((Type&)SerialPort);
 
 END_MIDI_NAMESPACE
