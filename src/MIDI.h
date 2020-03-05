@@ -28,6 +28,7 @@
 #pragma once
 
 #include "midi_Defs.h"
+#include "midi_Platform.h"
 #include "midi_Settings.h"
 #include "midi_Message.h"
 
@@ -43,11 +44,12 @@ the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
 or ak47's Uart classes. The only requirement is that the class implements
 the begin, read, write and available methods.
  */
-template<class Encoder, class _Settings = DefaultSettings>
+template<class Encoder, class _Settings = DefaultSettings, class _Platform = DefaultPlatform>
 class MidiInterface
 {
 public:
     typedef _Settings Settings;
+    typedef _Platform Platform;
 
 public:
     inline  MidiInterface(Encoder&);
