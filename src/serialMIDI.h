@@ -1,5 +1,7 @@
 #pragma once
 
+#include "midi_Namespace.h"
+
 BEGIN_MIDI_NAMESPACE
 
 template <class SerialPort>
