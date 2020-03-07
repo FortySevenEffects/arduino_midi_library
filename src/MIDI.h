@@ -247,7 +247,7 @@ private:
     MidiMessage     mMessage;
 
     unsigned long   mLastMessageSentTime;
-    bool            mSenderActiveSensingActivated;
+    unsigned long   mSenderActiveSensingPeriodicity;
 
 private:
     inline StatusByte getStatus(MidiType inType,

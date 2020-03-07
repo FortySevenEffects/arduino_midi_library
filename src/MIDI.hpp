@@ -41,7 +41,7 @@ inline MidiInterface<Encoder, Settings, Platform>::MidiInterface(Encoder& inEnco
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
     , mLastMessageSentTime(0)
-    , mSenderActiveSensingActivated(false)
+    , mSenderActiveSensingPeriodicity(0)
     , mThruActivated(false)
     , mThruFilterMode(Thru::Full)
 {
@@ -98,7 +98,7 @@ void MidiInterface<Encoder, Settings, Platform>::begin(Channel inChannel)
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
 
-    mSenderActiveSensingActivated = Settings::UseSenderActiveSensing;
+    mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
     mLastMessageSentTime = Platform::now();
 
     mMessage.valid   = false;
@@ -184,7 +184,7 @@ void MidiInterface<Encoder, Settings, Platform>::send(MidiType inType,
         sendRealTime(inType); // System Real-time and 1 byte.
     }
     
-    if (mSenderActiveSensingActivated)
+    if (mSenderActiveSensingPeriodicity)
         mLastMessageSentTime = Platform::now();
 }
 
@@ -676,7 +676,7 @@ inline bool MidiInterface<Encoder, Settings, Platform>::read(Channel inChannel)
     // assume that the connection has been terminated. At
     // termination, the receiver will turn off all voices and return to
     // normal (non- active sensing) operation.
-    if (mSenderActiveSensingActivated && (Platform::now() - mLastMessageSentTime) > 270)
+    if ((mSenderActiveSensingPeriodicity > 0) && (Platform::now() - mLastMessageSentTime) > mSenderActiveSensingPeriodicity)
     {
       sendRealTime(ActiveSensing);
       mLastMessageSentTime = Platform::now();

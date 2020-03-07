@@ -68,9 +68,12 @@ struct DefaultSettings
     message each 300ms (max), and if it does not then it will
     assume that the connection has been terminated. At
     termination, the receiver will turn off all voices and return to
-    normal (non- active sensing) operation..
+    normal (non- active sensing) operation.
+
+    Setting this field to 0 will disable MIDI active sensing.
+    Typical value is 300 (ms) - an Active Sensing command is send every 300ms.
     */
-    static const bool UseSenderActiveSensing = false;
+    static const uint16_t SenderActiveSensingPeriodicity = 0;
 
     /*! Setting this to true will make MIDI.read parse only one byte of data for each
     call when data is available. This can speed up your application if receiving
