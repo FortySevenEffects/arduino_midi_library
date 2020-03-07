@@ -70,7 +70,7 @@ struct DefaultSettings
     termination, the receiver will turn off all voices and return to
     normal (non- active sensing) operation..
     */
-    static const bool UseSenderActiveSensing = false;
+    static const bool UseSenderActiveSensing = true;
 
     /*! Setting this to true will make MIDI.read parse only one byte of data for each
     call when data is available. This can speed up your application if receiving

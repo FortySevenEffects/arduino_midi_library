@@ -152,7 +152,7 @@ void MidiInterface<Encoder, Settings, Platform>::send(MidiType inType,
 
         const StatusByte status = getStatus(inType, inChannel);
 
-        if (mEncoder.beginTransmission())
+        if (mEncoder.beginTransmission(inType))
         {
             if (Settings::UseRunningStatus)
             {
@@ -337,24 +337,22 @@ void MidiInterface<Encoder, Settings, Platform>::sendSysEx(unsigned inLength,
 {
     const bool writeBeginEndBytes = !inArrayContainsBoundaries;
 
-    if (mEncoder.beginTransmission())
+    if (mEncoder.beginTransmission(MidiType::SystemExclusiveStart))
     {
         if (writeBeginEndBytes)
-            mEncoder.write(0xf0);
+            mEncoder.write(MidiType::SystemExclusiveStart);
 
         for (unsigned i = 0; i < inLength; ++i)
             mEncoder.write(inArray[i]);
 
         if (writeBeginEndBytes)
-            mEncoder.write(0xf7);
+            mEncoder.write(MidiType::SystemExclusiveEnd);
 
         mEncoder.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
-    {
         mRunningStatus_TX = InvalidType;
-    }
 }
 
 /*! \brief Send a Tune Request message.
@@ -365,16 +363,14 @@ void MidiInterface<Encoder, Settings, Platform>::sendSysEx(unsigned inLength,
 template<class Encoder, class Settings, class Platform>
 void MidiInterface<Encoder, Settings, Platform>::sendTuneRequest()
 {
-    if (mEncoder.beginTransmission())
+    if (mEncoder.beginTransmission(MidiType::TuneRequest))
     {
         mEncoder.write(TuneRequest);
         mEncoder.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
-    {
         mRunningStatus_TX = InvalidType;
-    }
 }
 
 /*! \brief Send a MIDI Time Code Quarter Frame.
@@ -400,7 +396,7 @@ void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataBy
 template<class Encoder, class Settings, class Platform>
 void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inData)
 {
-    if (mEncoder.beginTransmission())
+    if (mEncoder.beginTransmission(MidiType::TimeCodeQuarterFrame))
     {
         mEncoder.write((byte)TimeCodeQuarterFrame);
         mEncoder.write(inData);
@@ -408,9 +404,7 @@ void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataBy
     }
 
     if (Settings::UseRunningStatus)
-    {
         mRunningStatus_TX = InvalidType;
-    }
 }
 
 /*! \brief Send a Song Position Pointer message.
@@ -419,7 +413,7 @@ void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataBy
 template<class Encoder, class Settings, class Platform>
 void MidiInterface<Encoder, Settings, Platform>::sendSongPosition(unsigned inBeats)
 {
-    if (mEncoder.beginTransmission())
+    if (mEncoder.beginTransmission(MidiType::SongPosition))
     {
         mEncoder.write((byte)SongPosition);
         mEncoder.write(inBeats & 0x7f);
@@ -428,26 +422,22 @@ void MidiInterface<Encoder, Settings, Platform>::sendSongPosition(unsigned inBea
     }
 
     if (Settings::UseRunningStatus)
-    {
         mRunningStatus_TX = InvalidType;
-    }
 }
 
 /*! \brief Send a Song Select message */
 template<class Encoder, class Settings, class Platform>
 void MidiInterface<Encoder, Settings, Platform>::sendSongSelect(DataByte inSongNumber)
 {
-    if (mEncoder.beginTransmission())
+    if (mEncoder.beginTransmission(MidiType::SongSelect))
     {
-        mEncoder.write((byte)SongSelect);
+        mEncoder.write((byte)MidiType::SongSelect);
         mEncoder.write(inSongNumber & 0x7f);
         mEncoder.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
-    {
         mRunningStatus_TX = InvalidType;
-    }
 }
 
 /*! \brief Send a Real Time (one byte) message.
@@ -470,7 +460,7 @@ void MidiInterface<Encoder, Settings, Platform>::sendRealTime(MidiType inType)
         case Continue:
         case ActiveSensing:
         case SystemReset:
-            if (mEncoder.beginTransmission())
+            if (mEncoder.beginTransmission(inType))
             {
                 mEncoder.write((byte)inType);
                 mEncoder.endTransmission();
@@ -702,9 +692,7 @@ inline bool MidiInterface<Encoder, Settings, Platform>::read(Channel inChannel)
     const bool channelMatch = inputFilter(inChannel);
 
     if (channelMatch)
-    {
         launchCallback();
-    }
 
     thruFilter(inChannel);
 
@@ -737,6 +725,8 @@ bool MidiInterface<Encoder, Settings, Platform>::parse()
     // Ignore Undefined
     if (extracted == 0xf9 || extracted == 0xfd)
     {
+        return (Settings::Use1ByteParsing) ? false : parse();
+/*
         if (Settings::Use1ByteParsing)
         {
             return false;
@@ -745,6 +735,7 @@ bool MidiInterface<Encoder, Settings, Platform>::parse()
         {
             return parse();
         }
+ */
     }
 
     if (mPendingMessageIndex == 0)
@@ -987,7 +978,10 @@ bool MidiInterface<Encoder, Settings, Platform>::parse()
             // Then update the index of the pending message.
             mPendingMessageIndex++;
 
-            if (Settings::Use1ByteParsing)
+            
+            return (Settings::Use1ByteParsing) ? false : parse();
+            
+ /*           if (Settings::Use1ByteParsing)
             {
                 // Message is not complete.
                 return false;
@@ -997,6 +991,7 @@ bool MidiInterface<Encoder, Settings, Platform>::parse()
                 // Call the parser recursively to parse the rest of the message.
                 return parse();
             }
+  */
         }
     }
 }
@@ -1148,15 +1143,11 @@ MidiType MidiInterface<Encoder, Settings, Platform>::getTypeFromStatusByte(byte 
         (inStatus == 0xf5) ||
         (inStatus == 0xf9) ||
         (inStatus == 0xfD))
-    {
-        // Data bytes and undefined.
-        return InvalidType;
-    }
+        return InvalidType; // Data bytes and undefined.
+    
     if (inStatus < 0xf0)
-    {
         // Channel message, remove channel nibble.
         return MidiType(inStatus & 0xf0);
-    }
 
     return MidiType(inStatus);
 }
