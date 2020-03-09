@@ -130,6 +130,8 @@ public:
                                   Channel inChannel);
     inline void endNrpn(Channel inChannel);
 
+    inline void send(MidiMessage);
+    
 public:
     void send(MidiType inType,
               DataByte inData1,
@@ -239,7 +241,6 @@ private:
     StatusByte      mRunningStatus_RX;
     StatusByte      mRunningStatus_TX;
     byte            mPendingMessage[3];
-    unsigned        mPendingMessageExpectedLenght;
     unsigned        mPendingMessageIndex;
     unsigned        mCurrentRpnNumber;
     unsigned        mCurrentNrpnNumber;

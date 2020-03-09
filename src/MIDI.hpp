@@ -36,7 +36,6 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mInputChannel(0)
     , mRunningStatus_RX(InvalidType)
     , mRunningStatus_TX(InvalidType)
-    , mPendingMessageExpectedLenght(0)
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
@@ -94,7 +93,6 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mRunningStatus_RX = InvalidType;
 
     mPendingMessageIndex = 0;
-    mPendingMessageExpectedLenght = 0;
 
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
@@ -107,6 +105,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mMessage.channel = 0;
     mMessage.data1   = 0;
     mMessage.data2   = 0;
+    mMessage.length  = 0;
 
     mThruFilterMode = Thru::Full;
     mThruActivated  = false;
@@ -119,6 +118,45 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
 /*! \addtogroup output
  @{
  */
+
+/*! \brief Send a MIDI message.
+\param inMessage    The message
+ 
+ This method is used when you want to send a Message that has not been constructed
+ by the library, but by an external source.
+ This method does *not* check against any of the constraints.
+ Typically this function is use by MIDI Bridges taking MIDI messages and passing
+ them thru.
+ */
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::send(MidiMessage inMessage)
+{
+    if (!inMessage.valid)
+        return;
+    
+    if (mTransport.beginTransmission(inMessage.type))
+    {
+        const StatusByte status = getStatus(inMessage.type, inMessage.channel);
+        mTransport.write(status);
+        
+        if (inMessage.type != MidiType::SystemExclusive)
+        {
+            if (inMessage.length > 1) mTransport.write(inMessage.data1);
+            if (inMessage.length > 2) mTransport.write(inMessage.data2);
+        } else
+        {
+            // sysexArray does not contain the start and end tags
+            mTransport.write(MidiType::SystemExclusiveStart);
+
+            for (size_t i = 0; i < inMessage.getSysExSize(); i++)
+                mTransport.write(inMessage.sysexArray[i]);
+
+            mTransport.write(MidiType::SystemExclusiveEnd);
+        }
+    }
+    mTransport.endTransmission();
+}
+
 
 /*! \brief Generate and send a MIDI message from the values given.
  \param inType    The message type (see type defines for reference)
@@ -764,12 +802,12 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 mMessage.channel = 0;
                 mMessage.data1   = 0;
                 mMessage.data2   = 0;
+                mMessage.length  = 0;
                 mMessage.valid   = true;
 
                 // Do not reset all input attributes, Running Status must remain unchanged.
                 // We still need to reset these
                 mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
 
                 return true;
                 break;
@@ -779,7 +817,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             case AfterTouchChannel:
             case TimeCodeQuarterFrame:
             case SongSelect:
-                mPendingMessageExpectedLenght = 2;
+                mMessage.length = 2;
                 break;
 
                 // 3 bytes messages
@@ -789,14 +827,14 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             case PitchBend:
             case AfterTouchPoly:
             case SongPosition:
-                mPendingMessageExpectedLenght = 3;
+                mMessage.length = 3;
                 break;
 
             case SystemExclusiveStart:
             case SystemExclusiveEnd:
                 // The message can be any lenght
                 // between 3 and MidiMessage::sSysExMaxSize bytes
-                mPendingMessageExpectedLenght = MidiMessage::sSysExMaxSize;
+                mMessage.length = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
                 mMessage.sysexArray[0] = pendingType;
                 break;
@@ -809,7 +847,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 break;
         }
 
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        if (mPendingMessageIndex >= (mMessage.length - 1))
         {
             // Reception complete
             mMessage.type    = pendingType;
@@ -818,7 +856,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.data2   = 0; // Completed new message has 1 data byte
 
             mPendingMessageIndex = 0;
-            mPendingMessageExpectedLenght = 0;
+            mMessage.length = 0;
             mMessage.valid = true;
             return true;
         }
@@ -909,7 +947,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mPendingMessage[mPendingMessageIndex] = extracted;
 
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        if (mPendingMessageIndex >= (mMessage.length - 1))
         {
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
@@ -930,11 +968,11 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.data1 = mPendingMessage[1];
 
             // Save data2 only if applicable
-            mMessage.data2 = mPendingMessageExpectedLenght == 3 ? mPendingMessage[2] : 0;
+            mMessage.data2 = mMessage.length == 3 ? mPendingMessage[2] : 0;
 
             // Reset local variables
             mPendingMessageIndex = 0;
-            mPendingMessageExpectedLenght = 0;
+            mMessage.length = 0;
 
             mMessage.valid = true;
 
@@ -1014,7 +1052,7 @@ template<class Transport, class Settings, class Platform>
 inline void MidiInterface<Transport, Settings, Platform>::resetInput()
 {
     mPendingMessageIndex = 0;
-    mPendingMessageExpectedLenght = 0;
+    mMessage.length = 0;
     mRunningStatus_RX = InvalidType;
 }
 

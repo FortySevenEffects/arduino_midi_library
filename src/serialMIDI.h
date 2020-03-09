@@ -53,9 +53,9 @@ private:
  */
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)  \
     typedef MIDI_NAMESPACE::serialMIDI<Type> __smt;\
-    typedef MIDI_NAMESPACE::MidiInterface<__smt> __mismt;\
+    typedef MIDI_NAMESPACE::MidiInterface<__smt> TypedMidiInterface;\
     __smt serialMidi(SerialPort);\
-    __mismt Name((__smt&)serialMidi);
+    TypedMidiInterface Name((__smt&)serialMidi);
 
 #if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     // Leonardo, Due and other USB boards use Serial1 by default.

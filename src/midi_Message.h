@@ -91,6 +91,10 @@ struct Message
      */
     bool valid;
 
+    /*! Total Length of the message.
+     */
+    unsigned length;
+    
     inline unsigned getSysExSize() const
     {
         const unsigned size = unsigned(data2) << 8 | data1;

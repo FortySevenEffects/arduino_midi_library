@@ -24,11 +24,6 @@ void handleNoteOff(byte channel, byte pitch, byte velocity)
     // Note that NoteOn messages with 0 velocity are interpreted as NoteOffs.
 }
 
-void handleMessage(__mismt::MidiMessage message)
-{
-    // Do something when the message.
-}
-
 // -----------------------------------------------------------------------------
 
 void setup()
@@ -39,8 +34,6 @@ void setup()
 
     // Do the same for NoteOffs
     MIDI.setHandleNoteOff(handleNoteOff);
-
-    MIDI.setHandleMessage(handleMessage);
 
     // Initiate MIDI communications, listen to all channels
     MIDI.begin(MIDI_CHANNEL_OMNI);
