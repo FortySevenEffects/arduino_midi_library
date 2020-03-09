@@ -45,6 +45,7 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mThruActivated(false)
     , mThruFilterMode(Thru::Full)
 {
+    mMessageCallback                = 0;
     mNoteOffCallback                = 0;
     mNoteOnCallback                 = 0;
     mAfterTouchPolyCallback         = 0;
@@ -706,10 +707,7 @@ template<class Transport, class Settings, class Platform>
 bool MidiInterface<Transport, Settings, Platform>::parse()
 {
     if (mTransport.available() == 0)
-    {
-        // No data available.
-        return false;
-    }
+        return false; // No data available.
 
     // Parsing algorithm:
     // Get a byte from the serial buffer.
@@ -724,19 +722,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
 
     // Ignore Undefined
     if (extracted == 0xf9 || extracted == 0xfd)
-    {
         return (Settings::Use1ByteParsing) ? false : parse();
-/*
-        if (Settings::Use1ByteParsing)
-        {
-            return false;
-        }
-        else
-        {
-            return parse();
-        }
- */
-    }
 
     if (mPendingMessageIndex == 0)
     {
@@ -978,20 +964,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             // Then update the index of the pending message.
             mPendingMessageIndex++;
 
-            
             return (Settings::Use1ByteParsing) ? false : parse();
-            
- /*           if (Settings::Use1ByteParsing)
-            {
-                // Message is not complete.
-                return false;
-            }
-            else
-            {
-                // Call the parser recursively to parse the rest of the message.
-                return parse();
-            }
-  */
         }
     }
 }
@@ -1178,6 +1151,7 @@ bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inT
  @{
  */
 
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleMessage(void (*fptr)(MidiMessage))                                     { mMessageCallback              = fptr; }
 template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOffCallback              = fptr; }
 template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))           { mNoteOnCallback               = fptr; }
 template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))   { mAfterTouchPolyCallback       = fptr; }
@@ -1237,6 +1211,8 @@ void MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(Mi
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::launchCallback()
 {
+    if (mMessageCallback != 0) mMessageCallback(mMessage);
+                                                              
     // The order is mixed to allow frequent messages to trigger their callback faster.
     switch (mMessage.type)
     {

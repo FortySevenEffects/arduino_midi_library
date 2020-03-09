@@ -50,6 +50,7 @@ class MidiInterface
 public:
     typedef _Settings Settings;
     typedef _Platform Platform;
+    typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 public:
     inline  MidiInterface(Transport&);
@@ -164,6 +165,7 @@ public:
     // Input Callbacks
 
 public:
+    inline void setHandleMessage(void (*fptr)(MidiMessage));
     inline void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
     inline void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
     inline void setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure));
@@ -188,6 +190,7 @@ public:
 private:
     void launchCallback();
 
+    void (*mMessageCallback)(MidiMessage message);
     void (*mNoteOffCallback)(byte channel, byte note, byte velocity);
     void (*mNoteOnCallback)(byte channel, byte note, byte velocity);
     void (*mAfterTouchPolyCallback)(byte channel, byte note, byte velocity);
@@ -227,8 +230,6 @@ private:
     inline bool inputFilter(Channel inChannel);
     inline void resetInput();
 
-private:
-    typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 private:
     Transport& mTransport;
