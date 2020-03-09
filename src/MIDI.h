@@ -44,7 +44,7 @@ the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
 or ak47's Uart classes. The only requirement is that the class implements
 the begin, read, write and available methods.
  */
-template<class Encoder, class _Settings = DefaultSettings, class _Platform = DefaultPlatform>
+template<class Transport, class _Settings = DefaultSettings, class _Platform = DefaultPlatform>
 class MidiInterface
 {
 public:
@@ -52,7 +52,7 @@ public:
     typedef _Platform Platform;
 
 public:
-    inline  MidiInterface(Encoder&);
+    inline  MidiInterface(Transport&);
     inline ~MidiInterface();
 
 public:
@@ -231,7 +231,7 @@ private:
     typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 private:
-    Encoder& mEncoder;
+    Transport& mTransport;
 
 private:
     Channel         mInputChannel;

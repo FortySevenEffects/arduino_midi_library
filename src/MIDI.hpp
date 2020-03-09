@@ -30,9 +30,9 @@
 BEGIN_MIDI_NAMESPACE
 
 /// \brief Constructor for MidiInterface.
-template<class Encoder, class Settings, class Platform>
-inline MidiInterface<Encoder, Settings, Platform>::MidiInterface(Encoder& inEncoder)
-    : mEncoder(inEncoder)
+template<class Transport, class Settings, class Platform>
+inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& inTransport)
+    : mTransport(inTransport)
     , mInputChannel(0)
     , mRunningStatus_RX(InvalidType)
     , mRunningStatus_TX(InvalidType)
@@ -69,8 +69,8 @@ inline MidiInterface<Encoder, Settings, Platform>::MidiInterface(Encoder& inEnco
 
  This is not really useful for the Arduino, as it is never called...
  */
-template<class Encoder, class Settings, class Platform>
-inline MidiInterface<Encoder, Settings, Platform>::~MidiInterface()
+template<class Transport, class Settings, class Platform>
+inline MidiInterface<Transport, Settings, Platform>::~MidiInterface()
 {
 }
 
@@ -82,11 +82,11 @@ inline MidiInterface<Encoder, Settings, Platform>::~MidiInterface()
  - Input channel set to 1 if no value is specified
  - Full thru mirroring
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::begin(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
 {
     // Initialise the Serial port
-    mEncoder.begin();
+    mTransport.begin();
 
     mInputChannel = inChannel;
     mRunningStatus_TX = InvalidType;
@@ -130,8 +130,8 @@ void MidiInterface<Encoder, Settings, Platform>::begin(Channel inChannel)
  This is an internal method, use it only if you need to send raw data
  from your code, at your own risks.
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::send(MidiType inType,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
                                                DataByte inData1,
                                                DataByte inData2,
                                                Channel inChannel)
@@ -152,7 +152,7 @@ void MidiInterface<Encoder, Settings, Platform>::send(MidiType inType,
 
         const StatusByte status = getStatus(inType, inChannel);
 
-        if (mEncoder.beginTransmission(inType))
+        if (mTransport.beginTransmission(inType))
         {
             if (Settings::UseRunningStatus)
             {
@@ -160,23 +160,23 @@ void MidiInterface<Encoder, Settings, Platform>::send(MidiType inType,
                 {
                     // New message, memorise and send header
                     mRunningStatus_TX = status;
-                    mEncoder.write(mRunningStatus_TX);
+                    mTransport.write(mRunningStatus_TX);
                 }
             }
             else
             {
                 // Don't care about running status, send the status byte.
-                mEncoder.write(status);
+                mTransport.write(status);
             }
 
             // Then send data
-            mEncoder.write(inData1);
+            mTransport.write(inData1);
             if (inType != ProgramChange && inType != AfterTouchChannel)
             {
-                mEncoder.write(inData2);
+                mTransport.write(inData2);
             }
 
-            mEncoder.endTransmission();
+            mTransport.endTransmission();
         }
     }
     else if (inType >= Clock && inType <= SystemReset)
@@ -199,8 +199,8 @@ void MidiInterface<Encoder, Settings, Platform>::send(MidiType inType,
  Take a look at the values, names and frequencies of notes here:
  http://www.phys.unsw.edu.au/jw/notes.html
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendNoteOn(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendNoteOn(DataByte inNoteNumber,
                                                      DataByte inVelocity,
                                                      Channel inChannel)
 {
@@ -218,8 +218,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendNoteOn(DataByte inNoteNumbe
  Take a look at the values, names and frequencies of notes here:
  http://www.phys.unsw.edu.au/jw/notes.html
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendNoteOff(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendNoteOff(DataByte inNoteNumber,
                                                       DataByte inVelocity,
                                                       Channel inChannel)
 {
@@ -230,8 +230,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendNoteOff(DataByte inNoteNumb
  \param inProgramNumber The Program to select (0 to 127).
  \param inChannel       The channel on which the message will be sent (1 to 16).
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendProgramChange(DataByte inProgramNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendProgramChange(DataByte inProgramNumber,
                                                             Channel inChannel)
 {
     send(ProgramChange, inProgramNumber, 0, inChannel);
@@ -243,8 +243,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendProgramChange(DataByte inPr
  \param inChannel       The channel on which the message will be sent (1 to 16).
  @see MidiControlChangeNumber
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendControlChange(DataByte inControlNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendControlChange(DataByte inControlNumber,
                                                             DataByte inControlValue,
                                                             Channel inChannel)
 {
@@ -258,8 +258,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendControlChange(DataByte inCo
  Note: this method is deprecated and will be removed in a future revision of the
  library, @see sendAfterTouch to send polyphonic and monophonic AfterTouch messages.
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendPolyPressure(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendPolyPressure(DataByte inNoteNumber,
                                                            DataByte inPressure,
                                                            Channel inChannel)
 {
@@ -270,8 +270,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendPolyPressure(DataByte inNot
  \param inPressure    The amount of AfterTouch to apply to all notes.
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendAfterTouch(DataByte inPressure,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inPressure,
                                                          Channel inChannel)
 {
     send(AfterTouchChannel, inPressure, 0, inChannel);
@@ -283,8 +283,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendAfterTouch(DataByte inPress
  \param inChannel     The channel on which the message will be sent (1 to 16).
  @see Replaces sendPolyPressure (which is now deprecated).
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendAfterTouch(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inNoteNumber,
                                                          DataByte inPressure,
                                                          Channel inChannel)
 {
@@ -297,8 +297,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendAfterTouch(DataByte inNoteN
  center value is 0.
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendPitchBend(int inPitchValue,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendPitchBend(int inPitchValue,
                                                         Channel inChannel)
 {
     const unsigned bend = unsigned(inPitchValue - int(MIDI_PITCHBEND_MIN));
@@ -312,8 +312,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendPitchBend(int inPitchValue,
  and +1.0f (max upwards bend), center value is 0.0f.
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendPitchBend(double inPitchValue,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendPitchBend(double inPitchValue,
                                                         Channel inChannel)
 {
     const int scale = inPitchValue > 0.0 ? MIDI_PITCHBEND_MAX : MIDI_PITCHBEND_MIN;
@@ -330,25 +330,25 @@ void MidiInterface<Encoder, Settings, Platform>::sendPitchBend(double inPitchVal
  default value for ArrayContainsBoundaries is set to 'false' for compatibility
  with previous versions of the library.
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendSysEx(unsigned inLength,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
                                                     const byte* inArray,
                                                     bool inArrayContainsBoundaries)
 {
     const bool writeBeginEndBytes = !inArrayContainsBoundaries;
 
-    if (mEncoder.beginTransmission(MidiType::SystemExclusiveStart))
+    if (mTransport.beginTransmission(MidiType::SystemExclusiveStart))
     {
         if (writeBeginEndBytes)
-            mEncoder.write(MidiType::SystemExclusiveStart);
+            mTransport.write(MidiType::SystemExclusiveStart);
 
         for (unsigned i = 0; i < inLength; ++i)
-            mEncoder.write(inArray[i]);
+            mTransport.write(inArray[i]);
 
         if (writeBeginEndBytes)
-            mEncoder.write(MidiType::SystemExclusiveEnd);
+            mTransport.write(MidiType::SystemExclusiveEnd);
 
-        mEncoder.endTransmission();
+        mTransport.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
@@ -360,13 +360,13 @@ void MidiInterface<Encoder, Settings, Platform>::sendSysEx(unsigned inLength,
  When a MIDI unit receives this message,
  it should tune its oscillators (if equipped with any).
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendTuneRequest()
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendTuneRequest()
 {
-    if (mEncoder.beginTransmission(MidiType::TuneRequest))
+    if (mTransport.beginTransmission(MidiType::TuneRequest))
     {
-        mEncoder.write(TuneRequest);
-        mEncoder.endTransmission();
+        mTransport.write(TuneRequest);
+        mTransport.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
@@ -379,8 +379,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendTuneRequest()
  \param inValuesNibble    MTC data
  See MIDI Specification for more information.
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
                                                                    DataByte inValuesNibble)
 {
     const byte data = byte((((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f)));
@@ -393,14 +393,14 @@ void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataBy
  \param inData  if you want to encode directly the nibbles in your program,
                 you can send the byte here.
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inData)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inData)
 {
-    if (mEncoder.beginTransmission(MidiType::TimeCodeQuarterFrame))
+    if (mTransport.beginTransmission(MidiType::TimeCodeQuarterFrame))
     {
-        mEncoder.write((byte)TimeCodeQuarterFrame);
-        mEncoder.write(inData);
-        mEncoder.endTransmission();
+        mTransport.write((byte)TimeCodeQuarterFrame);
+        mTransport.write(inData);
+        mTransport.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
@@ -410,15 +410,15 @@ void MidiInterface<Encoder, Settings, Platform>::sendTimeCodeQuarterFrame(DataBy
 /*! \brief Send a Song Position Pointer message.
  \param inBeats    The number of beats since the start of the song.
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendSongPosition(unsigned inBeats)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendSongPosition(unsigned inBeats)
 {
-    if (mEncoder.beginTransmission(MidiType::SongPosition))
+    if (mTransport.beginTransmission(MidiType::SongPosition))
     {
-        mEncoder.write((byte)SongPosition);
-        mEncoder.write(inBeats & 0x7f);
-        mEncoder.write((inBeats >> 7) & 0x7f);
-        mEncoder.endTransmission();
+        mTransport.write((byte)SongPosition);
+        mTransport.write(inBeats & 0x7f);
+        mTransport.write((inBeats >> 7) & 0x7f);
+        mTransport.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
@@ -426,14 +426,14 @@ void MidiInterface<Encoder, Settings, Platform>::sendSongPosition(unsigned inBea
 }
 
 /*! \brief Send a Song Select message */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendSongSelect(DataByte inSongNumber)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendSongSelect(DataByte inSongNumber)
 {
-    if (mEncoder.beginTransmission(MidiType::SongSelect))
+    if (mTransport.beginTransmission(MidiType::SongSelect))
     {
-        mEncoder.write((byte)MidiType::SongSelect);
-        mEncoder.write(inSongNumber & 0x7f);
-        mEncoder.endTransmission();
+        mTransport.write((byte)MidiType::SongSelect);
+        mTransport.write(inSongNumber & 0x7f);
+        mTransport.endTransmission();
     }
 
     if (Settings::UseRunningStatus)
@@ -446,8 +446,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendSongSelect(DataByte inSongN
  Start, Stop, Continue, Clock, ActiveSensing and SystemReset.
  @see MidiType
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::sendRealTime(MidiType inType)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
 {
     // Do not invalidate Running Status for real-time messages
     // as they can be interleaved within any message.
@@ -460,10 +460,10 @@ void MidiInterface<Encoder, Settings, Platform>::sendRealTime(MidiType inType)
         case Continue:
         case ActiveSensing:
         case SystemReset:
-            if (mEncoder.beginTransmission(inType))
+            if (mTransport.beginTransmission(inType))
             {
-                mEncoder.write((byte)inType);
-                mEncoder.endTransmission();
+                mTransport.write((byte)inType);
+                mTransport.endTransmission();
             }
             break;
         default:
@@ -476,8 +476,8 @@ void MidiInterface<Encoder, Settings, Platform>::sendRealTime(MidiType inType)
  \param inNumber The 14-bit number of the RPN you want to select.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::beginRpn(unsigned inNumber,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::beginRpn(unsigned inNumber,
                                                           Channel inChannel)
 {
     if (mCurrentRpnNumber != inNumber)
@@ -494,8 +494,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::beginRpn(unsigned inNumb
  \param inValue  The 14-bit value of the selected RPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendRpnValue(unsigned inValue,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnValue(unsigned inValue,
                                                               Channel inChannel)
 {;
     const byte valMsb = 0x7f & (inValue >> 7);
@@ -509,8 +509,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendRpnValue(unsigned in
  \param inLsb The LSB part of the value to send. Meaning depends on RPN number.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendRpnValue(byte inMsb,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnValue(byte inMsb,
                                                               byte inLsb,
                                                               Channel inChannel)
 {
@@ -521,8 +521,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendRpnValue(byte inMsb,
 /* \brief Increment the value of the currently selected RPN number by the specified amount.
  \param inAmount The amount to add to the currently selected RPN value.
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendRpnIncrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnIncrement(byte inAmount,
                                                                   Channel inChannel)
 {
     sendControlChange(DataIncrement, inAmount, inChannel);
@@ -531,8 +531,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendRpnIncrement(byte in
 /* \brief Decrement the value of the currently selected RPN number by the specified amount.
  \param inAmount The amount to subtract to the currently selected RPN value.
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendRpnDecrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnDecrement(byte inAmount,
                                                                   Channel inChannel)
 {
     sendControlChange(DataDecrement, inAmount, inChannel);
@@ -542,8 +542,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendRpnDecrement(byte in
 This will send a Null Function to deselect the currently selected RPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::endRpn(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::endRpn(Channel inChannel)
 {
     sendControlChange(RPNLSB, 0x7f, inChannel);
     sendControlChange(RPNMSB, 0x7f, inChannel);
@@ -556,8 +556,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::endRpn(Channel inChannel
  \param inNumber The 14-bit number of the NRPN you want to select.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::beginNrpn(unsigned inNumber,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::beginNrpn(unsigned inNumber,
                                                            Channel inChannel)
 {
     if (mCurrentNrpnNumber != inNumber)
@@ -574,8 +574,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::beginNrpn(unsigned inNum
  \param inValue  The 14-bit value of the selected NRPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnValue(unsigned inValue,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnValue(unsigned inValue,
                                                                Channel inChannel)
 {;
     const byte valMsb = 0x7f & (inValue >> 7);
@@ -589,8 +589,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnValue(unsigned i
  \param inLsb The LSB part of the value to send. Meaning depends on NRPN number.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnValue(byte inMsb,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnValue(byte inMsb,
                                                                byte inLsb,
                                                                Channel inChannel)
 {
@@ -601,8 +601,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnValue(byte inMsb
 /* \brief Increment the value of the currently selected NRPN number by the specified amount.
  \param inAmount The amount to add to the currently selected NRPN value.
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnIncrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnIncrement(byte inAmount,
                                                                    Channel inChannel)
 {
     sendControlChange(DataIncrement, inAmount, inChannel);
@@ -611,8 +611,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnIncrement(byte i
 /* \brief Decrement the value of the currently selected NRPN number by the specified amount.
  \param inAmount The amount to subtract to the currently selected NRPN value.
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnDecrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnDecrement(byte inAmount,
                                                                    Channel inChannel)
 {
     sendControlChange(DataDecrement, inAmount, inChannel);
@@ -622,8 +622,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::sendNrpnDecrement(byte i
 This will send a Null Function to deselect the currently selected NRPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::endNrpn(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::endNrpn(Channel inChannel)
 {
     sendControlChange(NRPNLSB, 0x7f, inChannel);
     sendControlChange(NRPNMSB, 0x7f, inChannel);
@@ -634,8 +634,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::endNrpn(Channel inChanne
 
 // -----------------------------------------------------------------------------
 
-template<class Encoder, class Settings, class Platform>
-StatusByte MidiInterface<Encoder, Settings, Platform>::getStatus(MidiType inType,
+template<class Transport, class Settings, class Platform>
+StatusByte MidiInterface<Transport, Settings, Platform>::getStatus(MidiType inType,
                                                           Channel inChannel) const
 {
     return StatusByte(((byte)inType | ((inChannel - 1) & 0x0f)));
@@ -657,16 +657,16 @@ StatusByte MidiInterface<Encoder, Settings, Platform>::getStatus(MidiType inType
  it is sent back on the MIDI output.
  @see see setInputChannel()
  */
-template<class Encoder, class Settings, class Platform>
-inline bool MidiInterface<Encoder, Settings, Platform>::read()
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::read()
 {
     return read(mInputChannel);
 }
 
 /*! \brief Read messages on a specified channel.
  */
-template<class Encoder, class Settings, class Platform>
-inline bool MidiInterface<Encoder, Settings, Platform>::read(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel)
 {
     // Active Sensing. This message is intended to be sent
     // repeatedly to tell the receiver that a connection is alive. Use
@@ -702,10 +702,10 @@ inline bool MidiInterface<Encoder, Settings, Platform>::read(Channel inChannel)
 // -----------------------------------------------------------------------------
 
 // Private method: MIDI parser
-template<class Encoder, class Settings, class Platform>
-bool MidiInterface<Encoder, Settings, Platform>::parse()
+template<class Transport, class Settings, class Platform>
+bool MidiInterface<Transport, Settings, Platform>::parse()
 {
-    if (mEncoder.available() == 0)
+    if (mTransport.available() == 0)
     {
         // No data available.
         return false;
@@ -720,7 +720,7 @@ bool MidiInterface<Encoder, Settings, Platform>::parse()
     // Else, add the extracted byte to the pending message, and check validity.
     // When the message is done, store it.
 
-    const byte extracted = mEncoder.read();
+    const byte extracted = mTransport.read();
 
     // Ignore Undefined
     if (extracted == 0xf9 || extracted == 0xfd)
@@ -997,8 +997,8 @@ bool MidiInterface<Encoder, Settings, Platform>::parse()
 }
 
 // Private method, see midi_Settings.h for documentation
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::handleNullVelocityNoteOnAsNoteOff()
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::handleNullVelocityNoteOnAsNoteOff()
 {
     if (Settings::HandleNullVelocityNoteOnAsNoteOff &&
         getType() == NoteOn && getData2() == 0)
@@ -1008,8 +1008,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::handleNullVelocityNoteOn
 }
 
 // Private method: check if the received message is on the listened channel
-template<class Encoder, class Settings, class Platform>
-inline bool MidiInterface<Encoder, Settings, Platform>::inputFilter(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::inputFilter(Channel inChannel)
 {
     // This method handles recognition of channel
     // (to know if the message is destinated to the Arduino)
@@ -1037,8 +1037,8 @@ inline bool MidiInterface<Encoder, Settings, Platform>::inputFilter(Channel inCh
 }
 
 // Private method: reset input attributes
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::resetInput()
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::resetInput()
 {
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
@@ -1051,8 +1051,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::resetInput()
 
  Returns an enumerated type. @see MidiType
  */
-template<class Encoder, class Settings, class Platform>
-inline MidiType MidiInterface<Encoder, Settings, Platform>::getType() const
+template<class Transport, class Settings, class Platform>
+inline MidiType MidiInterface<Transport, Settings, Platform>::getType() const
 {
     return mMessage.type;
 }
@@ -1062,22 +1062,22 @@ inline MidiType MidiInterface<Encoder, Settings, Platform>::getType() const
  \return Channel range is 1 to 16.
  For non-channel messages, this will return 0.
  */
-template<class Encoder, class Settings, class Platform>
-inline Channel MidiInterface<Encoder, Settings, Platform>::getChannel() const
+template<class Transport, class Settings, class Platform>
+inline Channel MidiInterface<Transport, Settings, Platform>::getChannel() const
 {
     return mMessage.channel;
 }
 
 /*! \brief Get the first data byte of the last received message. */
-template<class Encoder, class Settings, class Platform>
-inline DataByte MidiInterface<Encoder, Settings, Platform>::getData1() const
+template<class Transport, class Settings, class Platform>
+inline DataByte MidiInterface<Transport, Settings, Platform>::getData1() const
 {
     return mMessage.data1;
 }
 
 /*! \brief Get the second data byte of the last received message. */
-template<class Encoder, class Settings, class Platform>
-inline DataByte MidiInterface<Encoder, Settings, Platform>::getData2() const
+template<class Transport, class Settings, class Platform>
+inline DataByte MidiInterface<Transport, Settings, Platform>::getData2() const
 {
     return mMessage.data2;
 }
@@ -1086,8 +1086,8 @@ inline DataByte MidiInterface<Encoder, Settings, Platform>::getData2() const
 
  @see getSysExArrayLength to get the array's length in bytes.
  */
-template<class Encoder, class Settings, class Platform>
-inline const byte* MidiInterface<Encoder, Settings, Platform>::getSysExArray() const
+template<class Transport, class Settings, class Platform>
+inline const byte* MidiInterface<Transport, Settings, Platform>::getSysExArray() const
 {
     return mMessage.sysexArray;
 }
@@ -1097,23 +1097,23 @@ inline const byte* MidiInterface<Encoder, Settings, Platform>::getSysExArray() c
  It is coded using data1 as LSB and data2 as MSB.
  \return The array's length, in bytes.
  */
-template<class Encoder, class Settings, class Platform>
-inline unsigned MidiInterface<Encoder, Settings, Platform>::getSysExArrayLength() const
+template<class Transport, class Settings, class Platform>
+inline unsigned MidiInterface<Transport, Settings, Platform>::getSysExArrayLength() const
 {
     return mMessage.getSysExSize();
 }
 
 /*! \brief Check if a valid message is stored in the structure. */
-template<class Encoder, class Settings, class Platform>
-inline bool MidiInterface<Encoder, Settings, Platform>::check() const
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::check() const
 {
     return mMessage.valid;
 }
 
 // -----------------------------------------------------------------------------
 
-template<class Encoder, class Settings, class Platform>
-inline Channel MidiInterface<Encoder, Settings, Platform>::getInputChannel() const
+template<class Transport, class Settings, class Platform>
+inline Channel MidiInterface<Transport, Settings, Platform>::getInputChannel() const
 {
     return mInputChannel;
 }
@@ -1122,8 +1122,8 @@ inline Channel MidiInterface<Encoder, Settings, Platform>::getInputChannel() con
  \param inChannel the channel value. Valid values are 1 to 16, MIDI_CHANNEL_OMNI
  if you want to listen to all channels, and MIDI_CHANNEL_OFF to disable input.
  */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::setInputChannel(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::setInputChannel(Channel inChannel)
 {
     mInputChannel = inChannel;
 }
@@ -1135,8 +1135,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::setInputChannel(Channel 
  This is a utility static method, used internally,
  made public so you can handle MidiTypes more easily.
  */
-template<class Encoder, class Settings, class Platform>
-MidiType MidiInterface<Encoder, Settings, Platform>::getTypeFromStatusByte(byte inStatus)
+template<class Transport, class Settings, class Platform>
+MidiType MidiInterface<Transport, Settings, Platform>::getTypeFromStatusByte(byte inStatus)
 {
     if ((inStatus  < 0x80) ||
         (inStatus == 0xf4) ||
@@ -1154,14 +1154,14 @@ MidiType MidiInterface<Encoder, Settings, Platform>::getTypeFromStatusByte(byte 
 
 /*! \brief Returns channel in the range 1-16
  */
-template<class Encoder, class Settings, class Platform>
-inline Channel MidiInterface<Encoder, Settings, Platform>::getChannelFromStatusByte(byte inStatus)
+template<class Transport, class Settings, class Platform>
+inline Channel MidiInterface<Transport, Settings, Platform>::getChannelFromStatusByte(byte inStatus)
 {
     return Channel((inStatus & 0x0f) + 1);
 }
 
-template<class Encoder, class Settings, class Platform>
-bool MidiInterface<Encoder, Settings, Platform>::isChannelMessage(MidiType inType)
+template<class Transport, class Settings, class Platform>
+bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inType)
 {
     return (inType == NoteOff           ||
             inType == NoteOn            ||
@@ -1178,24 +1178,24 @@ bool MidiInterface<Encoder, Settings, Platform>::isChannelMessage(MidiType inTyp
  @{
  */
 
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOffCallback              = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))           { mNoteOnCallback               = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))   { mAfterTouchPolyCallback       = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))     { mControlChangeCallback        = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleProgramChange(void (*fptr)(byte channel, byte number))                 { mProgramChangeCallback        = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure))           { mAfterTouchChannelCallback    = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandlePitchBend(void (*fptr)(byte channel, int bend))                        { mPitchBendCallback            = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleSystemExclusive(void (*fptr)(byte* array, unsigned size))              { mSystemExclusiveCallback      = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleTimeCodeQuarterFrame(void (*fptr)(byte data))                          { mTimeCodeQuarterFrameCallback = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleSongPosition(void (*fptr)(unsigned beats))                             { mSongPositionCallback         = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleSongSelect(void (*fptr)(byte songnumber))                              { mSongSelectCallback           = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleTuneRequest(void (*fptr)(void))                                        { mTuneRequestCallback          = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleClock(void (*fptr)(void))                                              { mClockCallback                = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleStart(void (*fptr)(void))                                              { mStartCallback                = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleContinue(void (*fptr)(void))                                           { mContinueCallback             = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleStop(void (*fptr)(void))                                               { mStopCallback                 = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleActiveSensing(void (*fptr)(void))                                      { mActiveSensingCallback        = fptr; }
-template<class Encoder, class Settings, class Platform> void MidiInterface<Encoder, Settings, Platform>::setHandleSystemReset(void (*fptr)(void))                                        { mSystemResetCallback          = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOffCallback              = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))           { mNoteOnCallback               = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))   { mAfterTouchPolyCallback       = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))     { mControlChangeCallback        = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleProgramChange(void (*fptr)(byte channel, byte number))                 { mProgramChangeCallback        = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure))           { mAfterTouchChannelCallback    = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandlePitchBend(void (*fptr)(byte channel, int bend))                        { mPitchBendCallback            = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSystemExclusive(void (*fptr)(byte* array, unsigned size))              { mSystemExclusiveCallback      = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleTimeCodeQuarterFrame(void (*fptr)(byte data))                          { mTimeCodeQuarterFrameCallback = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSongPosition(void (*fptr)(unsigned beats))                             { mSongPositionCallback         = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSongSelect(void (*fptr)(byte songnumber))                              { mSongSelectCallback           = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleTuneRequest(void (*fptr)(void))                                        { mTuneRequestCallback          = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleClock(void (*fptr)(void))                                              { mClockCallback                = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleStart(void (*fptr)(void))                                              { mStartCallback                = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleContinue(void (*fptr)(void))                                           { mContinueCallback             = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleStop(void (*fptr)(void))                                               { mStopCallback                 = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleActiveSensing(void (*fptr)(void))                                      { mActiveSensingCallback        = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSystemReset(void (*fptr)(void))                                        { mSystemResetCallback          = fptr; }
 
 /*! \brief Detach an external function from the given type.
 
@@ -1203,8 +1203,8 @@ template<class Encoder, class Settings, class Platform> void MidiInterface<Encod
  \param inType        The type of message to unbind.
  When a message of this type is received, no function will be called.
  */
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::disconnectCallbackFromType(MidiType inType)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(MidiType inType)
 {
     switch (inType)
     {
@@ -1234,8 +1234,8 @@ void MidiInterface<Encoder, Settings, Platform>::disconnectCallbackFromType(Midi
 /*! @} */ // End of doc group MIDI Callbacks
 
 // Private - launch callback function based on received type.
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::launchCallback()
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::launchCallback()
 {
     // The order is mixed to allow frequent messages to trigger their callback faster.
     switch (mMessage.type)
@@ -1289,34 +1289,34 @@ void MidiInterface<Encoder, Settings, Platform>::launchCallback()
 
  @see Thru::Mode
  */
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::setThruFilterMode(Thru::Mode inThruFilterMode)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::setThruFilterMode(Thru::Mode inThruFilterMode)
 {
     mThruFilterMode = inThruFilterMode;
     mThruActivated  = mThruFilterMode != Thru::Off;
 }
 
-template<class Encoder, class Settings, class Platform>
-inline Thru::Mode MidiInterface<Encoder, Settings, Platform>::getFilterMode() const
+template<class Transport, class Settings, class Platform>
+inline Thru::Mode MidiInterface<Transport, Settings, Platform>::getFilterMode() const
 {
     return mThruFilterMode;
 }
 
-template<class Encoder, class Settings, class Platform>
-inline bool MidiInterface<Encoder, Settings, Platform>::getThruState() const
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::getThruState() const
 {
     return mThruActivated;
 }
 
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::turnThruOn(Thru::Mode inThruFilterMode)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::turnThruOn(Thru::Mode inThruFilterMode)
 {
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
 }
 
-template<class Encoder, class Settings, class Platform>
-inline void MidiInterface<Encoder, Settings, Platform>::turnThruOff()
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 {
     mThruActivated = false;
     mThruFilterMode = Thru::Off;
@@ -1330,8 +1330,8 @@ inline void MidiInterface<Encoder, Settings, Platform>::turnThruOff()
 //   to output unless filter is set to Off.
 // - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
-template<class Encoder, class Settings, class Platform>
-void MidiInterface<Encoder, Settings, Platform>::thruFilter(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
 {
     // If the feature is disabled, don't do anything.
     if (!mThruActivated || (mThruFilterMode == Thru::Off))

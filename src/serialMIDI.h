@@ -18,7 +18,7 @@ public:
 	{
 	}
 
-	bool beginTransmission()
+	bool beginTransmission(MidiType)
 	{
 		return true;
 	};
