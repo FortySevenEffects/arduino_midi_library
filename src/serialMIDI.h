@@ -4,11 +4,22 @@
 
 BEGIN_MIDI_NAMESPACE
 
-template <class SerialPort>
-class serialMIDI
+struct DefaultSerialSettings
 {
+    /*! Override the default MIDI baudrate to transmit over USB serial, to
+    a decoding program such as Hairless MIDI (set baudrate to 115200)\n
+    http://projectgus.github.io/hairless-midiserial/
+    */
+    static const long BaudRate = 31250;
+};
+
+template <class SerialPort, class _Settings = DefaultSerialSettings>
+class SerialMIDI
+{
+    typedef _Settings Settings;
+
 public:
-	serialMIDI(SerialPort& inSerial)
+	SerialMIDI(SerialPort& inSerial)
         : mSerial(inSerial)
 	{
 	};
@@ -16,6 +27,12 @@ public:
 public:
 	void begin(MIDI_NAMESPACE::Channel inChannel = 1)
 	{
+        // Initialise the Serial port
+        #if defined(AVR_CAKE)
+            mSerial. template open<Settings::BaudRate>();
+        #else
+            mSerial.begin(Settings::BaudRate);
+        #endif
 	}
 
 	bool beginTransmission(MidiType)
@@ -52,7 +69,7 @@ private:
  Then call midi2.begin(), midi2.read() etc..
  */
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)  \
-    typedef MIDI_NAMESPACE::serialMIDI<Type> __smt;\
+    typedef MIDI_NAMESPACE::SerialMIDI<Type> __smt;\
     typedef MIDI_NAMESPACE::MidiInterface<__smt> TypedMidiInterface;\
     __smt serialMidi(SerialPort);\
     TypedMidiInterface Name((__smt&)serialMidi);

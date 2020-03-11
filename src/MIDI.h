@@ -130,7 +130,7 @@ public:
                                   Channel inChannel);
     inline void endNrpn(Channel inChannel);
 
-    inline void send(MidiMessage);
+    inline void send(const MidiMessage&);
     
 public:
     void send(MidiType inType,
@@ -167,7 +167,7 @@ public:
     // Input Callbacks
 
 public:
-    inline void setHandleMessage(void (*fptr)(MidiMessage));
+    inline void setHandleMessage(void (*fptr)(const MidiMessage&));
     inline void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
     inline void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
     inline void setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure));
@@ -192,7 +192,7 @@ public:
 private:
     void launchCallback();
 
-    void (*mMessageCallback)(MidiMessage message);
+    void (*mMessageCallback)(const MidiMessage& message);
     void (*mNoteOffCallback)(byte channel, byte note, byte velocity);
     void (*mNoteOnCallback)(byte channel, byte note, byte velocity);
     void (*mAfterTouchPolyCallback)(byte channel, byte note, byte velocity);

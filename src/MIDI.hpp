@@ -85,7 +85,7 @@ inline MidiInterface<Transport, Settings, Platform>::~MidiInterface()
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
 {
-    // Initialise the Serial port
+    // Initialise the Transport layer
     mTransport.begin();
 
     mInputChannel = inChannel;
@@ -108,7 +108,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mMessage.length  = 0;
 
     mThruFilterMode = Thru::Full;
-    mThruActivated  = false;
+    mThruActivated  = true;
 }
 
 // -----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
  them thru.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::send(MidiMessage inMessage)
+void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMessage)
 {
     if (!inMessage.valid)
         return;
@@ -1189,7 +1189,7 @@ bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inT
  @{
  */
 
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleMessage(void (*fptr)(MidiMessage))                                     { mMessageCallback              = fptr; }
+template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleMessage(void (*fptr)(const MidiMessage&))                              { mMessageCallback              = fptr; }
 template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOffCallback              = fptr; }
 template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))           { mNoteOnCallback               = fptr; }
 template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))   { mAfterTouchPolyCallback       = fptr; }
