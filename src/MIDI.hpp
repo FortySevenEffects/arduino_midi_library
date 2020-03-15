@@ -36,6 +36,7 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mInputChannel(0)
     , mRunningStatus_RX(InvalidType)
     , mRunningStatus_TX(InvalidType)
+    , mPendingMessageExpectedLength(0)
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
@@ -93,6 +94,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mRunningStatus_RX = InvalidType;
 
     mPendingMessageIndex = 0;
+    mPendingMessageExpectedLength = 0;
 
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
@@ -802,39 +804,39 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 mMessage.channel = 0;
                 mMessage.data1   = 0;
                 mMessage.data2   = 0;
-                mMessage.length  = 0;
                 mMessage.valid   = true;
 
                 // Do not reset all input attributes, Running Status must remain unchanged.
                 // We still need to reset these
                 mPendingMessageIndex = 0;
+                mPendingMessageExpectedLength = 0;
 
                 return true;
                 break;
 
-                // 2 bytes messages
+            // 2 bytes messages
             case ProgramChange:
             case AfterTouchChannel:
             case TimeCodeQuarterFrame:
             case SongSelect:
-                mMessage.length = 2;
+                mPendingMessageExpectedLength = 2;
                 break;
 
-                // 3 bytes messages
+            // 3 bytes messages
             case NoteOn:
             case NoteOff:
             case ControlChange:
             case PitchBend:
             case AfterTouchPoly:
             case SongPosition:
-                mMessage.length = 3;
+                mPendingMessageExpectedLength = 3;
                 break;
 
             case SystemExclusiveStart:
             case SystemExclusiveEnd:
                 // The message can be any lenght
                 // between 3 and MidiMessage::sSysExMaxSize bytes
-                mMessage.length = MidiMessage::sSysExMaxSize;
+                mPendingMessageExpectedLength = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
                 mMessage.sysexArray[0] = pendingType;
                 break;
@@ -847,17 +849,19 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 break;
         }
 
-        if (mPendingMessageIndex >= (mMessage.length - 1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLength - 1))
         {
             // Reception complete
             mMessage.type    = pendingType;
             mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             mMessage.data1   = mPendingMessage[1];
             mMessage.data2   = 0; // Completed new message has 1 data byte
-
+            mMessage.length  = 1;
+            
             mPendingMessageIndex = 0;
-            mMessage.length = 0;
+            mPendingMessageExpectedLength = 0;
             mMessage.valid = true;
+            
             return true;
         }
         else
@@ -905,7 +909,9 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                     mMessage.data1   = 0;
                     mMessage.data2   = 0;
                     mMessage.channel = 0;
+                    mMessage.length  = 1;
                     mMessage.valid   = true;
+                    
                     return true;
 
                     // Exclusive
@@ -922,9 +928,11 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                         mMessage.data1   = mPendingMessageIndex & 0xff; // LSB
                         mMessage.data2   = byte(mPendingMessageIndex >> 8);   // MSB
                         mMessage.channel = 0;
+                        mMessage.length  = mPendingMessageIndex;
                         mMessage.valid   = true;
 
                         resetInput();
+                        
                         return true;
                     }
                     else
@@ -947,7 +955,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mPendingMessage[mPendingMessageIndex] = extracted;
 
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mMessage.length - 1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLength - 1))
         {
             // "FML" case: fall down here with an overflown SysEx..
             // This means we received the last possible data byte that can fit
@@ -968,11 +976,13 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.data1 = mPendingMessage[1];
 
             // Save data2 only if applicable
-            mMessage.data2 = mMessage.length == 3 ? mPendingMessage[2] : 0;
-
+            mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;
+            
+            mMessage.length = mPendingMessageExpectedLength;
+            
             // Reset local variables
             mPendingMessageIndex = 0;
-            mMessage.length = 0;
+            mPendingMessageExpectedLength = 0;
 
             mMessage.valid = true;
 
@@ -1052,7 +1062,7 @@ template<class Transport, class Settings, class Platform>
 inline void MidiInterface<Transport, Settings, Platform>::resetInput()
 {
     mPendingMessageIndex = 0;
-    mMessage.length = 0;
+    mPendingMessageExpectedLength = 0;
     mRunningStatus_RX = InvalidType;
 }
 

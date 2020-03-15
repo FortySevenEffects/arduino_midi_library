@@ -243,6 +243,7 @@ private:
     StatusByte      mRunningStatus_RX;
     StatusByte      mRunningStatus_TX;
     byte            mPendingMessage[3];
+    unsigned        mPendingMessageExpectedLength;
     unsigned        mPendingMessageIndex;
     unsigned        mCurrentRpnNumber;
     unsigned        mCurrentNrpnNumber;
