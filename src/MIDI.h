@@ -232,6 +232,8 @@ private:
     inline bool inputFilter(Channel inChannel);
     inline void resetInput();
 
+public:
+    Transport& getTransport() { return mTransport; }
 
 private:
     Transport& mTransport;
