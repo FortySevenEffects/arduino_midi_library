@@ -233,7 +233,7 @@ private:
     inline void resetInput();
 
 public:
-    Transport& getTransport() { return mTransport; }
+    Transport* getTransport() { return &mTransport; };
 
 private:
     Transport& mTransport;
