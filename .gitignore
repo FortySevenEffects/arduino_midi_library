@@ -6,3 +6,4 @@ build/
 src/.DS_Store
 examples/.DS_Store
 .DS_Store
+test/xcode

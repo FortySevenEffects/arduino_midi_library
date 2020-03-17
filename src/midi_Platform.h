@@ -1,7 +1,7 @@
 /*!
  *  @file       midi_Platform.h
  *  Project     Arduino MIDI Library
- *  @brief      MIDI Library for the Arduino - Settings
+ *  @brief      MIDI Library for the Arduino - Platform
  *  @author     Francois Best
  *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best
@@ -27,12 +27,18 @@
 
 #pragma once
 
+#include "midi_Defs.h"
+
 BEGIN_MIDI_NAMESPACE
+
+#if ARDUINO
 
 // DefaultPlatform is the Arduino Platform
 struct DefaultPlatform
 {
    static unsigned long now() { return ::millis(); };
 };
+
+#endif
 
 END_MIDI_NAMESPACE
