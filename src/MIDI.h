@@ -168,13 +168,13 @@ public:
 
 public:
     inline void setHandleMessage(void (*fptr)(const MidiMessage&));
-    inline void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
-    inline void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
-    inline void setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure));
-    inline void setHandleControlChange(void (*fptr)(byte channel, byte number, byte value));
-    inline void setHandleProgramChange(void (*fptr)(byte channel, byte number));
-    inline void setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure));
-    inline void setHandlePitchBend(void (*fptr)(byte channel, int bend));
+    inline void setHandleNoteOff(void (*fptr)(Channel channel, byte note, byte velocity));
+    inline void setHandleNoteOn(void (*fptr)(Channel channel, byte note, byte velocity));
+    inline void setHandleAfterTouchPoly(void (*fptr)(Channel channel, byte note, byte pressure));
+    inline void setHandleControlChange(void (*fptr)(Channel channel, byte number, byte value));
+    inline void setHandleProgramChange(void (*fptr)(Channel channel, byte number));
+    inline void setHandleAfterTouchChannel(void (*fptr)(Channel channel, byte pressure));
+    inline void setHandlePitchBend(void (*fptr)(Channel channel, int bend));
     inline void setHandleSystemExclusive(void (*fptr)(byte * array, unsigned size));
     inline void setHandleTimeCodeQuarterFrame(void (*fptr)(byte data));
     inline void setHandleSongPosition(void (*fptr)(unsigned beats));
@@ -193,13 +193,13 @@ private:
     void launchCallback();
 
     void (*mMessageCallback)(const MidiMessage& message);
-    void (*mNoteOffCallback)(byte channel, byte note, byte velocity);
-    void (*mNoteOnCallback)(byte channel, byte note, byte velocity);
-    void (*mAfterTouchPolyCallback)(byte channel, byte note, byte velocity);
-    void (*mControlChangeCallback)(byte channel, byte, byte);
-    void (*mProgramChangeCallback)(byte channel, byte);
-    void (*mAfterTouchChannelCallback)(byte channel, byte);
-    void (*mPitchBendCallback)(byte channel, int);
+    void (*mNoteOffCallback)(Channel channel, byte note, byte velocity);
+    void (*mNoteOnCallback)(Channel channel, byte note, byte velocity);
+    void (*mAfterTouchPolyCallback)(Channel channel, byte note, byte velocity);
+    void (*mControlChangeCallback)(Channel channel, byte, byte);
+    void (*mProgramChangeCallback)(Channel channel, byte);
+    void (*mAfterTouchChannelCallback)(Channel channel, byte);
+    void (*mPitchBendCallback)(Channel channel, int);
     void (*mSystemExclusiveCallback)(byte * array, unsigned size);
     void (*mTimeCodeQuarterFrameCallback)(byte data);
     void (*mSongPositionCallback)(unsigned beats);
