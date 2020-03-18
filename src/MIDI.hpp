@@ -1176,12 +1176,6 @@ bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inT
 
 // -----------------------------------------------------------------------------
 
-/*! \addtogroup callbacks
- @{
- */
-
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleMessage(void (*fptr)(const MidiMessage&))                              { mMessageCallback              = fptr; }
-
 /*! \brief Detach an external function from the given type.
 
  Use this method to cancel the effects of setHandle********.

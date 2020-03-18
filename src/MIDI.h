@@ -167,7 +167,7 @@ public:
     // Input Callbacks
 
 public:
-    inline void setHandleMessage(void (*fptr)(const MidiMessage&));
+    inline void setHandleMessage(void (*fptr)(const MidiMessage&)) { mMessageCallback = fptr; };
     inline void setHandleNoteOff(NoteOffCallback fptr) { mNoteOffCallback = fptr; }
     inline void setHandleNoteOn(NoteOnCallback fptr) { mNoteOnCallback = fptr; }
     inline void setHandleAfterTouchPoly(AfterTouchPolyCallback fptr) { mAfterTouchPolyCallback = fptr; }
