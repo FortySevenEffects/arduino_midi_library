@@ -168,49 +168,49 @@ public:
 
 public:
     inline void setHandleMessage(void (*fptr)(const MidiMessage&));
-    inline void setHandleNoteOff(void (*fptr)(Channel channel, byte note, byte velocity));
-    inline void setHandleNoteOn(void (*fptr)(Channel channel, byte note, byte velocity));
-    inline void setHandleAfterTouchPoly(void (*fptr)(Channel channel, byte note, byte pressure));
-    inline void setHandleControlChange(void (*fptr)(Channel channel, byte number, byte value));
-    inline void setHandleProgramChange(void (*fptr)(Channel channel, byte number));
-    inline void setHandleAfterTouchChannel(void (*fptr)(Channel channel, byte pressure));
-    inline void setHandlePitchBend(void (*fptr)(Channel channel, int bend));
-    inline void setHandleSystemExclusive(void (*fptr)(byte * array, unsigned size));
-    inline void setHandleTimeCodeQuarterFrame(void (*fptr)(byte data));
-    inline void setHandleSongPosition(void (*fptr)(unsigned beats));
-    inline void setHandleSongSelect(void (*fptr)(byte songnumber));
-    inline void setHandleTuneRequest(void (*fptr)(void));
-    inline void setHandleClock(void (*fptr)(void));
-    inline void setHandleStart(void (*fptr)(void));
-    inline void setHandleContinue(void (*fptr)(void));
-    inline void setHandleStop(void (*fptr)(void));
-    inline void setHandleActiveSensing(void (*fptr)(void));
-    inline void setHandleSystemReset(void (*fptr)(void));
+    inline void setHandleNoteOff(NoteOffCallback fptr) { mNoteOffCallback = fptr; }
+    inline void setHandleNoteOn(NoteOnCallback fptr) { mNoteOnCallback = fptr; }
+    inline void setHandleAfterTouchPoly(AfterTouchPolyCallback fptr) { mAfterTouchPolyCallback = fptr; }
+    inline void setHandleControlChange(ControlChangeCallback fptr) { mControlChangeCallback = fptr; }
+    inline void setHandleProgramChange(ProgramChangeCallback fptr) { mProgramChangeCallback = fptr; }
+    inline void setHandleAfterTouchChannel(AfterTouchChannelCallback fptr) { mAfterTouchChannelCallback = fptr; }
+    inline void setHandlePitchBend(PitchBendCallback fptr) { mPitchBendCallback = fptr; }
+    inline void setHandleSystemExclusive(SystemExclusiveCallback fptr) { mSystemExclusiveCallback = fptr; }
+    inline void setHandleTimeCodeQuarterFrame(TimeCodeQuarterFrameCallback fptr) { mTimeCodeQuarterFrameCallback = fptr; }
+    inline void setHandleSongPosition(SongPositionCallback fptr) { mSongPositionCallback = fptr; }
+    inline void setHandleSongSelect(SongSelectCallback fptr) { mSongSelectCallback = fptr; }
+    inline void setHandleTuneRequest(TuneRequestCallback fptr) { mTuneRequestCallback = fptr; }
+    inline void setHandleClock(ClockCallback fptr) { mClockCallback = fptr; }
+    inline void setHandleStart(StartCallback fptr) { mStartCallback = fptr; }
+    inline void setHandleContinue(ContinueCallback fptr) { mContinueCallback = fptr; }
+    inline void setHandleStop(StopCallback fptr) { mStopCallback = fptr; }
+    inline void setHandleActiveSensing(ActiveSensingCallback fptr) { mActiveSensingCallback = fptr; }
+    inline void setHandleSystemReset(SystemResetCallback fptr) { mSystemResetCallback = fptr; }
 
     inline void disconnectCallbackFromType(MidiType inType);
 
 private:
     void launchCallback();
 
-    void (*mMessageCallback)(const MidiMessage& message);
-    void (*mNoteOffCallback)(Channel channel, byte note, byte velocity);
-    void (*mNoteOnCallback)(Channel channel, byte note, byte velocity);
-    void (*mAfterTouchPolyCallback)(Channel channel, byte note, byte velocity);
-    void (*mControlChangeCallback)(Channel channel, byte, byte);
-    void (*mProgramChangeCallback)(Channel channel, byte);
-    void (*mAfterTouchChannelCallback)(Channel channel, byte);
-    void (*mPitchBendCallback)(Channel channel, int);
-    void (*mSystemExclusiveCallback)(byte * array, unsigned size);
-    void (*mTimeCodeQuarterFrameCallback)(byte data);
-    void (*mSongPositionCallback)(unsigned beats);
-    void (*mSongSelectCallback)(byte songnumber);
-    void (*mTuneRequestCallback)(void);
-    void (*mClockCallback)(void);
-    void (*mStartCallback)(void);
-    void (*mContinueCallback)(void);
-    void (*mStopCallback)(void);
-    void (*mActiveSensingCallback)(void);
-    void (*mSystemResetCallback)(void);
+    void (*mMessageCallback)(const MidiMessage& message) = nullptr;
+    NoteOffCallback mNoteOffCallback = nullptr;
+    NoteOnCallback mNoteOnCallback = nullptr;
+    AfterTouchPolyCallback mAfterTouchPolyCallback = nullptr;
+    ControlChangeCallback mControlChangeCallback = nullptr;
+    ProgramChangeCallback mProgramChangeCallback = nullptr;
+    AfterTouchChannelCallback mAfterTouchChannelCallback = nullptr;
+    PitchBendCallback mPitchBendCallback = nullptr;
+    SystemExclusiveCallback mSystemExclusiveCallback = nullptr;
+    TimeCodeQuarterFrameCallback mTimeCodeQuarterFrameCallback = nullptr;
+    SongPositionCallback mSongPositionCallback = nullptr;
+    SongSelectCallback mSongSelectCallback = nullptr;
+    TuneRequestCallback mTuneRequestCallback = nullptr;
+    ClockCallback mClockCallback = nullptr;
+    StartCallback mStartCallback = nullptr;
+    ContinueCallback mContinueCallback = nullptr;
+    StopCallback mStopCallback = nullptr;
+    ActiveSensingCallback mActiveSensingCallback = nullptr;
+    SystemResetCallback mSystemResetCallback = nullptr;
 
     // -------------------------------------------------------------------------
     // MIDI Soft Thru

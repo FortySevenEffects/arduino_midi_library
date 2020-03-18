@@ -60,6 +60,28 @@ typedef byte Channel;
 typedef byte FilterMode;
 
 // -----------------------------------------------------------------------------
+// Aliasing
+
+using NoteOffCallback              = void (*)(Channel channel, byte note, byte velocity);
+using NoteOnCallback               = void (*)(Channel channel, byte note, byte velocity);
+using AfterTouchPolyCallback       = void (*)(Channel channel, byte note, byte velocity);
+using ControlChangeCallback        = void (*)(Channel channel, byte, byte);
+using ProgramChangeCallback        = void (*)(Channel channel, byte);
+using AfterTouchChannelCallback    = void (*)(Channel channel, byte);
+using PitchBendCallback            = void (*)(Channel channel, int);
+using SystemExclusiveCallback      = void (*)(byte * array, unsigned size);
+using TimeCodeQuarterFrameCallback = void (*)(byte data);
+using SongPositionCallback         = void (*)(unsigned beats);
+using SongSelectCallback           = void (*)(byte songnumber);
+using TuneRequestCallback          = void (*)(void);
+using ClockCallback                = void (*)(void);
+using StartCallback                = void (*)(void);
+using ContinueCallback             = void (*)(void);
+using StopCallback                 = void (*)(void);
+using ActiveSensingCallback        = void (*)(void);
+using SystemResetCallback          = void (*)(void);
+
+// -----------------------------------------------------------------------------
 
 /*! Enumeration of MIDI types */
 enum MidiType: uint8_t

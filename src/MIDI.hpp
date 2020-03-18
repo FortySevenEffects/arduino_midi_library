@@ -45,25 +45,6 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mThruActivated(false)
     , mThruFilterMode(Thru::Full)
 {
-    mMessageCallback                = 0;
-    mNoteOffCallback                = 0;
-    mNoteOnCallback                 = 0;
-    mAfterTouchPolyCallback         = 0;
-    mControlChangeCallback          = 0;
-    mProgramChangeCallback          = 0;
-    mAfterTouchChannelCallback      = 0;
-    mPitchBendCallback              = 0;
-    mSystemExclusiveCallback        = 0;
-    mTimeCodeQuarterFrameCallback   = 0;
-    mSongPositionCallback           = 0;
-    mSongSelectCallback             = 0;
-    mTuneRequestCallback            = 0;
-    mClockCallback                  = 0;
-    mStartCallback                  = 0;
-    mContinueCallback               = 0;
-    mStopCallback                   = 0;
-    mActiveSensingCallback          = 0;
-    mSystemResetCallback            = 0;
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -1200,24 +1181,6 @@ bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inT
  */
 
 template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleMessage(void (*fptr)(const MidiMessage&))                              { mMessageCallback              = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOffCallback              = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))           { mNoteOnCallback               = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))   { mAfterTouchPolyCallback       = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))     { mControlChangeCallback        = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleProgramChange(void (*fptr)(byte channel, byte number))                 { mProgramChangeCallback        = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure))           { mAfterTouchChannelCallback    = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandlePitchBend(void (*fptr)(byte channel, int bend))                        { mPitchBendCallback            = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSystemExclusive(void (*fptr)(byte* array, unsigned size))              { mSystemExclusiveCallback      = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleTimeCodeQuarterFrame(void (*fptr)(byte data))                          { mTimeCodeQuarterFrameCallback = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSongPosition(void (*fptr)(unsigned beats))                             { mSongPositionCallback         = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSongSelect(void (*fptr)(byte songnumber))                              { mSongSelectCallback           = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleTuneRequest(void (*fptr)(void))                                        { mTuneRequestCallback          = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleClock(void (*fptr)(void))                                              { mClockCallback                = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleStart(void (*fptr)(void))                                              { mStartCallback                = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleContinue(void (*fptr)(void))                                           { mContinueCallback             = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleStop(void (*fptr)(void))                                               { mStopCallback                 = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleActiveSensing(void (*fptr)(void))                                      { mActiveSensingCallback        = fptr; }
-template<class Transport, class Settings, class Platform> void MidiInterface<Transport, Settings, Platform>::setHandleSystemReset(void (*fptr)(void))                                        { mSystemResetCallback          = fptr; }
 
 /*! \brief Detach an external function from the given type.
 
@@ -1230,24 +1193,24 @@ void MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(Mi
 {
     switch (inType)
     {
-        case NoteOff:               mNoteOffCallback                = 0; break;
-        case NoteOn:                mNoteOnCallback                 = 0; break;
-        case AfterTouchPoly:        mAfterTouchPolyCallback         = 0; break;
-        case ControlChange:         mControlChangeCallback          = 0; break;
-        case ProgramChange:         mProgramChangeCallback          = 0; break;
-        case AfterTouchChannel:     mAfterTouchChannelCallback      = 0; break;
-        case PitchBend:             mPitchBendCallback              = 0; break;
-        case SystemExclusive:       mSystemExclusiveCallback        = 0; break;
-        case TimeCodeQuarterFrame:  mTimeCodeQuarterFrameCallback   = 0; break;
-        case SongPosition:          mSongPositionCallback           = 0; break;
-        case SongSelect:            mSongSelectCallback             = 0; break;
-        case TuneRequest:           mTuneRequestCallback            = 0; break;
-        case Clock:                 mClockCallback                  = 0; break;
-        case Start:                 mStartCallback                  = 0; break;
-        case Continue:              mContinueCallback               = 0; break;
-        case Stop:                  mStopCallback                   = 0; break;
-        case ActiveSensing:         mActiveSensingCallback          = 0; break;
-        case SystemReset:           mSystemResetCallback            = 0; break;
+        case NoteOff:               mNoteOffCallback                = nullptr; break;
+        case NoteOn:                mNoteOnCallback                 = nullptr; break;
+        case AfterTouchPoly:        mAfterTouchPolyCallback         = nullptr; break;
+        case ControlChange:         mControlChangeCallback          = nullptr; break;
+        case ProgramChange:         mProgramChangeCallback          = nullptr; break;
+        case AfterTouchChannel:     mAfterTouchChannelCallback      = nullptr; break;
+        case PitchBend:             mPitchBendCallback              = nullptr; break;
+        case SystemExclusive:       mSystemExclusiveCallback        = nullptr; break;
+        case TimeCodeQuarterFrame:  mTimeCodeQuarterFrameCallback   = nullptr; break;
+        case SongPosition:          mSongPositionCallback           = nullptr; break;
+        case SongSelect:            mSongSelectCallback             = nullptr; break;
+        case TuneRequest:           mTuneRequestCallback            = nullptr; break;
+        case Clock:                 mClockCallback                  = nullptr; break;
+        case Start:                 mStartCallback                  = nullptr; break;
+        case Continue:              mContinueCallback               = nullptr; break;
+        case Stop:                  mStopCallback                   = nullptr; break;
+        case ActiveSensing:         mActiveSensingCallback          = nullptr; break;
+        case SystemReset:           mSystemResetCallback            = nullptr; break;
         default:
             break;
     }
@@ -1265,32 +1228,32 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
     switch (mMessage.type)
     {
             // Notes
-        case NoteOff:               if (mNoteOffCallback != 0)               mNoteOffCallback(mMessage.channel, mMessage.data1, mMessage.data2);   break;
-        case NoteOn:                if (mNoteOnCallback != 0)                mNoteOnCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
+        case NoteOff:               if (mNoteOffCallback != nullptr)               mNoteOffCallback(mMessage.channel, mMessage.data1, mMessage.data2);   break;
+        case NoteOn:                if (mNoteOnCallback != nullptr)                mNoteOnCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
 
             // Real-time messages
-        case Clock:                 if (mClockCallback != 0)                 mClockCallback();           break;
-        case Start:                 if (mStartCallback != 0)                 mStartCallback();           break;
-        case Continue:              if (mContinueCallback != 0)              mContinueCallback();        break;
-        case Stop:                  if (mStopCallback != 0)                  mStopCallback();            break;
-        case ActiveSensing:         if (mActiveSensingCallback != 0)         mActiveSensingCallback();   break;
+        case Clock:                 if (mClockCallback != nullptr)                 mClockCallback();           break;
+        case Start:                 if (mStartCallback != nullptr)                 mStartCallback();           break;
+        case Continue:              if (mContinueCallback != nullptr)              mContinueCallback();        break;
+        case Stop:                  if (mStopCallback != nullptr)                  mStopCallback();            break;
+        case ActiveSensing:         if (mActiveSensingCallback != nullptr)         mActiveSensingCallback();   break;
 
             // Continuous controllers
-        case ControlChange:         if (mControlChangeCallback != 0)         mControlChangeCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
-        case PitchBend:             if (mPitchBendCallback != 0)             mPitchBendCallback(mMessage.channel, (int)((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)) + MIDI_PITCHBEND_MIN); break; 
-        case AfterTouchPoly:        if (mAfterTouchPolyCallback != 0)        mAfterTouchPolyCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
-        case AfterTouchChannel:     if (mAfterTouchChannelCallback != 0)     mAfterTouchChannelCallback(mMessage.channel, mMessage.data1);    break;
+        case ControlChange:         if (mControlChangeCallback != nullptr)         mControlChangeCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
+        case PitchBend:             if (mPitchBendCallback != nullptr)             mPitchBendCallback(mMessage.channel, (int)((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)) + MIDI_PITCHBEND_MIN); break;
+        case AfterTouchPoly:        if (mAfterTouchPolyCallback != nullptr)        mAfterTouchPolyCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
+        case AfterTouchChannel:     if (mAfterTouchChannelCallback != nullptr)     mAfterTouchChannelCallback(mMessage.channel, mMessage.data1);    break;
 
-        case ProgramChange:         if (mProgramChangeCallback != 0)         mProgramChangeCallback(mMessage.channel, mMessage.data1);    break;
-        case SystemExclusive:       if (mSystemExclusiveCallback != 0)       mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());    break;
+        case ProgramChange:         if (mProgramChangeCallback != nullptr)         mProgramChangeCallback(mMessage.channel, mMessage.data1);    break;
+        case SystemExclusive:       if (mSystemExclusiveCallback != nullptr)       mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());    break;
 
             // Occasional messages
-        case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != 0)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
-        case SongPosition:          if (mSongPositionCallback != 0)          mSongPositionCallback(unsigned((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)));    break;
-        case SongSelect:            if (mSongSelectCallback != 0)            mSongSelectCallback(mMessage.data1);    break;
-        case TuneRequest:           if (mTuneRequestCallback != 0)           mTuneRequestCallback();    break;
+        case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != nullptr)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
+        case SongPosition:          if (mSongPositionCallback != nullptr)          mSongPositionCallback(unsigned((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)));    break;
+        case SongSelect:            if (mSongSelectCallback != nullptr)            mSongSelectCallback(mMessage.data1);    break;
+        case TuneRequest:           if (mTuneRequestCallback != nullptr)           mTuneRequestCallback();    break;
 
-        case SystemReset:           if (mSystemResetCallback != 0)           mSystemResetCallback();    break;
+        case SystemReset:           if (mSystemResetCallback != nullptr)           mSystemResetCallback();    break;
 
         case InvalidType:
         default:
