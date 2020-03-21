@@ -711,8 +711,8 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
         return false;
 
     handleNullVelocityNoteOnAsNoteOff();
+    
     const bool channelMatch = inputFilter(inChannel);
-
     if (channelMatch)
         launchCallback();
 
@@ -938,12 +938,34 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
         // Now we are going to check if we have reached the end of the message
         if (mPendingMessageIndex >= (mPendingMessageExpectedLength - 1))
         {
-            // "FML" case: fall down here with an overflown SysEx..
-            // This means we received the last possible data byte that can fit
-            // the buffer. If this happens, try increasing MidiMessage::sSysExMaxSize.
-            if (mPendingMessage[0] == SystemExclusive)
+            // SysEx larger than the allocated buffer size,
+            // Split SysEx like so:
+            //   first:  0xF0 .... 0xF0
+            //   midlle: 0xF7 .... 0xF0
+            //   last:   0xF7 .... 0xF7
+            if ((mPendingMessage[0] == SystemExclusiveStart)
+            ||  (mPendingMessage[0] == SystemExclusiveEnd))
             {
-                resetInput();
+                auto lastByte = mMessage.sysexArray[DefaultSettings::SysExMaxSize - 1];
+                mMessage.sysexArray[DefaultSettings::SysExMaxSize - 1] = SystemExclusiveStart;
+                mMessage.type = SystemExclusive;
+
+                // Get length
+                mMessage.data1   = DefaultSettings::SysExMaxSize & 0xff; // LSB
+                mMessage.data2   = byte(DefaultSettings::SysExMaxSize >> 8); // MSB
+                mMessage.channel = 0;
+                mMessage.length  = DefaultSettings::SysExMaxSize;
+                mMessage.valid   = true;
+
+                // No need to check against the inputChannel,
+                // SysEx ignores input channel
+                launchCallback();
+
+                mMessage.sysexArray[0] = SystemExclusiveEnd;
+                mMessage.sysexArray[1] = lastByte;
+                
+                mPendingMessageIndex = 2;
+                
                 return false;
             }
 
