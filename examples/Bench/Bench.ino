@@ -71,8 +71,8 @@ void setup()
     midiBench.setHandleNoteOn(handleNoteOn);
     midiBench.begin();
 
-    while(!Serial);
     Serial.begin(115200);
+    while(!Serial);
     Serial.println("Arduino Ready");
 
     midiBench.sendNoteOn(69,127,1);
