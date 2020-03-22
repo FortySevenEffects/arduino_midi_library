@@ -243,4 +243,57 @@ struct RPN
     };
 };
 
+/*! Manufacturer System Exclusive ID 
+The MIDI Manufacturers Association (MMA) issues 
+Manufacturer System Exclusive IDs to MIDI 
+hardware and software producers world-wide (except Japan).
+These MIDI ID numbers allow developers to uniquely 
+identify their products and provide a means for 
+communicating product-specific information via MIDI 
+protocol (using SysEx messages). The MIDI 1.0 Detailed 
+Specification describes the format of SysEx messages, 
+as well as all other MIDI messages that a developer 
+may need to know to maintain industry compatibility.
+
+https://www.midi.org/request-sysex-id
+*/
+enum ShortManufacturerId : uint8_t
+{
+    SequentialCircuits  = 0x01,
+    BigBriarIDP         = 0x02,
+    OctavePlateau       = 0x03,
+    MoogMusic           = 0x04,
+    // ...
+};
+
+enum LongManufacturerId : uint16_t
+{
+    /* North American Manufacturers */
+    TimeWarnerInteractive   = 0x01,
+    /* European manufacturers */
+    Dream                   = 0x2000,
+    /* Japanese Manufacturers */
+    CrimsonTechnologyInc    = 0x4000,
+    // ...
+};
+
+template<typename T, typename S>
+struct valueString {
+    T  value;
+    S strptr;
+};
+
+static const valueString<uint8_t, const char*> ManuShortValues[] = {
+	{ SequentialCircuits,       "Sequential Circuits" },
+	{ BigBriarIDP,              "Big Briar / IDP" },
+	{ OctavePlateau,            "Voyetra / Octave-Plateau" },
+	{ MoogMusic,                "Moog" },
+};
+
+static const valueString<uint16_t, const char*> ManuLongValues[] = {
+	{ TimeWarnerInteractive,    "Time Warner Interactive" },
+	{ Dream,                    "Dream" },
+	{ CrimsonTechnologyInc,     "Crimson Technology Inc" },
+};
+
 END_MIDI_NAMESPACE
