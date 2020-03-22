@@ -235,6 +235,8 @@ public:
     inline void turnThruOff();
     inline void setThruFilterMode(Thru::Mode inThruFilterMode);
 
+    inline void UpdateLastSentTime();
+
 private:
     void thruFilter(byte inChannel);
 
@@ -273,13 +275,6 @@ private:
 private:
     inline StatusByte getStatus(MidiType inType,
                                 Channel inChannel) const;
-
-    inline void UpdateLastSentTime()
-    {
-        if (mSenderActiveSensingPeriodicity)
-            mLastMessageSentTime = Platform::now();
-    };
-
 };
 
 // -----------------------------------------------------------------------------

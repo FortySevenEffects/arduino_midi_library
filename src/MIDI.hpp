@@ -47,6 +47,7 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mThruFilterMode(Thru::Full)
     , mLastError(0)
 {
+        mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -82,7 +83,6 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
 
-    mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
     mLastMessageSentTime = Platform::now();
 
     mMessage.valid   = false;
@@ -718,13 +718,13 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     // assume that the connection has been terminated. At
     // termination, the receiver will turn off all voices and return to
     // normal (non- active sensing) operation.
-    if ((mSenderActiveSensingPeriodicity > 0) && (Platform::now() - mLastMessageSentTime) > mSenderActiveSensingPeriodicity)
+    if (Settings::UseSenderActiveSensing && (mSenderActiveSensingPeriodicity > 0) && (Platform::now() - mLastMessageSentTime) > mSenderActiveSensingPeriodicity)
     {
-      sendActiveSensing();
-      mLastMessageSentTime = Platform::now();
+        sendActiveSensing();
+        mLastMessageSentTime = Platform::now();
     }
     
-    if (mReceiverActiveSensingActivated && (mLastMessageReceivedTime + ActiveSensingTimeout < Platform::now()))
+    if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActivated && (mLastMessageReceivedTime + ActiveSensingTimeout < Platform::now()))
     {
         mReceiverActiveSensingActivated = false;
 
@@ -741,7 +741,8 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
         return false;
   
     #ifndef RegionActiveSending
-    if (mMessage.type == ActiveSensing)
+
+    if (Settings::UseReceiverActiveSensing && mMessage.type == ActiveSensing)
     {
         // When an ActiveSensing message is received, the time keeping is activated.
         // When a timeout occurs, an error message is send and time keeping ends.
@@ -756,9 +757,9 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     }
 
     // Keep the time of the last received message, so we can check for the timeout
-    if (mReceiverActiveSensingActivated)
+    if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActivated)
         mLastMessageReceivedTime = Platform::now();
-        
+
     #endif
 
     handleNullVelocityNoteOnAsNoteOff();
@@ -1382,6 +1383,13 @@ inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 {
     mThruActivated = false;
     mThruFilterMode = Thru::Off;
+}
+
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::UpdateLastSentTime()
+{
+    if (Settings::UseSenderActiveSensing && mSenderActiveSensingPeriodicity)
+        mLastMessageSentTime = Platform::now();
 }
 
 /*! @} */ // End of doc group MIDI Thru

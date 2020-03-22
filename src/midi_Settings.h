@@ -61,6 +61,18 @@ struct DefaultSettings
     */
     static const bool HandleNullVelocityNoteOnAsNoteOff = true;
 
+    /*! Global switch to turn on/off sender ActiveSensing
+    Set to true to send ActiveSensing
+    Set to false will not send ActiveSensing message (will also save memory)
+    */
+    static const bool UseSenderActiveSensing = false;
+
+    /*! Global switch to turn on/off receiver ActiveSensing
+    Set to true to check for message timeouts (via ErrorCallback)
+    Set to false will not check if chained device are still alive (if they use ActiveSensing) (will also save memory)
+    */
+    static const bool UseReceiverActiveSensing = false;
+
     /*! Active Sensing is intended to be sent
     repeatedly by the sender to tell the receiver that a connection is alive. Use
     of this message is optional. When initially received, the
