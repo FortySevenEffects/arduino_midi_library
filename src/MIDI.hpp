@@ -1223,10 +1223,10 @@ template<class Transport, class Settings, class Platform>
 MidiType MidiInterface<Transport, Settings, Platform>::getTypeFromStatusByte(byte inStatus)
 {
     if ((inStatus  < 0x80) ||
-        (inStatus == 0xf4) ||
-        (inStatus == 0xf5) ||
-        (inStatus == 0xf9) ||
-        (inStatus == 0xfD))
+        (inStatus == Undefined_F4) ||
+        (inStatus == Undefined_F5) ||
+        (inStatus == Undefined_F9) ||
+        (inStatus == Undefined_FD))
         return InvalidType; // Data bytes and undefined.
     
     if (inStatus < 0xf0)
