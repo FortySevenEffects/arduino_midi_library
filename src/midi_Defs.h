@@ -81,6 +81,7 @@ using SongSelectCallback           = void (*)(byte songnumber);
 using TuneRequestCallback          = void (*)(void);
 using ClockCallback                = void (*)(void);
 using StartCallback                = void (*)(void);
+using TickCallback                 = void (*)(void);
 using ContinueCallback             = void (*)(void);
 using StopCallback                 = void (*)(void);
 using ActiveSensingCallback        = void (*)(void);
@@ -92,13 +93,13 @@ using SystemResetCallback          = void (*)(void);
 enum MidiType: uint8_t
 {
     InvalidType           = 0x00,    ///< For notifying errors
-    NoteOff               = 0x80,    ///< Note Off
-    NoteOn                = 0x90,    ///< Note On
-    AfterTouchPoly        = 0xA0,    ///< Polyphonic AfterTouch
-    ControlChange         = 0xB0,    ///< Control Change / Channel Mode
-    ProgramChange         = 0xC0,    ///< Program Change
-    AfterTouchChannel     = 0xD0,    ///< Channel (monophonic) AfterTouch
-    PitchBend             = 0xE0,    ///< Pitch Bend
+    NoteOff               = 0x80,    ///< Channel Message - Note Off
+    NoteOn                = 0x90,    ///< Channel Message - Note On
+    AfterTouchPoly        = 0xA0,    ///< Channel Message - Polyphonic AfterTouch
+    ControlChange         = 0xB0,    ///< Channel Message - Control Change / Channel Mode
+    ProgramChange         = 0xC0,    ///< Channel Message - Program Change
+    AfterTouchChannel     = 0xD0,    ///< Channel Message - Channel (monophonic) AfterTouch
+    PitchBend             = 0xE0,    ///< Channel Message - Pitch Bend
     SystemExclusive       = 0xF0,    ///< System Exclusive
 	SystemExclusiveStart  = SystemExclusive,   ///< System Exclusive Start
     TimeCodeQuarterFrame  = 0xF1,    ///< System Common - MIDI Time Code Quarter Frame
@@ -110,7 +111,7 @@ enum MidiType: uint8_t
 	SystemExclusiveEnd    = 0xF7,    ///< System Exclusive End
     Clock                 = 0xF8,    ///< System Real Time - Timing Clock
     Undefined_F9          = 0xF9,
-    Tick                  = Undefined_F9,
+    Tick                  = Undefined_F9, ///< System Real Time - Timing Tick (1 tick = 10 milliseconds)
     Start                 = 0xFA,    ///< System Real Time - Start
     Continue              = 0xFB,    ///< System Real Time - Continue
     Stop                  = 0xFC,    ///< System Real Time - Stop

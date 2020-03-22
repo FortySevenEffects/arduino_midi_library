@@ -831,6 +831,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             case Continue:
             case Stop:
             case Clock:
+            case Tick:
             case ActiveSensing:
             case SystemReset:
             case TuneRequest:
@@ -922,6 +923,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             {
                 case Clock:
                 case Start:
+                case Tick:
                 case Continue:
                 case Stop:
                 case ActiveSensing:
@@ -1280,6 +1282,7 @@ void MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(Mi
         case TuneRequest:           mTuneRequestCallback            = nullptr; break;
         case Clock:                 mClockCallback                  = nullptr; break;
         case Start:                 mStartCallback                  = nullptr; break;
+        case Tick:                  mTickCallback                   = nullptr; break;
         case Continue:              mContinueCallback               = nullptr; break;
         case Stop:                  mStopCallback                   = nullptr; break;
         case ActiveSensing:         mActiveSensingCallback          = nullptr; break;
@@ -1307,6 +1310,7 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
             // Real-time messages
         case Clock:                 if (mClockCallback != nullptr)                 mClockCallback();           break;
         case Start:                 if (mStartCallback != nullptr)                 mStartCallback();           break;
+        case Tick:                  if (mTickCallback != nullptr)                  mTickCallback();            break;
         case Continue:              if (mContinueCallback != nullptr)              mContinueCallback();        break;
         case Stop:                  if (mStopCallback != nullptr)                  mStopCallback();            break;
         case ActiveSensing:         if (mActiveSensingCallback != nullptr)         mActiveSensingCallback();   break;

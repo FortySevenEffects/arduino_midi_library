@@ -113,6 +113,7 @@ public:
     inline void sendClock()         { sendRealTime(Clock); };
     inline void sendStart()         { sendRealTime(Start); };
     inline void sendStop()          { sendRealTime(Stop);  };
+    inline void sendTick()          { sendRealTime(Tick);  };
     inline void sendContinue()      { sendRealTime(Continue);  };
     inline void sendActiveSensing() { sendRealTime(ActiveSensing);  };
     inline void sendSystemReset()   { sendRealTime(SystemReset);  };
@@ -198,6 +199,7 @@ public:
     inline void setHandleTuneRequest(TuneRequestCallback fptr) { mTuneRequestCallback = fptr; }
     inline void setHandleClock(ClockCallback fptr) { mClockCallback = fptr; }
     inline void setHandleStart(StartCallback fptr) { mStartCallback = fptr; }
+    inline void setHandleTick(TickCallback fptr) { mTickCallback = fptr; }
     inline void setHandleContinue(ContinueCallback fptr) { mContinueCallback = fptr; }
     inline void setHandleStop(StopCallback fptr) { mStopCallback = fptr; }
     inline void setHandleActiveSensing(ActiveSensingCallback fptr) { mActiveSensingCallback = fptr; }
@@ -224,6 +226,7 @@ private:
     TuneRequestCallback mTuneRequestCallback = nullptr;
     ClockCallback mClockCallback = nullptr;
     StartCallback mStartCallback = nullptr;
+    TickCallback mTickCallback = nullptr;
     ContinueCallback mContinueCallback = nullptr;
     StopCallback mStopCallback = nullptr;
     ActiveSensingCallback mActiveSensingCallback = nullptr;
