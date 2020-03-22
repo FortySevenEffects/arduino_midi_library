@@ -27,7 +27,7 @@
 
 #pragma once
 
-#define MIDI_NAMESPACE                  midi_v440
+#define MIDI_NAMESPACE                  midi
 #define BEGIN_MIDI_NAMESPACE            namespace MIDI_NAMESPACE {
 #define END_MIDI_NAMESPACE              }
 
