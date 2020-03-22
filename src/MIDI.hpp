@@ -909,17 +909,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mPendingMessageIndex++;
         }
 
-        if (Settings::Use1ByteParsing)
-        {
-            // Message is not complete.
-            return false;
-        }
-        else
-        {
-            // Call the parser recursively
-            // to parse the rest of the message.
-            return parse();
-        }
+        return (Settings::Use1ByteParsing) ? false : parse();
     }
     else
     {
