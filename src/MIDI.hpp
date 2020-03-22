@@ -42,8 +42,10 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mCurrentNrpnNumber(0xffff)
     , mLastMessageSentTime(0)
     , mSenderActiveSensingPeriodicity(0)
+    , mReceiverActiveSensingActivated(false)
     , mThruActivated(false)
     , mThruFilterMode(Thru::Full)
+    , mLastError(0)
 {
 }
 
@@ -138,6 +140,7 @@ void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMes
         }
     }
     mTransport.endTransmission();
+    UpdateLastSentTime();
 }
 
 
@@ -199,15 +202,13 @@ void MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
             }
 
             mTransport.endTransmission();
+            UpdateLastSentTime();
         }
     }
     else if (inType >= Clock && inType <= SystemReset)
     {
         sendRealTime(inType); // System Real-time and 1 byte.
     }
-    
-    if (mSenderActiveSensingPeriodicity)
-        mLastMessageSentTime = Platform::now();
 }
 
 // -----------------------------------------------------------------------------
@@ -371,7 +372,8 @@ void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
             mTransport.write(MidiType::SystemExclusiveEnd);
 
         mTransport.endTransmission();
-    }
+        UpdateLastSentTime();
+   }
 
     if (Settings::UseRunningStatus)
         mRunningStatus_TX = InvalidType;
@@ -486,6 +488,7 @@ void MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
             {
                 mTransport.write((byte)inType);
                 mTransport.endTransmission();
+                UpdateLastSentTime();
             }
             break;
         default:
@@ -690,6 +693,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read()
 template<class Transport, class Settings, class Platform>
 inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel)
 {
+    #ifndef RegionActiveSending
     // Active Sensing. This message is intended to be sent
     // repeatedly to tell the receiver that a connection is alive. Use
     // of this message is optional. When initially received, the
@@ -700,18 +704,49 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     // normal (non- active sensing) operation.
     if ((mSenderActiveSensingPeriodicity > 0) && (Platform::now() - mLastMessageSentTime) > mSenderActiveSensingPeriodicity)
     {
-      sendRealTime(ActiveSensing);
+      sendActiveSensing();
       mLastMessageSentTime = Platform::now();
     }
     
+    if (mReceiverActiveSensingActivated && (mLastMessageReceivedTime + ActiveSensingTimeout < Platform::now()))
+    {
+        mReceiverActiveSensingActivated = false;
+
+        bitSet(mLastError, ErrorActiveSensingTimeout);
+        if (mErrorCallback)
+            mErrorCallback(mLastError);
+    }
+    #endif
+
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
 
     if (!parse())
         return false;
+  
+    #ifndef RegionActiveSending
+    if (mMessage.type == ActiveSensing)
+    {
+        // When an ActiveSensing message is received, the time keeping is activated.
+        // When a timeout occurs, an error message is send and time keeping ends.
+        mReceiverActiveSensingActivated = true;
+
+        if (bitRead(mLastError, ErrorActiveSensingTimeout))
+        {
+            bitClear(mLastError, ErrorActiveSensingTimeout);
+            if (mErrorCallback)
+                mErrorCallback(mLastError);
+        }
+    }
+
+    // Keep the time of the last received message, so we can check for the timeout
+    if (mReceiverActiveSensingActivated)
+        mLastMessageReceivedTime = Platform::now();
+        
+    #endif
 
     handleNullVelocityNoteOnAsNoteOff();
-    
+
     const bool channelMatch = inputFilter(inChannel);
     if (channelMatch)
         launchCallback();
@@ -730,6 +765,8 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
     if (mTransport.available() == 0)
         return false; // No data available.
 
+    bitClear(mLastError, ErrorParse);
+
     // Parsing algorithm:
     // Get a byte from the serial buffer.
     // If there is no pending message to be recomposed, start a new one.
@@ -742,7 +779,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
     const byte extracted = mTransport.read();
 
     // Ignore Undefined
-    if (extracted == 0xf9 || extracted == 0xfd)
+    if (extracted == Undefined_F9 || extracted == Undefined_FD)
         return (Settings::Use1ByteParsing) ? false : parse();
 
     if (mPendingMessageIndex == 0)
@@ -825,6 +862,10 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             case InvalidType:
             default:
                 // This is obviously wrong. Let's get the hell out'a here.
+                bitSet(mLastError, ErrorParse);
+                if (mErrorCallback)
+                    mErrorCallback(mLastError);
+
                 resetInput();
                 return false;
                 break;
@@ -919,6 +960,10 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                     else
                     {
                         // Well well well.. error.
+                        bitSet(mLastError, ErrorParse);
+                        if (mErrorCallback)
+                            mErrorCallback(mLastError);
+
                         resetInput();
                         return false;
                     }
@@ -977,10 +1022,8 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 mMessage.channel = 0;
 
             mMessage.data1 = mPendingMessage[1];
-
             // Save data2 only if applicable
-            mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;
-            
+            mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;        
             mMessage.length = mPendingMessageExpectedLength;
             
             // Reset local variables
@@ -1239,7 +1282,7 @@ template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::launchCallback()
 {
     if (mMessageCallback != 0) mMessageCallback(mMessage);
-                                                              
+
     // The order is mixed to allow frequent messages to trigger their callback faster.
     switch (mMessage.type)
     {

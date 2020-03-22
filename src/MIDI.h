@@ -102,6 +102,7 @@ public:
     inline void sendSongPosition(unsigned inBeats);
     inline void sendSongSelect(DataByte inSongNumber);
     inline void sendTuneRequest();
+
     inline void sendRealTime(MidiType inType);
     
     inline void beginRpn(unsigned inNumber,
@@ -168,6 +169,7 @@ public:
 
 public:
     inline void setHandleMessage(void (*fptr)(const MidiMessage&)) { mMessageCallback = fptr; };
+    inline void setHandleError(ErrorCallback fptr) { mErrorCallback = fptr; }
     inline void setHandleNoteOff(NoteOffCallback fptr) { mNoteOffCallback = fptr; }
     inline void setHandleNoteOn(NoteOnCallback fptr) { mNoteOnCallback = fptr; }
     inline void setHandleAfterTouchPoly(AfterTouchPolyCallback fptr) { mAfterTouchPolyCallback = fptr; }
@@ -193,6 +195,7 @@ private:
     void launchCallback();
 
     void (*mMessageCallback)(const MidiMessage& message) = nullptr;
+    ErrorCallback mErrorCallback = nullptr;
     NoteOffCallback mNoteOffCallback = nullptr;
     NoteOnCallback mNoteOnCallback = nullptr;
     AfterTouchPolyCallback mAfterTouchPolyCallback = nullptr;
@@ -251,12 +254,23 @@ private:
     Thru::Mode      mThruFilterMode : 7;
     MidiMessage     mMessage;
 
+    int8_t          mLastError;
+
     unsigned long   mLastMessageSentTime;
+    unsigned long   mLastMessageReceivedTime;
     unsigned long   mSenderActiveSensingPeriodicity;
+    bool            mReceiverActiveSensingActivated;
 
 private:
     inline StatusByte getStatus(MidiType inType,
                                 Channel inChannel) const;
+
+    inline void UpdateLastSentTime()
+    {
+        if (mSenderActiveSensingPeriodicity)
+            mLastMessageSentTime = Platform::now();
+    };
+
 };
 
 // -----------------------------------------------------------------------------

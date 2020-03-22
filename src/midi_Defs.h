@@ -51,6 +51,10 @@ BEGIN_MIDI_NAMESPACE
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
 
+/*! Receiving Active Sensing 
+*/
+static const uint16_t ActiveSensingTimeout = 300;
+
 // -----------------------------------------------------------------------------
 // Type definitions
 
@@ -60,8 +64,14 @@ typedef byte Channel;
 typedef byte FilterMode;
 
 // -----------------------------------------------------------------------------
+// Errors
+static const uint8_t ErrorParse = 0;
+static const uint8_t ErrorActiveSensingTimeout = 1;
+
+// -----------------------------------------------------------------------------
 // Aliasing
 
+using ErrorCallback                = void (*)(int8_t);
 using NoteOffCallback              = void (*)(Channel channel, byte note, byte velocity);
 using NoteOnCallback               = void (*)(Channel channel, byte note, byte velocity);
 using AfterTouchPolyCallback       = void (*)(Channel channel, byte note, byte velocity);
@@ -99,12 +109,17 @@ enum MidiType: uint8_t
     TimeCodeQuarterFrame  = 0xF1,    ///< System Common - MIDI Time Code Quarter Frame
     SongPosition          = 0xF2,    ///< System Common - Song Position Pointer
     SongSelect            = 0xF3,    ///< System Common - Song Select
+    Undefined_F4          = 0xF4,
+    Undefined_F5          = 0xF5,
     TuneRequest           = 0xF6,    ///< System Common - Tune Request
 	SystemExclusiveEnd    = 0xF7,    ///< System Exclusive End
     Clock                 = 0xF8,    ///< System Real Time - Timing Clock
+    Undefined_F9          = 0xF9,
+    Tick                  = Undefined_F9,
     Start                 = 0xFA,    ///< System Real Time - Start
     Continue              = 0xFB,    ///< System Real Time - Continue
     Stop                  = 0xFC,    ///< System Real Time - Stop
+    Undefined_FD          = 0xFD,
     ActiveSensing         = 0xFE,    ///< System Real Time - Active Sensing
     SystemReset           = 0xFF,    ///< System Real Time - System Reset
 };

@@ -70,8 +70,10 @@ struct DefaultSettings
     termination, the receiver will turn off all voices and return to
     normal (non- active sensing) operation.
 
-    Setting this field to 0 will disable MIDI active sensing.
-    Typical value is 300 (ms) - an Active Sensing command is send every 300ms.
+    Typical value is 250 (ms) - an Active Sensing command is send every 250ms.
+    (All Roland devices send Active Sensing every 250ms)
+
+    Setting this field to 0 will disable sending MIDI active sensing.
     */
     static const uint16_t SenderActiveSensingPeriodicity = 0;
 
