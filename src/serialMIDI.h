@@ -95,10 +95,8 @@ private:
  Then call midi2.begin(), midi2.read() etc..
  */
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)  \
-    typedef MIDI_NAMESPACE::SerialMIDI<Type> __smt;\
-    typedef MIDI_NAMESPACE::MidiInterface<__smt> TypedMidiInterface;\
-    __smt serialMidi(SerialPort);\
-    TypedMidiInterface Name((__smt&)serialMidi);
+    MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
+    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
 
 #if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     // Leonardo, Due and other USB boards use Serial1 by default.
