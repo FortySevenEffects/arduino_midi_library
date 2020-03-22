@@ -10,7 +10,7 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 void handleNoteOn(byte inChannel, byte inNote, byte inVelocity)
 {
     Serial.print("Note On: ");
-    Serial.println(MIDI_NAMESPACE::NoteValues[inNote].strptr);
+    Serial.println(MIDI_NAMESPACE::NoteValues[inNote]);
 }
 
 // -----------------------------------------------------------------------------
