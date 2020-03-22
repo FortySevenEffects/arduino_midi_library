@@ -138,17 +138,6 @@ struct Thru
     };
 };
 
-/*! Deprecated: use Thru::Mode instead.
- Will be removed in v5.0.
-*/
-enum __attribute__ ((deprecated)) MidiFilterMode
-{
-    Off                 = Thru::Off,
-    Full                = Thru::Full,
-    SameChannel         = Thru::SameChannel,
-    DifferentChannel    = Thru::DifferentChannel,
-};
-
 // -----------------------------------------------------------------------------
 
 /*! \brief Enumeration of Control Change command numbers.
