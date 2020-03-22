@@ -2,9 +2,9 @@
  *  @file       midi_Platform.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Platform
- *  @author     Francois Best
- *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best
+ *  @author     lathoub
+ *  @date       22/03/20
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

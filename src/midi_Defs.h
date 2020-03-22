@@ -2,7 +2,7 @@
  *  @file       midi_Defs.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Definitions
- *  @author     Francois Best
+ *  @author     Francois Best, lathoub
  *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best
  *
