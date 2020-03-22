@@ -240,22 +240,30 @@ public:
     inline void turnThruOff();
     inline void setThruFilterMode(Thru::Mode inThruFilterMode);
 
-    inline void UpdateLastSentTime();
-
 private:
     void thruFilter(byte inChannel);
+
+    // -------------------------------------------------------------------------
+    // MIDI Parsing
 
 private:
     bool parse();
     inline void handleNullVelocityNoteOnAsNoteOff();
     inline bool inputFilter(Channel inChannel);
     inline void resetInput();
+    inline void UpdateLastSentTime();
+
+    // -------------------------------------------------------------------------
+    // Transport
 
 public:
     Transport* getTransport() { return &mTransport; };
 
 private:
     Transport& mTransport;
+
+    // -------------------------------------------------------------------------
+    // Internal variables
 
 private:
     Channel         mInputChannel;
