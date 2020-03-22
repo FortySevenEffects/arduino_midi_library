@@ -103,6 +103,15 @@ public:
     inline void sendSongSelect(DataByte inSongNumber);
     inline void sendTuneRequest();
 
+    inline void sendCommon(MidiType inType, DataByte = 0);
+
+    inline void sendClock()         { sendRealTime(Clock); };
+    inline void sendStart()         { sendRealTime(Start); };
+    inline void sendStop()          { sendRealTime(Stop);  };
+    inline void sendContinue()      { sendRealTime(Continue);  };
+    inline void sendActiveSensing() { sendRealTime(ActiveSensing);  };
+    inline void sendSystemReset()   { sendRealTime(SystemReset);  };
+
     inline void sendRealTime(MidiType inType);
     
     inline void beginRpn(unsigned inNumber,

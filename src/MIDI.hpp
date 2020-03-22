@@ -387,14 +387,7 @@ void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::sendTuneRequest()
 {
-    if (mTransport.beginTransmission(MidiType::TuneRequest))
-    {
-        mTransport.write(TuneRequest);
-        mTransport.endTransmission();
-    }
-
-    if (Settings::UseRunningStatus)
-        mRunningStatus_TX = InvalidType;
+    sendCommon(TuneRequest);
 }
 
 /*! \brief Send a MIDI Time Code Quarter Frame.
@@ -405,7 +398,7 @@ void MidiInterface<Transport, Settings, Platform>::sendTuneRequest()
  */
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
-                                                                   DataByte inValuesNibble)
+                                                                            DataByte inValuesNibble)
 {
     const byte data = byte((((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f)));
     sendTimeCodeQuarterFrame(data);
@@ -420,15 +413,7 @@ void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(Data
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inData)
 {
-    if (mTransport.beginTransmission(MidiType::TimeCodeQuarterFrame))
-    {
-        mTransport.write((byte)TimeCodeQuarterFrame);
-        mTransport.write(inData);
-        mTransport.endTransmission();
-    }
-
-    if (Settings::UseRunningStatus)
-        mRunningStatus_TX = InvalidType;
+    sendCommon(TimeCodeQuarterFrame, inData);
 }
 
 /*! \brief Send a Song Position Pointer message.
@@ -437,27 +422,58 @@ void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(Data
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::sendSongPosition(unsigned inBeats)
 {
-    if (mTransport.beginTransmission(MidiType::SongPosition))
-    {
-        mTransport.write((byte)SongPosition);
-        mTransport.write(inBeats & 0x7f);
-        mTransport.write((inBeats >> 7) & 0x7f);
-        mTransport.endTransmission();
-    }
-
-    if (Settings::UseRunningStatus)
-        mRunningStatus_TX = InvalidType;
+    sendCommon(SongPosition, inBeats);
 }
 
 /*! \brief Send a Song Select message */
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::sendSongSelect(DataByte inSongNumber)
 {
-    if (mTransport.beginTransmission(MidiType::SongSelect))
+    sendCommon(SongSelect, inSongNumber);
+}
+
+/*! \brief Send a Common message. Common messages reset the running status.
+
+ \param inType    The available Common types are:
+ TimeCodeQuarterFrame, SongPosition, SongSelect and TuneRequest.
+ @see MidiType
+ \param inData1   The byte that goes with the common message.
+ */
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, DataByte inData1)
+{
+    switch (inType)
     {
-        mTransport.write((byte)MidiType::SongSelect);
-        mTransport.write(inSongNumber & 0x7f);
+        case TimeCodeQuarterFrame:
+        case SongPosition:
+        case SongSelect:
+        case TuneRequest:
+            break;
+        default:
+            // Invalid Common marker
+            return;
+    }
+
+    if (mTransport.beginTransmission(inType))
+    {
+            mTransport.write((byte)inType);
+            switch (inType)
+            {
+            case TimeCodeQuarterFrame:
+                mTransport.write(inData1);
+                break;
+            case SongPosition:
+                mTransport.write(inData1 & 0x7f);
+                mTransport.write((inData1 >> 7) & 0x7f);
+                break;
+            case SongSelect:
+                mTransport.write(inData1 & 0x7f);
+                break;
+            case TuneRequest:
+                break;
+        }
         mTransport.endTransmission();
+        UpdateLastSentTime();
     }
 
     if (Settings::UseRunningStatus)
