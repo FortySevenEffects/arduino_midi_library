@@ -73,7 +73,7 @@ script:
     # Build current example
     - |
         if [ ! "${BUILD_UNIT_TESTS}" ]; then
-            platformio ci --lib="." --board=uno --board="due" --board="zero" --board="leonardo" --board="micro" --board="nanoatmega328" --board="megaatmega2560" --board="teensy20" --board="teensy20pp" --board="teensy30" --board="teensy31"
+            platformio ci --lib="." --board=uno
         fi
 
 after_success:
