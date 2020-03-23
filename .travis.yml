@@ -26,9 +26,6 @@ env:
         - PLATFORMIO_CI_SRC=examples/Callbacks
         - PLATFORMIO_CI_SRC=examples/DualMerger
         - PLATFORMIO_CI_SRC=examples/Input
-        - PLATFORMIO_CI_SRC=examples/MidiUSB REQUIRES_USB=1
-        - PLATFORMIO_CI_SRC=examples/MidiUSB-CompleteAPI REQUIRES_USB=1
-        - PLATFORMIO_CI_SRC=examples/MidiUSB-Thru REQUIRES_USB=1
         - PLATFORMIO_CI_SRC=examples/RPN_NRPN
         - PLATFORMIO_CI_SRC=examples/SimpleSynth
 
@@ -76,11 +73,7 @@ script:
     # Build current example
     - |
         if [ ! "${BUILD_UNIT_TESTS}" ]; then
-            if [ "${REQUIRES_USB}" ]; then
-                platformio ci --lib="." --lib=external/midi-usb --board="due" --board="dueUSB" --board="zero" --board="zeroUSB" --board="leonardo"
-            else
-                platformio ci --lib="." --board=uno --board="due" --board="zero" --board="leonardo" --board="micro" --board="nanoatmega328" --board="megaatmega2560" --board="teensy20" --board="teensy20pp" --board="teensy30" --board="teensy31"
-            fi
+            platformio ci --lib="." --board=uno --board="due" --board="zero" --board="leonardo" --board="micro" --board="nanoatmega328" --board="megaatmega2560" --board="teensy20" --board="teensy20pp" --board="teensy30" --board="teensy31"
         fi
 
 after_success:
