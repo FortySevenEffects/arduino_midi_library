@@ -796,7 +796,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
     const byte extracted = mTransport.read();
 
     // Ignore Undefined
-    if (extracted == Undefined_F9 || extracted == Undefined_FD)
+    if (extracted == Undefined_FD)
         return (Settings::Use1ByteParsing) ? false : parse();
 
     if (mPendingMessageIndex == 0)
@@ -1217,7 +1217,6 @@ MidiType MidiInterface<Transport, Settings, Platform>::getTypeFromStatusByte(byt
     if ((inStatus  < 0x80) ||
         (inStatus == Undefined_F4) ||
         (inStatus == Undefined_F5) ||
-        (inStatus == Undefined_F9) ||
         (inStatus == Undefined_FD))
         return InvalidType; // Data bytes and undefined.
     
