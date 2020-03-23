@@ -40,11 +40,12 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
-    , mLastMessageSentTime(0)
-    , mSenderActiveSensingPeriodicity(0)
-    , mReceiverActiveSensingActivated(false)
     , mThruActivated(false)
     , mThruFilterMode(Thru::Full)
+    , mLastMessageSentTime(0)
+    , mLastMessageReceivedTime(0)
+    , mSenderActiveSensingPeriodicity(0)
+    , mReceiverActiveSensingActivated(false)
     , mLastError(0)
 {
         mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
