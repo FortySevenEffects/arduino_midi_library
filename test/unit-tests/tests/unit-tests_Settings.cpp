@@ -5,7 +5,6 @@ BEGIN_MIDI_NAMESPACE
 const bool DefaultSettings::UseRunningStatus;
 const bool DefaultSettings::HandleNullVelocityNoteOnAsNoteOff;
 const bool DefaultSettings::Use1ByteParsing;
-const long DefaultSettings::BaudRate;
 const unsigned DefaultSettings::SysExMaxSize;
 
 END_MIDI_NAMESPACE

@@ -7,6 +7,8 @@ add_library(test-mocks STATIC
     test-mocks_SerialMock.cpp
     test-mocks_SerialMock.hpp
     test-mocks_SerialMock.h
+    midi_RingBuffer.h
+    midi_RingBuffer.hpp
 )
 
 target_link_libraries(test-mocks

@@ -2,7 +2,7 @@
 
 #include "test-mocks.h"
 #include <inttypes.h>
-#include <src/midi_RingBuffer.h>
+#include <midi_RingBuffer.h>
 
 BEGIN_TEST_MOCKS_NAMESPACE
 
