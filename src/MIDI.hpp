@@ -471,6 +471,8 @@ void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, D
                 break;
             case TuneRequest:
                 break;
+            default:
+                break; // LCOV_EXCL_LINE - Coverage blind spot
         }
         mTransport.endTransmission();
         UpdateLastSentTime();
