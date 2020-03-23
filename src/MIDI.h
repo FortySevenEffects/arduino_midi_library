@@ -280,13 +280,11 @@ private:
     bool            mThruActivated  : 1;
     Thru::Mode      mThruFilterMode : 7;
     MidiMessage     mMessage;
-
-    int8_t          mLastError;
-
     unsigned long   mLastMessageSentTime;
     unsigned long   mLastMessageReceivedTime;
     unsigned long   mSenderActiveSensingPeriodicity;
     bool            mReceiverActiveSensingActivated;
+    int8_t          mLastError;
 
 private:
     inline StatusByte getStatus(MidiType inType,
