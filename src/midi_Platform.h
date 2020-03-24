@@ -39,6 +39,13 @@ struct DefaultPlatform
    static unsigned long now() { return ::millis(); };
 };
 
+#else
+
+struct DefaultPlatform
+{
+   static unsigned long now() { return 0; };
+};
+
 #endif
 
 END_MIDI_NAMESPACE
