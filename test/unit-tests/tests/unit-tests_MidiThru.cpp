@@ -291,7 +291,7 @@ TEST(MidiThru, differentChannelOmni) // Acts like off
 TEST(MidiThru, multiByteThru)
 {
     typedef VariableSettings<false, false> MultiByteParsing;
-    typedef midi::MidiInterface<SerialMock, MultiByteParsing> MultiByteMidiInterface;
+    typedef midi::MidiInterface<Transport, MultiByteParsing> MultiByteMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -322,7 +322,7 @@ TEST(MidiThru, multiByteThru)
 TEST(MidiThru, withTxRunningStatus)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);

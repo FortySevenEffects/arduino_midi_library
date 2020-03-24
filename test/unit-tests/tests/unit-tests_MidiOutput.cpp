@@ -58,7 +58,7 @@ TEST(MidiOutput, sendGenericSingle)
 TEST(MidiOutput, sendGenericWithRunningStatus)
 {
     typedef VariableSettings<true, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -80,7 +80,7 @@ TEST(MidiOutput, sendGenericWithRunningStatus)
 TEST(MidiOutput, sendGenericWithoutRunningStatus)
 {
     typedef VariableSettings<false, true> Settings; // No running status
-    typedef midi::MidiInterface<SerialMock, Settings> NoRsMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> NoRsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -549,7 +549,7 @@ TEST(MidiOutput, sendRealTime)
 TEST(MidiOutput, RPN)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -667,7 +667,7 @@ TEST(MidiOutput, RPN)
 TEST(MidiOutput, NRPN)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -785,7 +785,7 @@ TEST(MidiOutput, NRPN)
 TEST(MidiOutput, runningStatusCancellation)
 {
     typedef VariableSettings<true, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
