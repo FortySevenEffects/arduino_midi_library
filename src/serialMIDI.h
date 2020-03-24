@@ -51,7 +51,7 @@ public:
 	};
 
 public:
-	void begin(MIDI_NAMESPACE::Channel inChannel = 1)
+	void begin()
 	{
         // Initialise the Serial port
         #if defined(AVR_CAKE)
