@@ -1250,13 +1250,6 @@ bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inT
             inType == ProgramChange);
 }
 
-template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::UpdateLastSentTime()
-{
-    if (Settings::UseSenderActiveSensing && mSenderActiveSensingPeriodicity)
-        mLastMessageSentTime = Platform::now();
-}
-
 // -----------------------------------------------------------------------------
 
 /*! \brief Detach an external function from the given type.
@@ -1386,6 +1379,13 @@ inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 {
     mThruActivated = false;
     mThruFilterMode = Thru::Off;
+}
+
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::UpdateLastSentTime()
+{
+    if (Settings::UseSenderActiveSensing && mSenderActiveSensingPeriodicity)
+        mLastMessageSentTime = Platform::now();
 }
 
 /*! @} */ // End of doc group MIDI Thru
