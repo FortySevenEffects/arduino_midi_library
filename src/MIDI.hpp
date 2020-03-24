@@ -731,7 +731,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     {
         mReceiverActiveSensingActivated = false;
 
-        mLastError |= 1UL << ErrorActiveSensingTimeout; // set the ErrorActiveSensingTimeout bit
+        bitSet(mLastError, ErrorActiveSensingTimeout);
         if (mErrorCallback)
             mErrorCallback(mLastError);
     }
@@ -751,10 +751,9 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
         // When a timeout occurs, an error message is send and time keeping ends.
         mReceiverActiveSensingActivated = true;
 
-        // is ErrorActiveSensingTimeout bit in mLastError on
-        if (mLastError & (1 << (ErrorActiveSensingTimeout - 1)))
+        if (bitRead(mLastError, ErrorActiveSensingTimeout))
         {
-            mLastError &= ~(1UL << ErrorActiveSensingTimeout); // clear the ErrorActiveSensingTimeout bit
+            bitClear(mLastError, ErrorActiveSensingTimeout);
             if (mErrorCallback)
                 mErrorCallback(mLastError);
         }
@@ -786,8 +785,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
     if (mTransport.available() == 0)
         return false; // No data available.
 
-    // clear the ErrorParse bit
-    mLastError &= ~(1UL << ErrorParse);
+    bitClear(mLastError, ErrorParse);
 
     // Parsing algorithm:
     // Get a byte from the serial buffer.
@@ -885,7 +883,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             case InvalidType:
             default:
                 // This is obviously wrong. Let's get the hell out'a here.
-                mLastError |= 1UL << ErrorParse; // set the ErrorParse bit
+                bitSet(mLastError, ErrorParse);
                 if (mErrorCallback)
                     mErrorCallback(mLastError);
 
@@ -974,7 +972,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                     else
                     {
                         // Well well well.. error.
-                        mLastError |= 1UL << ErrorParse; // set the error bits
+                        bitSet(mLastError, ErrorParse);
                         if (mErrorCallback)
                             mErrorCallback(mLastError);
 
