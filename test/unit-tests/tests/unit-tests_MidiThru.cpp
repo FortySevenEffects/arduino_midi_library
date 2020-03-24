@@ -15,7 +15,7 @@ using namespace testing;
 USING_NAMESPACE_UNIT_TESTS
 typedef test_mocks::SerialMock<32> SerialMock;
 typedef midi::SerialMIDI<SerialMock> Transport;
-typedef midi::MidiInterface<SerialMock> MidiInterface;
+typedef midi::MidiInterface<Transport> MidiInterface;
 typedef std::vector<byte> Buffer;
 
 template<unsigned Size>
