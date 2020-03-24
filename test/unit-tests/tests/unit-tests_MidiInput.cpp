@@ -175,7 +175,7 @@ TEST(MidiInput, inputDisabled)
 TEST(MidiInput, multiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MultiByteMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
