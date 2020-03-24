@@ -61,6 +61,17 @@ struct DefaultSettings
     */
     static const bool HandleNullVelocityNoteOnAsNoteOff = true;
 
+    /*! Setting this to true will make MIDI.read parse only one byte of data for each
+    call when data is available. This can speed up your application if receiving
+    a lot of traffic, but might induce MIDI Thru and treatment latency.
+    */
+    static const bool Use1ByteParsing = true;
+
+    /*! Maximum size of SysEx receivable. Decrease to save RAM if you don't expect
+    to receive SysEx, or adjust accordingly.
+    */
+    static const unsigned SysExMaxSize = 128;
+
     /*! Global switch to turn on/off sender ActiveSensing
     Set to true to send ActiveSensing
     Set to false will not send ActiveSensing message (will also save memory)
@@ -88,17 +99,6 @@ struct DefaultSettings
     Setting this field to 0 will disable sending MIDI active sensing.
     */
     static const uint16_t SenderActiveSensingPeriodicity = 0;
-
-    /*! Setting this to true will make MIDI.read parse only one byte of data for each
-    call when data is available. This can speed up your application if receiving
-    a lot of traffic, but might induce MIDI Thru and treatment latency.
-    */
-    static const bool Use1ByteParsing = false;
-
-    /*! Maximum size of SysEx receivable. Decrease to save RAM if you don't expect
-    to receive SysEx, or adjust accordingly.
-    */
-    static const unsigned SysExMaxSize = 128;
 };
 
 END_MIDI_NAMESPACE
