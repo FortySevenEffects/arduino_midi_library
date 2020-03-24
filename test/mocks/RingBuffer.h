@@ -27,10 +27,6 @@
 
 #pragma once
 
-#include "midi_Namespace.h"
-
-BEGIN_MIDI_NAMESPACE
-
 template<typename DataType, int Size>
 class RingBuffer
 {
@@ -56,7 +52,5 @@ private:
     DataType* mWriteHead;
     DataType* mReadHead;
 };
-
-END_MIDI_NAMESPACE
 
 #include "midi_RingBuffer.hpp"

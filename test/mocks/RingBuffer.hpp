@@ -27,8 +27,6 @@
 
 #pragma once
 
-BEGIN_MIDI_NAMESPACE
-
 template<typename DataType, int Size>
 RingBuffer<DataType, Size>::RingBuffer()
     : mWriteHead(mData)
@@ -117,5 +115,3 @@ void RingBuffer<DataType, Size>::read(DataType* outData, int inSize)
         outData[i] = read();
     }
 }
-
-END_MIDI_NAMESPACE

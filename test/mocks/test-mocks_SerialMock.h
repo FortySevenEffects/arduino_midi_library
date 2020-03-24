@@ -2,7 +2,7 @@
 
 #include "test-mocks.h"
 #include <inttypes.h>
-#include <midi_RingBuffer.h>
+#include "RingBuffer.h"
 
 BEGIN_TEST_MOCKS_NAMESPACE
 
@@ -23,7 +23,7 @@ public: // Test Helpers API
     void moveTxToRx(); // Simulate loopback
 
 public:
-    typedef midi::RingBuffer<uint8_t, BufferSize> Buffer;
+    typedef RingBuffer<uint8_t, BufferSize> Buffer;
     Buffer mTxBuffer;
     Buffer mRxBuffer;
     int mBaudrate;
