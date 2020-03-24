@@ -122,7 +122,7 @@ TEST(MidiInput, initMessage)
 {
     SerialMock serial;
     Transport transport(serial);
-    MidiInterface midi((midi::SerialMIDI<SerialMock>&)transport);
+    MidiInterface midi((Transport&)transport);
 
     EXPECT_EQ(midi.getType(),               midi::InvalidType);
     EXPECT_EQ(midi.getChannel(),            0);
@@ -178,7 +178,9 @@ TEST(MidiInput, multiByteParsing)
     typedef midi::MidiInterface<SerialMock, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
-    MultiByteMidiInterface midi(serial);
+    Transport transport(serial);
+    MultiByteMidiInterface midi(transport);
+    
     static const unsigned rxSize = 3;
     static const byte rxData[rxSize] = { 0x9b, 12, 34 };
     midi.begin(12);
