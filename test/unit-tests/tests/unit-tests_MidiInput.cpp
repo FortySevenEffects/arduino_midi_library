@@ -24,10 +24,6 @@ struct VariableSysExSettings : midi::DefaultSettings
     static const unsigned SysExMaxSize = Size;
 };
 
-#define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)  \
-MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
-MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
-
 TEST(MidiInput, getTypeFromStatusByte)
 {
     // Channel Messages
@@ -59,7 +55,6 @@ TEST(MidiInput, getTypeFromStatusByte)
     }
     EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf4), midi::InvalidType);
     EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf5), midi::InvalidType);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf9), midi::InvalidType);
     EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfd), midi::InvalidType);
 }
 
@@ -99,7 +94,8 @@ TEST(MidiInput, isChannelMessage)
 TEST(MidiInput, begin)
 {
     SerialMock serial;
-    MIDI_CREATE_INSTANCE(SerialMock, serial,  midi);
+    midi::SerialMIDI<SerialMock> transport(serial);
+    midi::MidiInterface<midi::SerialMIDI<Type>> midi((midi::SerialMIDI<SerialMock>&)transport);
 
     // Default channel
     midi.begin();
