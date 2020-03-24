@@ -739,7 +739,11 @@ TEST(MidiInput, realTime)
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
 
-    EXPECT_EQ(midi.read(), false); // 0xf9 = undefined
+    EXPECT_EQ(midi.read(), true); 
+    EXPECT_EQ(midi.getType(),       midi::Tick);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
     EXPECT_EQ(midi.getType(),       midi::Start);
@@ -904,10 +908,10 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
 
     static const unsigned rxSize = 13;
     static const byte rxData[rxSize] = {
-        0xbb, 12, 0xf9, 34,
+        0xbb, 12, 0xf8, 34,
         12, 0,
         42, 0xfd, 127,
-        0xf9,
+        0xf8,
         42, 0xfd, 0
     };
     midi.begin(12);
@@ -958,7 +962,7 @@ TEST(MidiInput, strayUndefinedMultiByteParsing)
 
     static const unsigned rxSize = 4;
     static const byte rxData[rxSize] = {
-        0xbb, 12, 0xf9, 34,
+        0xbb, 12, 0xf8, 34,
     };
     midi.begin(12);
     serial.mRxBuffer.write(rxData, rxSize);
