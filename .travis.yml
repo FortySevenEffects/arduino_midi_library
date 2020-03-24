@@ -25,7 +25,9 @@ env:
         - PLATFORMIO_CI_SRC=examples/Bench
         - PLATFORMIO_CI_SRC=examples/Callbacks
         - PLATFORMIO_CI_SRC=examples/DualMerger
+        - PLATFORMIO_CI_SRC=examples/ErrorCallback
         - PLATFORMIO_CI_SRC=examples/Input
+        - PLATFORMIO_CI_SRC=examples/NoteNames
         - PLATFORMIO_CI_SRC=examples/RPN_NRPN
         - PLATFORMIO_CI_SRC=examples/SimpleSynth
 
@@ -73,7 +75,7 @@ script:
     # Build current example
     - |
         if [ ! "${BUILD_UNIT_TESTS}" ]; then
-            platformio ci --lib="." --board=uno
+            platformio ci --lib="." --board=uno --board="due" --board="zero" --board="leonardo" --board="micro" --board="nanoatmega328" --board="megaatmega2560"
         fi
 
 after_success:
