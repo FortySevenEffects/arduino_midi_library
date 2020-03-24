@@ -21,8 +21,10 @@ struct VariableSysExSettings : midi::DefaultSettings
 };
 
 typedef test_mocks::SerialMock<256> SerialMock;
+typedef midi::SerialMIDI<SerialMock> Transport;
+
 typedef VariableSysExSettings<256> Settings;
-typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+typedef midi::MidiInterface<Transport, Settings> MidiInterface;
 
 MidiInterface* midi;
 

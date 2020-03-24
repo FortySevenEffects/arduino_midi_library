@@ -15,7 +15,8 @@ using namespace testing;
 USING_NAMESPACE_UNIT_TESTS;
 
 typedef test_mocks::SerialMock<32> SerialMock;
-typedef midi::MidiInterface<SerialMock> MidiInterface;
+typedef midi::SerialMIDI<SerialMock> Transport;
+typedef midi::MidiInterface<Transport> MidiInterface;
 
 typedef std::vector<uint8_t> Buffer;
 
@@ -24,7 +25,8 @@ typedef std::vector<uint8_t> Buffer;
 TEST(MidiOutput, sendInvalid)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     midi.begin();
     midi.send(midi::NoteOn, 42, 42, 42);                // Invalid channel > OFF
@@ -40,7 +42,9 @@ TEST(MidiOutput, sendInvalid)
 TEST(MidiOutput, sendGenericSingle)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(3);
 
@@ -57,7 +61,9 @@ TEST(MidiOutput, sendGenericWithRunningStatus)
     typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    RsMidiInterface midi(serial);
+    Transport transport(serial);
+    RsMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
     buffer.resize(5);
 
@@ -77,7 +83,9 @@ TEST(MidiOutput, sendGenericWithoutRunningStatus)
     typedef midi::MidiInterface<SerialMock, Settings> NoRsMidiInterface;
 
     SerialMock serial;
-    NoRsMidiInterface midi(serial);
+    Transport transport(serial);
+    NoRsMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
     buffer.resize(6);
 
@@ -103,7 +111,9 @@ TEST(MidiOutput, sendGenericWithoutRunningStatus)
 TEST(MidiOutput, sendGenericBreakingRunningStatus)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -118,7 +128,9 @@ TEST(MidiOutput, sendGenericBreakingRunningStatus)
 TEST(MidiOutput, sendGenericRealTimeShortcut)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -140,7 +152,9 @@ TEST(MidiOutput, sendGenericRealTimeShortcut)
 TEST(MidiOutput, sendNoteOn)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -155,7 +169,9 @@ TEST(MidiOutput, sendNoteOn)
 TEST(MidiOutput, sendNoteOff)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -170,7 +186,9 @@ TEST(MidiOutput, sendNoteOff)
 TEST(MidiOutput, sendProgramChange)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(4);
 
@@ -185,7 +203,9 @@ TEST(MidiOutput, sendProgramChange)
 TEST(MidiOutput, sendControlChange)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -200,7 +220,9 @@ TEST(MidiOutput, sendControlChange)
 TEST(MidiOutput, sendPitchBend)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     // Int signature - arbitrary values
@@ -257,7 +279,9 @@ TEST(MidiOutput, sendPolyPressure)
     // This test is kept for coverage until removal of sendPolyPressure.
 
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -272,7 +296,9 @@ TEST(MidiOutput, sendPolyPressure)
 TEST(MidiOutput, sendAfterTouchMono)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(4);
 
@@ -287,7 +313,9 @@ TEST(MidiOutput, sendAfterTouchMono)
 TEST(MidiOutput, sendAfterTouchPoly)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -305,7 +333,9 @@ TEST(MidiOutput, sendSysEx)
     typedef midi::MidiInterface<LargeSerialMock> LargeMidiInterface;
 
     LargeSerialMock serial;
-    LargeMidiInterface midi(serial);
+    Transport transport(serial);
+    LargeMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
 
     // Short frame
@@ -384,7 +414,9 @@ TEST(MidiOutput, sendSysEx)
 TEST(MidiOutput, sendTimeCodeQuarterFrame)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     // Separate Nibbles
@@ -418,7 +450,9 @@ TEST(MidiOutput, sendTimeCodeQuarterFrame)
 TEST(MidiOutput, sendSongPosition)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -434,7 +468,9 @@ TEST(MidiOutput, sendSongPosition)
 TEST(MidiOutput, sendSongSelect)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(4);
 
@@ -449,7 +485,9 @@ TEST(MidiOutput, sendSongSelect)
 TEST(MidiOutput, sendTuneRequest)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
     buffer.resize(1);
 
@@ -463,7 +501,9 @@ TEST(MidiOutput, sendTuneRequest)
 TEST(MidiOutput, sendRealTime)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     // Test valid RealTime messages
@@ -512,7 +552,9 @@ TEST(MidiOutput, RPN)
     typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    RsMidiInterface midi(serial);
+    Transport transport(serial);
+    RsMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
 
     // 14-bit Value Single Frame
@@ -628,7 +670,9 @@ TEST(MidiOutput, NRPN)
     typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    RsMidiInterface midi(serial);
+    Transport transport(serial);
+    RsMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
 
     // 14-bit Value Single Frame
@@ -744,7 +788,9 @@ TEST(MidiOutput, runningStatusCancellation)
     typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    RsMidiInterface midi(serial);
+    Transport transport(serial);
+    RsMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
 
     static const unsigned sysExLength = 13;

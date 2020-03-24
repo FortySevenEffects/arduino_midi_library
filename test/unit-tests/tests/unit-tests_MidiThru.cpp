@@ -14,6 +14,7 @@ BEGIN_UNNAMED_NAMESPACE
 using namespace testing;
 USING_NAMESPACE_UNIT_TESTS
 typedef test_mocks::SerialMock<32> SerialMock;
+typedef midi::SerialMIDI<SerialMock> Transport;
 typedef midi::MidiInterface<SerialMock> MidiInterface;
 typedef std::vector<byte> Buffer;
 
@@ -28,7 +29,8 @@ struct VariableSysExSettings : midi::DefaultSettings
 TEST(MidiThru, defaultValues)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     EXPECT_EQ(midi.getThruState(),  true);
     EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
@@ -40,7 +42,8 @@ TEST(MidiThru, defaultValues)
 TEST(MidiThru, beginEnablesThru)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     midi.turnThruOff();
     EXPECT_EQ(midi.getThruState(),  false);
@@ -53,7 +56,8 @@ TEST(MidiThru, beginEnablesThru)
 TEST(MidiThru, setGet)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     midi.turnThruOff();
     EXPECT_EQ(midi.getThruState(),  false);
@@ -86,7 +90,8 @@ TEST(MidiThru, setGet)
 TEST(MidiThru, off)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     midi.begin(MIDI_CHANNEL_OMNI);
     midi.turnThruOff();
@@ -106,7 +111,9 @@ TEST(MidiThru, off)
 TEST(MidiThru, full)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
@@ -148,7 +155,9 @@ TEST(MidiThru, full)
 TEST(MidiThru, sameChannel)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     midi.begin(12);
@@ -177,7 +186,9 @@ TEST(MidiThru, sameChannel)
 TEST(MidiThru, sameChannelOmni) // Acts like full
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
@@ -219,7 +230,9 @@ TEST(MidiThru, sameChannelOmni) // Acts like full
 TEST(MidiThru, differentChannel)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     midi.begin(12);
@@ -248,7 +261,9 @@ TEST(MidiThru, differentChannel)
 TEST(MidiThru, differentChannelOmni) // Acts like off
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
@@ -279,7 +294,9 @@ TEST(MidiThru, multiByteThru)
     typedef midi::MidiInterface<SerialMock, MultiByteParsing> MultiByteMidiInterface;
 
     SerialMock serial;
-    MultiByteMidiInterface midi(serial);
+    Transport transport(serial);
+    MultiByteMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
@@ -308,7 +325,9 @@ TEST(MidiThru, withTxRunningStatus)
     typedef midi::MidiInterface<SerialMock, Settings> RsMidiInterface;
 
     SerialMock serial;
-    RsMidiInterface midi(serial);
+    Transport transport(serial);
+    RsMidiInterface midi((Transport&)transport);
+    
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
@@ -348,7 +367,8 @@ TEST(MidiThru, withTxRunningStatus)
 TEST(MidiThru, invalidMode)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     midi.begin(MIDI_CHANNEL_OMNI);
     midi.setThruFilterMode(midi::Thru::Mode(42));
