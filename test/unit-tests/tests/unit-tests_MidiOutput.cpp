@@ -330,11 +330,12 @@ TEST(MidiOutput, sendAfterTouchPoly)
 TEST(MidiOutput, sendSysEx)
 {
     typedef test_mocks::SerialMock<1024> LargeSerialMock;
-    typedef midi::MidiInterface<LargeSerialMock> LargeMidiInterface;
+    typedef midi::SerialMIDI<LargeSerialMock> LargeTransport;
+    typedef midi::MidiInterface<LargeTransport> LargeMidiInterface;
 
     LargeSerialMock serial;
-    Transport transport(serial);
-    LargeMidiInterface midi((Transport&)transport);
+    LargeTransport transport(serial);
+    LargeMidiInterface midi((LargeTransport&)transport);
     
     Buffer buffer;
 
