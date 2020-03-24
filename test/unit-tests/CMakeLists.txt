@@ -19,7 +19,6 @@ add_executable(unit-tests
     tests/unit-tests_Platform.cpp
     tests/unit-tests_Platform.h
     tests/unit-tests_SysExCodec.cpp
-    tests/unit-tests_RingBuffer.cpp
     tests/unit-tests_MidiInput.cpp
     tests/unit-tests_MidiInputCallbacks.cpp
     tests/unit-tests_MidiOutput.cpp
