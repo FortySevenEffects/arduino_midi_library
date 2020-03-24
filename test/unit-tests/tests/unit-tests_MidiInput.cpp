@@ -511,8 +511,8 @@ TEST(MidiInput, sysExWithinBufferSize)
 {
     typedef VariableSysExSettings<1024> Settings;
     typedef test_mocks::SerialMock<2048> LargerSerialMock;
-    typedef midi::MidiInterface<LargerSerialMock, Settings> LargerMidiInterface;
     typedef midi::SerialMIDI<LargerSerialMock> LargerTransport;
+    typedef midi::MidiInterface<LargerTransport, Settings> LargerMidiInterface;
 
     LargerSerialMock serial;
     LargerTransport transport(serial);
