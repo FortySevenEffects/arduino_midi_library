@@ -95,7 +95,7 @@ TEST(MidiInput, begin)
 {
     SerialMock serial;
     midi::SerialMIDI<SerialMock> transport(serial);
-    midi::MidiInterface<midi::SerialMIDI<Type>> midi((midi::SerialMIDI<SerialMock>&)transport);
+    midi::MidiInterface<midi::SerialMIDI<SerialMock>> midi((midi::SerialMIDI<SerialMock>&)transport);
 
     // Default channel
     midi.begin();
