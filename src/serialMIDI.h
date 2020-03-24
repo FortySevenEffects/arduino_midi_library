@@ -66,9 +66,9 @@ public:
 		return true;
 	};
 
-	void write(byte byte)
+	void write(byte value)
 	{
-		mSerial.write(byte);
+		mSerial.write(value);
 	};
 
 	void endTransmission()
