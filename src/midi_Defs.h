@@ -62,6 +62,7 @@ typedef byte FilterMode;
 // Errors
 static const uint8_t ErrorParse = 0;
 static const uint8_t ErrorActiveSensingTimeout = 1;
+static const uint8_t WarningSplitSysEx = 2;
 
 // -----------------------------------------------------------------------------
 // Aliasing
