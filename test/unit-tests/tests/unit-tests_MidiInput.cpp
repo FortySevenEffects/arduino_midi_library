@@ -99,7 +99,7 @@ TEST(MidiInput, begin)
     // Default channel
     midi.begin();
     EXPECT_EQ(serial.mBaudrate, 31250);
-    EXPECT_EQ(midi.getInputChannel(), 1);
+    EXPECT_EQ(midi.getInputChannel(), 0);
 
     // Specific channel
     midi.begin(12);
