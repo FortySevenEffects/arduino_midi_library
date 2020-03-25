@@ -32,7 +32,7 @@ class MidiInputCallbacks : public Test
 {
 public:
     MidiInputCallbacks()
-        : mTransport(mSerialMock)
+        : mTransport(mSerial)
         , mMidi(mTransport)
     {
     }
@@ -52,7 +52,7 @@ protected:
     }
 
 protected:
-    SerialMock      mSerialMock;
+    SerialMock      mSerial;
     Transport       mTransport;
     MidiInterface   mMidi;
 };
