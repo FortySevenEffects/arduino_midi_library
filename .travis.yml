@@ -27,7 +27,6 @@ env:
         - PLATFORMIO_CI_SRC=examples/DualMerger
         - PLATFORMIO_CI_SRC=examples/ErrorCallback
         - PLATFORMIO_CI_SRC=examples/Input
-        - PLATFORMIO_CI_SRC=examples/NoteNames
         - PLATFORMIO_CI_SRC=examples/RPN_NRPN
         - PLATFORMIO_CI_SRC=examples/SimpleSynth
 
