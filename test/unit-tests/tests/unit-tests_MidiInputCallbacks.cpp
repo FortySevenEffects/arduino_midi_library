@@ -32,7 +32,8 @@ class MidiInputCallbacks : public Test
 {
 public:
     MidiInputCallbacks()
-        : mMidi(mTransport)
+        : mTransport(mSerialMock)
+        , mMidi(mTransport)
     {
     }
     virtual ~MidiInputCallbacks()
@@ -51,6 +52,7 @@ protected:
     }
 
 protected:
+    SerialMock      mSerialMock;
     Transport       mTransport;
     MidiInterface   mMidi;
 };
