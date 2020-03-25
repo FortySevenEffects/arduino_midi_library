@@ -40,7 +40,7 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
-    , mThruActivated(false)
+    , mThruActivated(true)
     , mThruFilterMode(Thru::Full)
     , mLastMessageSentTime(0)
     , mLastMessageReceivedTime(0)
@@ -441,7 +441,7 @@ void MidiInterface<Transport, Settings, Platform>::sendSongSelect(DataByte inSon
  \param inData1   The byte that goes with the common message.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, DataByte inData1)
+void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, unsigned inData1)
 {
     switch (inType)
     {

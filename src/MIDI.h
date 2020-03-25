@@ -108,7 +108,7 @@ public:
     inline void sendSongSelect(DataByte inSongNumber);
     inline void sendTuneRequest();
 
-    inline void sendCommon(MidiType inType, DataByte = 0);
+    inline void sendCommon(MidiType inType, unsigned = 0);
 
     inline void sendClock()         { sendRealTime(Clock); };
     inline void sendStart()         { sendRealTime(Start); };

@@ -595,11 +595,27 @@ TEST(MidiInput, sysExOverBufferSize)
     midi.begin();
     serial.mRxBuffer.write(frame, frameLength);
 
-    for (unsigned i = 0; i < frameLength - 1; ++i)
-    {
-        EXPECT_EQ(midi.read(), false);
-    }
-    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false); // start sysex f0
+    EXPECT_EQ(midi.read(), false); // H
+    EXPECT_EQ(midi.read(), false); // e
+    EXPECT_EQ(midi.read(), false); // l
+    EXPECT_EQ(midi.read(), false); // l
+    EXPECT_EQ(midi.read(), false); // 0   
+    EXPECT_EQ(midi.read(), false); // ,
+    EXPECT_EQ(midi.read(), true);  // end sysex 
+
+    EXPECT_EQ(midi.read(), false); // start sysex 
+    EXPECT_EQ(midi.read(), false); // (space)
+    EXPECT_EQ(midi.read(), false); // W
+    EXPECT_EQ(midi.read(), false); // o   
+    EXPECT_EQ(midi.read(), false); // r
+    EXPECT_EQ(midi.read(), false); // l   
+    EXPECT_EQ(midi.read(), false); // d
+    EXPECT_EQ(midi.read(), true);  // end sysex
+
+    EXPECT_EQ(midi.read(), false); // start sysex 
+    EXPECT_EQ(midi.read(), false); // !
+    EXPECT_EQ(midi.read(), true); // end sysex
 }
 
 TEST(MidiInput, mtcQuarterFrame)
