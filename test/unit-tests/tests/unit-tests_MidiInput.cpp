@@ -911,10 +911,10 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
 
     static const unsigned rxSize = 13;
     static const byte rxData[rxSize] = {
-        0xbb, 12, 0xf8, 34,
+        0xbb, 12, 0xfd, 34,
         12, 0,
         42, 0xfd, 127,
-        0xf8,
+        0xfd,
         42, 0xfd, 0
     };
     midi.begin(12);
@@ -966,7 +966,7 @@ TEST(MidiInput, strayUndefinedMultiByteParsing)
 
     static const unsigned rxSize = 4;
     static const byte rxData[rxSize] = {
-        0xbb, 12, 0xf8, 34,
+        0xbb, 12, 0xfd, 34,
     };
     midi.begin(12);
     serial.mRxBuffer.write(rxData, rxSize);
