@@ -798,6 +798,7 @@ TEST(MidiInput, interleavedRealTime)
         };
         midi.begin(12);
         serial.mRxBuffer.write(rxData, rxSize);
+
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), false);
 
@@ -860,6 +861,7 @@ TEST(MidiInput, interleavedRealTime)
         };
         midi.begin(12);
         serial.mRxBuffer.write(rxData, rxSize);
+        
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), false);
@@ -894,6 +896,7 @@ TEST(MidiInput, strayEox)
     };
     midi.begin(MIDI_CHANNEL_OMNI);
     serial.mRxBuffer.write(rxData, rxSize);
+
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
@@ -916,6 +919,7 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
     };
     midi.begin(12);
     serial.mRxBuffer.write(rxData, rxSize);
+
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false); // Invalid, should not reset parser
@@ -966,6 +970,7 @@ TEST(MidiInput, strayUndefinedMultiByteParsing)
     };
     midi.begin(12);
     serial.mRxBuffer.write(rxData, rxSize);
+
     EXPECT_EQ(midi.read(), true);
     EXPECT_EQ(midi.getType(),       midi::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
