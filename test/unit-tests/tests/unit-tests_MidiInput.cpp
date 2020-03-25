@@ -600,10 +600,8 @@ TEST(MidiInput, sysExOverBufferSize)
     EXPECT_EQ(midi.read(), false); // e
     EXPECT_EQ(midi.read(), false); // l
     EXPECT_EQ(midi.read(), false); // l
-    EXPECT_EQ(midi.read(), false); // 0   
-    EXPECT_EQ(midi.read(), false); // ,
-    EXPECT_EQ(midi.read(), true);  // end sysex 
-
+    EXPECT_EQ(midi.read(), false); // o
+    EXPECT_EQ(midi.read(), false); // , message send and buffer cleared.
     EXPECT_EQ(midi.read(), false); // start sysex 
     EXPECT_EQ(midi.read(), false); // (space)
     EXPECT_EQ(midi.read(), false); // W
@@ -612,10 +610,6 @@ TEST(MidiInput, sysExOverBufferSize)
     EXPECT_EQ(midi.read(), false); // l   
     EXPECT_EQ(midi.read(), false); // d
     EXPECT_EQ(midi.read(), true);  // end sysex
-
-    EXPECT_EQ(midi.read(), false); // start sysex 
-    EXPECT_EQ(midi.read(), false); // !
-    EXPECT_EQ(midi.read(), true); // end sysex
 }
 
 TEST(MidiInput, mtcQuarterFrame)
