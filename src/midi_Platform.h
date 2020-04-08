@@ -1,10 +1,10 @@
 /*!
- *  @file       midi_RingBuffer.h
+ *  @file       midi_Platform.h
  *  Project     Arduino MIDI Library
- *  @brief      MIDI Library for Arduino - Ring Buffer
- *  @author     Francois Best
- *  @date       10/10/2016
- *  @license    MIT - Copyright (c) 2016 Francois Best
+ *  @brief      MIDI Library for the Arduino - Platform
+ *  @license    MIT - Copyright (c) 2015 Francois Best
+ *  @author     lathoub
+ *  @date       22/03/20
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,42 +27,25 @@
 
 #pragma once
 
-#include "midi_Namespace.h"
+#include "midi_Defs.h"
 
 BEGIN_MIDI_NAMESPACE
 
-template<typename DataType, int Size>
-class RingBuffer
+#if ARDUINO
+
+// DefaultPlatform is the Arduino Platform
+struct DefaultPlatform
 {
-private:
-    static const int sMask = Size - 1;
-
-public:
-     RingBuffer();
-    ~RingBuffer();
-
-public:
-    inline int getLength() const;
-    inline bool isEmpty() const;
-
-public:
-    void write(DataType inData);
-    void write(const DataType* inData, int inSize);
-    void pop(int inNumberOfItems = 1);
-    void clear();
-
-public:
-    DataType peek(int inOffset = 0) const;
-    DataType read();
-    void read(DataType* outData, int inSize);
-
-private:
-    DataType mData[Size];
-    int mLength;
-    int mWriteHead;
-    int mReadHead;
+   static unsigned long now() { return ::millis(); };
 };
 
-END_MIDI_NAMESPACE
+#else
 
-#include "midi_RingBuffer.hpp"
+struct DefaultPlatform
+{
+   static unsigned long now() { return 0; };
+};
+
+#endif
+
+END_MIDI_NAMESPACE

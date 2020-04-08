@@ -29,6 +29,14 @@ sendSongPosition	KEYWORD2
 sendSongSelect	KEYWORD2
 sendTuneRequest	KEYWORD2
 sendRealTime	KEYWORD2
+sendCommon	KEYWORD2
+sendClock	KEYWORD2
+sendStart	KEYWORD2
+sendStop	KEYWORD2
+sendTick	KEYWORD2
+sendContinue	KEYWORD2
+sendActiveSensing	KEYWORD2
+sendSystemReset	KEYWORD2
 beginRpn	KEYWORD2
 sendRpnValue	KEYWORD2
 sendRpnIncrement	KEYWORD2

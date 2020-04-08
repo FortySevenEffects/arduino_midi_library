@@ -2,7 +2,7 @@
  *  @file       MIDI.hpp
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Inline implementations
- *  @author     Francois Best
+ *  @author     Francois Best, lathoub
  *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best
  *
@@ -30,45 +30,33 @@
 BEGIN_MIDI_NAMESPACE
 
 /// \brief Constructor for MidiInterface.
-template<class SerialPort, class Settings>
-inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
-    : mSerial(inSerial)
+template<class Transport, class Settings, class Platform>
+inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& inTransport)
+    : mTransport(inTransport)
     , mInputChannel(0)
     , mRunningStatus_RX(InvalidType)
     , mRunningStatus_TX(InvalidType)
-    , mPendingMessageExpectedLenght(0)
+    , mPendingMessageExpectedLength(0)
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
     , mThruActivated(true)
     , mThruFilterMode(Thru::Full)
+    , mLastMessageSentTime(0)
+    , mLastMessageReceivedTime(0)
+    , mSenderActiveSensingPeriodicity(0)
+    , mReceiverActiveSensingActivated(false)
+    , mLastError(0)
 {
-    mNoteOffCallback                = 0;
-    mNoteOnCallback                 = 0;
-    mAfterTouchPolyCallback         = 0;
-    mControlChangeCallback          = 0;
-    mProgramChangeCallback          = 0;
-    mAfterTouchChannelCallback      = 0;
-    mPitchBendCallback              = 0;
-    mSystemExclusiveCallback        = 0;
-    mTimeCodeQuarterFrameCallback   = 0;
-    mSongPositionCallback           = 0;
-    mSongSelectCallback             = 0;
-    mTuneRequestCallback            = 0;
-    mClockCallback                  = 0;
-    mStartCallback                  = 0;
-    mContinueCallback               = 0;
-    mStopCallback                   = 0;
-    mActiveSensingCallback          = 0;
-    mSystemResetCallback            = 0;
+        mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
 }
 
 /*! \brief Destructor for MidiInterface.
 
  This is not really useful for the Arduino, as it is never called...
  */
-template<class SerialPort, class Settings>
-inline MidiInterface<SerialPort, Settings>::~MidiInterface()
+template<class Transport, class Settings, class Platform>
+inline MidiInterface<Transport, Settings, Platform>::~MidiInterface()
 {
 }
 
@@ -80,31 +68,30 @@ inline MidiInterface<SerialPort, Settings>::~MidiInterface()
  - Input channel set to 1 if no value is specified
  - Full thru mirroring
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
 {
-    // Initialise the Serial port
-#if defined(AVR_CAKE)
-    mSerial. template open<Settings::BaudRate>();
-#else
-    mSerial.begin(Settings::BaudRate);
-#endif
+    // Initialise the Transport layer
+    mTransport.begin();
 
     mInputChannel = inChannel;
     mRunningStatus_TX = InvalidType;
     mRunningStatus_RX = InvalidType;
 
     mPendingMessageIndex = 0;
-    mPendingMessageExpectedLenght = 0;
+    mPendingMessageExpectedLength = 0;
 
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
+
+    mLastMessageSentTime = Platform::now();
 
     mMessage.valid   = false;
     mMessage.type    = InvalidType;
     mMessage.channel = 0;
     mMessage.data1   = 0;
     mMessage.data2   = 0;
+    mMessage.length  = 0;
 
     mThruFilterMode = Thru::Full;
     mThruActivated  = true;
@@ -118,6 +105,46 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
  @{
  */
 
+/*! \brief Send a MIDI message.
+\param inMessage    The message
+ 
+ This method is used when you want to send a Message that has not been constructed
+ by the library, but by an external source.
+ This method does *not* check against any of the constraints.
+ Typically this function is use by MIDI Bridges taking MIDI messages and passing
+ them thru.
+ */
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMessage)
+{
+    if (!inMessage.valid)
+        return;
+    
+    if (mTransport.beginTransmission(inMessage.type))
+    {
+        const StatusByte status = getStatus(inMessage.type, inMessage.channel);
+        mTransport.write(status);
+        
+        if (inMessage.type != MidiType::SystemExclusive)
+        {
+            if (inMessage.length > 1) mTransport.write(inMessage.data1);
+            if (inMessage.length > 2) mTransport.write(inMessage.data2);
+        } else
+        {
+            // sysexArray does not contain the start and end tags
+            mTransport.write(MidiType::SystemExclusiveStart);
+
+            for (size_t i = 0; i < inMessage.getSysExSize(); i++)
+                mTransport.write(inMessage.sysexArray[i]);
+
+            mTransport.write(MidiType::SystemExclusiveEnd);
+        }
+    }
+    mTransport.endTransmission();
+    UpdateLastSentTime();
+}
+
+
 /*! \brief Generate and send a MIDI message from the values given.
  \param inType    The message type (see type defines for reference)
  \param inData1   The first data byte.
@@ -129,8 +156,8 @@ void MidiInterface<SerialPort, Settings>::begin(Channel inChannel)
  This is an internal method, use it only if you need to send raw data
  from your code, at your own risks.
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::send(MidiType inType,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
                                                DataByte inData1,
                                                DataByte inData2,
                                                Channel inChannel)
@@ -151,26 +178,32 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
 
         const StatusByte status = getStatus(inType, inChannel);
 
-        if (Settings::UseRunningStatus)
+        if (mTransport.beginTransmission(inType))
         {
-            if (mRunningStatus_TX != status)
+            if (Settings::UseRunningStatus)
             {
-                // New message, memorise and send header
-                mRunningStatus_TX = status;
-                mSerial.write(mRunningStatus_TX);
+                if (mRunningStatus_TX != status)
+                {
+                    // New message, memorise and send header
+                    mRunningStatus_TX = status;
+                    mTransport.write(mRunningStatus_TX);
+                }
             }
-        }
-        else
-        {
-            // Don't care about running status, send the status byte.
-            mSerial.write(status);
-        }
+            else
+            {
+                // Don't care about running status, send the status byte.
+                mTransport.write(status);
+            }
 
-        // Then send data
-        mSerial.write(inData1);
-        if (inType != ProgramChange && inType != AfterTouchChannel)
-        {
-            mSerial.write(inData2);
+            // Then send data
+            mTransport.write(inData1);
+            if (inType != ProgramChange && inType != AfterTouchChannel)
+            {
+                mTransport.write(inData2);
+            }
+
+            mTransport.endTransmission();
+            UpdateLastSentTime();
         }
     }
     else if (inType >= Clock && inType <= SystemReset)
@@ -190,8 +223,8 @@ void MidiInterface<SerialPort, Settings>::send(MidiType inType,
  Take a look at the values, names and frequencies of notes here:
  http://www.phys.unsw.edu.au/jw/notes.html
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendNoteOn(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendNoteOn(DataByte inNoteNumber,
                                                      DataByte inVelocity,
                                                      Channel inChannel)
 {
@@ -209,8 +242,8 @@ void MidiInterface<SerialPort, Settings>::sendNoteOn(DataByte inNoteNumber,
  Take a look at the values, names and frequencies of notes here:
  http://www.phys.unsw.edu.au/jw/notes.html
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendNoteOff(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendNoteOff(DataByte inNoteNumber,
                                                       DataByte inVelocity,
                                                       Channel inChannel)
 {
@@ -221,8 +254,8 @@ void MidiInterface<SerialPort, Settings>::sendNoteOff(DataByte inNoteNumber,
  \param inProgramNumber The Program to select (0 to 127).
  \param inChannel       The channel on which the message will be sent (1 to 16).
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendProgramChange(DataByte inProgramNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendProgramChange(DataByte inProgramNumber,
                                                             Channel inChannel)
 {
     send(ProgramChange, inProgramNumber, 0, inChannel);
@@ -234,8 +267,8 @@ void MidiInterface<SerialPort, Settings>::sendProgramChange(DataByte inProgramNu
  \param inChannel       The channel on which the message will be sent (1 to 16).
  @see MidiControlChangeNumber
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendControlChange(DataByte inControlNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendControlChange(DataByte inControlNumber,
                                                             DataByte inControlValue,
                                                             Channel inChannel)
 {
@@ -249,8 +282,8 @@ void MidiInterface<SerialPort, Settings>::sendControlChange(DataByte inControlNu
  Note: this method is deprecated and will be removed in a future revision of the
  library, @see sendAfterTouch to send polyphonic and monophonic AfterTouch messages.
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendPolyPressure(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendPolyPressure(DataByte inNoteNumber,
                                                            DataByte inPressure,
                                                            Channel inChannel)
 {
@@ -261,8 +294,8 @@ void MidiInterface<SerialPort, Settings>::sendPolyPressure(DataByte inNoteNumber
  \param inPressure    The amount of AfterTouch to apply to all notes.
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendAfterTouch(DataByte inPressure,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inPressure,
                                                          Channel inChannel)
 {
     send(AfterTouchChannel, inPressure, 0, inChannel);
@@ -274,8 +307,8 @@ void MidiInterface<SerialPort, Settings>::sendAfterTouch(DataByte inPressure,
  \param inChannel     The channel on which the message will be sent (1 to 16).
  @see Replaces sendPolyPressure (which is now deprecated).
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendAfterTouch(DataByte inNoteNumber,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inNoteNumber,
                                                          DataByte inPressure,
                                                          Channel inChannel)
 {
@@ -288,8 +321,8 @@ void MidiInterface<SerialPort, Settings>::sendAfterTouch(DataByte inNoteNumber,
  center value is 0.
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendPitchBend(int inPitchValue,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendPitchBend(int inPitchValue,
                                                         Channel inChannel)
 {
     const unsigned bend = unsigned(inPitchValue - int(MIDI_PITCHBEND_MIN));
@@ -303,8 +336,8 @@ void MidiInterface<SerialPort, Settings>::sendPitchBend(int inPitchValue,
  and +1.0f (max upwards bend), center value is 0.0f.
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendPitchBend(double inPitchValue,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendPitchBend(double inPitchValue,
                                                         Channel inChannel)
 {
     const int scale = inPitchValue > 0.0 ? MIDI_PITCHBEND_MAX : MIDI_PITCHBEND_MIN;
@@ -321,32 +354,30 @@ void MidiInterface<SerialPort, Settings>::sendPitchBend(double inPitchValue,
  default value for ArrayContainsBoundaries is set to 'false' for compatibility
  with previous versions of the library.
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendSysEx(unsigned inLength,
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
                                                     const byte* inArray,
                                                     bool inArrayContainsBoundaries)
 {
     const bool writeBeginEndBytes = !inArrayContainsBoundaries;
 
-    if (writeBeginEndBytes)
+    if (mTransport.beginTransmission(MidiType::SystemExclusiveStart))
     {
-        mSerial.write(0xf0);
-    }
+        if (writeBeginEndBytes)
+            mTransport.write(MidiType::SystemExclusiveStart);
 
-    for (unsigned i = 0; i < inLength; ++i)
-    {
-        mSerial.write(inArray[i]);
-    }
+        for (unsigned i = 0; i < inLength; ++i)
+            mTransport.write(inArray[i]);
 
-    if (writeBeginEndBytes)
-    {
-        mSerial.write(0xf7);
-    }
+        if (writeBeginEndBytes)
+            mTransport.write(MidiType::SystemExclusiveEnd);
+
+        mTransport.endTransmission();
+        UpdateLastSentTime();
+   }
 
     if (Settings::UseRunningStatus)
-    {
         mRunningStatus_TX = InvalidType;
-    }
 }
 
 /*! \brief Send a Tune Request message.
@@ -354,15 +385,10 @@ void MidiInterface<SerialPort, Settings>::sendSysEx(unsigned inLength,
  When a MIDI unit receives this message,
  it should tune its oscillators (if equipped with any).
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendTuneRequest()
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendTuneRequest()
 {
-    mSerial.write(TuneRequest);
-
-    if (Settings::UseRunningStatus)
-    {
-        mRunningStatus_TX = InvalidType;
-    }
+    sendCommon(TuneRequest);
 }
 
 /*! \brief Send a MIDI Time Code Quarter Frame.
@@ -371,9 +397,9 @@ void MidiInterface<SerialPort, Settings>::sendTuneRequest()
  \param inValuesNibble    MTC data
  See MIDI Specification for more information.
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
-                                                                   DataByte inValuesNibble)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
+                                                                            DataByte inValuesNibble)
 {
     const byte data = byte((((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f)));
     sendTimeCodeQuarterFrame(data);
@@ -385,45 +411,76 @@ void MidiInterface<SerialPort, Settings>::sendTimeCodeQuarterFrame(DataByte inTy
  \param inData  if you want to encode directly the nibbles in your program,
                 you can send the byte here.
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendTimeCodeQuarterFrame(DataByte inData)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inData)
 {
-    mSerial.write((byte)TimeCodeQuarterFrame);
-    mSerial.write(inData);
-
-    if (Settings::UseRunningStatus)
-    {
-        mRunningStatus_TX = InvalidType;
-    }
+    sendCommon(TimeCodeQuarterFrame, inData);
 }
 
 /*! \brief Send a Song Position Pointer message.
  \param inBeats    The number of beats since the start of the song.
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendSongPosition(unsigned inBeats)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendSongPosition(unsigned inBeats)
 {
-    mSerial.write((byte)SongPosition);
-    mSerial.write(inBeats & 0x7f);
-    mSerial.write((inBeats >> 7) & 0x7f);
-
-    if (Settings::UseRunningStatus)
-    {
-        mRunningStatus_TX = InvalidType;
-    }
+    sendCommon(SongPosition, inBeats);
 }
 
 /*! \brief Send a Song Select message */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendSongSelect(DataByte inSongNumber)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendSongSelect(DataByte inSongNumber)
 {
-    mSerial.write((byte)SongSelect);
-    mSerial.write(inSongNumber & 0x7f);
+    sendCommon(SongSelect, inSongNumber);
+}
+
+/*! \brief Send a Common message. Common messages reset the running status.
+
+ \param inType    The available Common types are:
+ TimeCodeQuarterFrame, SongPosition, SongSelect and TuneRequest.
+ @see MidiType
+ \param inData1   The byte that goes with the common message.
+ */
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, unsigned inData1)
+{
+    switch (inType)
+    {
+        case TimeCodeQuarterFrame:
+        case SongPosition:
+        case SongSelect:
+        case TuneRequest:
+            break;
+        default:
+            // Invalid Common marker
+            return;
+    }
+
+    if (mTransport.beginTransmission(inType))
+    {
+            mTransport.write((byte)inType);
+            switch (inType)
+            {
+            case TimeCodeQuarterFrame:
+                mTransport.write(inData1);
+                break;
+            case SongPosition:
+                mTransport.write(inData1 & 0x7f);
+                mTransport.write((inData1 >> 7) & 0x7f);
+                break;
+            case SongSelect:
+                mTransport.write(inData1 & 0x7f);
+                break;
+            case TuneRequest:
+                break;
+            default:
+                break; // LCOV_EXCL_LINE - Coverage blind spot
+        }
+        mTransport.endTransmission();
+        UpdateLastSentTime();
+    }
 
     if (Settings::UseRunningStatus)
-    {
         mRunningStatus_TX = InvalidType;
-    }
 }
 
 /*! \brief Send a Real Time (one byte) message.
@@ -432,8 +489,8 @@ void MidiInterface<SerialPort, Settings>::sendSongSelect(DataByte inSongNumber)
  Start, Stop, Continue, Clock, ActiveSensing and SystemReset.
  @see MidiType
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::sendRealTime(MidiType inType)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
 {
     // Do not invalidate Running Status for real-time messages
     // as they can be interleaved within any message.
@@ -446,7 +503,12 @@ void MidiInterface<SerialPort, Settings>::sendRealTime(MidiType inType)
         case Continue:
         case ActiveSensing:
         case SystemReset:
-            mSerial.write((byte)inType);
+            if (mTransport.beginTransmission(inType))
+            {
+                mTransport.write((byte)inType);
+                mTransport.endTransmission();
+                UpdateLastSentTime();
+            }
             break;
         default:
             // Invalid Real Time marker
@@ -458,8 +520,8 @@ void MidiInterface<SerialPort, Settings>::sendRealTime(MidiType inType)
  \param inNumber The 14-bit number of the RPN you want to select.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::beginRpn(unsigned inNumber,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::beginRpn(unsigned inNumber,
                                                           Channel inChannel)
 {
     if (mCurrentRpnNumber != inNumber)
@@ -476,8 +538,8 @@ inline void MidiInterface<SerialPort, Settings>::beginRpn(unsigned inNumber,
  \param inValue  The 14-bit value of the selected RPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendRpnValue(unsigned inValue,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnValue(unsigned inValue,
                                                               Channel inChannel)
 {;
     const byte valMsb = 0x7f & (inValue >> 7);
@@ -491,8 +553,8 @@ inline void MidiInterface<SerialPort, Settings>::sendRpnValue(unsigned inValue,
  \param inLsb The LSB part of the value to send. Meaning depends on RPN number.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendRpnValue(byte inMsb,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnValue(byte inMsb,
                                                               byte inLsb,
                                                               Channel inChannel)
 {
@@ -503,8 +565,8 @@ inline void MidiInterface<SerialPort, Settings>::sendRpnValue(byte inMsb,
 /* \brief Increment the value of the currently selected RPN number by the specified amount.
  \param inAmount The amount to add to the currently selected RPN value.
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendRpnIncrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnIncrement(byte inAmount,
                                                                   Channel inChannel)
 {
     sendControlChange(DataIncrement, inAmount, inChannel);
@@ -513,8 +575,8 @@ inline void MidiInterface<SerialPort, Settings>::sendRpnIncrement(byte inAmount,
 /* \brief Decrement the value of the currently selected RPN number by the specified amount.
  \param inAmount The amount to subtract to the currently selected RPN value.
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendRpnDecrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendRpnDecrement(byte inAmount,
                                                                   Channel inChannel)
 {
     sendControlChange(DataDecrement, inAmount, inChannel);
@@ -524,8 +586,8 @@ inline void MidiInterface<SerialPort, Settings>::sendRpnDecrement(byte inAmount,
 This will send a Null Function to deselect the currently selected RPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::endRpn(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::endRpn(Channel inChannel)
 {
     sendControlChange(RPNLSB, 0x7f, inChannel);
     sendControlChange(RPNMSB, 0x7f, inChannel);
@@ -538,8 +600,8 @@ inline void MidiInterface<SerialPort, Settings>::endRpn(Channel inChannel)
  \param inNumber The 14-bit number of the NRPN you want to select.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::beginNrpn(unsigned inNumber,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::beginNrpn(unsigned inNumber,
                                                            Channel inChannel)
 {
     if (mCurrentNrpnNumber != inNumber)
@@ -556,8 +618,8 @@ inline void MidiInterface<SerialPort, Settings>::beginNrpn(unsigned inNumber,
  \param inValue  The 14-bit value of the selected NRPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(unsigned inValue,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnValue(unsigned inValue,
                                                                Channel inChannel)
 {;
     const byte valMsb = 0x7f & (inValue >> 7);
@@ -571,8 +633,8 @@ inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(unsigned inValue,
  \param inLsb The LSB part of the value to send. Meaning depends on NRPN number.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(byte inMsb,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnValue(byte inMsb,
                                                                byte inLsb,
                                                                Channel inChannel)
 {
@@ -583,8 +645,8 @@ inline void MidiInterface<SerialPort, Settings>::sendNrpnValue(byte inMsb,
 /* \brief Increment the value of the currently selected NRPN number by the specified amount.
  \param inAmount The amount to add to the currently selected NRPN value.
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendNrpnIncrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnIncrement(byte inAmount,
                                                                    Channel inChannel)
 {
     sendControlChange(DataIncrement, inAmount, inChannel);
@@ -593,8 +655,8 @@ inline void MidiInterface<SerialPort, Settings>::sendNrpnIncrement(byte inAmount
 /* \brief Decrement the value of the currently selected NRPN number by the specified amount.
  \param inAmount The amount to subtract to the currently selected NRPN value.
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::sendNrpnDecrement(byte inAmount,
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::sendNrpnDecrement(byte inAmount,
                                                                    Channel inChannel)
 {
     sendControlChange(DataDecrement, inAmount, inChannel);
@@ -604,8 +666,8 @@ inline void MidiInterface<SerialPort, Settings>::sendNrpnDecrement(byte inAmount
 This will send a Null Function to deselect the currently selected NRPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::endNrpn(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::endNrpn(Channel inChannel)
 {
     sendControlChange(NRPNLSB, 0x7f, inChannel);
     sendControlChange(NRPNMSB, 0x7f, inChannel);
@@ -616,8 +678,8 @@ inline void MidiInterface<SerialPort, Settings>::endNrpn(Channel inChannel)
 
 // -----------------------------------------------------------------------------
 
-template<class SerialPort, class Settings>
-StatusByte MidiInterface<SerialPort, Settings>::getStatus(MidiType inType,
+template<class Transport, class Settings, class Platform>
+StatusByte MidiInterface<Transport, Settings, Platform>::getStatus(MidiType inType,
                                                           Channel inChannel) const
 {
     return StatusByte(((byte)inType | ((inChannel - 1) & 0x0f)));
@@ -639,30 +701,76 @@ StatusByte MidiInterface<SerialPort, Settings>::getStatus(MidiType inType,
  it is sent back on the MIDI output.
  @see see setInputChannel()
  */
-template<class SerialPort, class Settings>
-inline bool MidiInterface<SerialPort, Settings>::read()
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::read()
 {
     return read(mInputChannel);
 }
 
 /*! \brief Read messages on a specified channel.
  */
-template<class SerialPort, class Settings>
-inline bool MidiInterface<SerialPort, Settings>::read(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel)
 {
+    #ifndef RegionActiveSending
+    // Active Sensing. This message is intended to be sent
+    // repeatedly to tell the receiver that a connection is alive. Use
+    // of this message is optional. When initially received, the
+    // receiver will expect to receive another Active Sensing
+    // message each 300ms (max), and if it does not then it will
+    // assume that the connection has been terminated. At
+    // termination, the receiver will turn off all voices and return to
+    // normal (non- active sensing) operation.
+    if (Settings::UseSenderActiveSensing && (mSenderActiveSensingPeriodicity > 0) && (Platform::now() - mLastMessageSentTime) > mSenderActiveSensingPeriodicity)
+    {
+        sendActiveSensing();
+        mLastMessageSentTime = Platform::now();
+    }
+    
+    if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActivated && (mLastMessageReceivedTime + ActiveSensingTimeout < Platform::now()))
+    {
+        mReceiverActiveSensingActivated = false;
+
+        mLastError |= 1UL << ErrorActiveSensingTimeout; // set the ErrorActiveSensingTimeout bit
+        if (mErrorCallback)
+            mErrorCallback(mLastError);
+    }
+    #endif
+
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; // MIDI Input disabled.
 
     if (!parse())
         return false;
+  
+    #ifndef RegionActiveSending
+
+    if (Settings::UseReceiverActiveSensing && mMessage.type == ActiveSensing)
+    {
+        // When an ActiveSensing message is received, the time keeping is activated.
+        // When a timeout occurs, an error message is send and time keeping ends.
+        mReceiverActiveSensingActivated = true;
+
+        // is ErrorActiveSensingTimeout bit in mLastError on
+        if (mLastError & (1 << (ErrorActiveSensingTimeout - 1)))
+        {
+            mLastError &= ~(1UL << ErrorActiveSensingTimeout); // clear the ErrorActiveSensingTimeout bit
+            if (mErrorCallback)
+                mErrorCallback(mLastError);
+        }
+    }
+
+    // Keep the time of the last received message, so we can check for the timeout
+    if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActivated)
+        mLastMessageReceivedTime = Platform::now();
+
+    #endif
 
     handleNullVelocityNoteOnAsNoteOff();
-    const bool channelMatch = inputFilter(inChannel);
 
+    const bool channelMatch = inputFilter(inChannel);
     if (channelMatch)
-    {
         launchCallback();
-    }
 
     thruFilter(inChannel);
 
@@ -672,14 +780,14 @@ inline bool MidiInterface<SerialPort, Settings>::read(Channel inChannel)
 // -----------------------------------------------------------------------------
 
 // Private method: MIDI parser
-template<class SerialPort, class Settings>
-bool MidiInterface<SerialPort, Settings>::parse()
+template<class Transport, class Settings, class Platform>
+bool MidiInterface<Transport, Settings, Platform>::parse()
 {
-    if (mSerial.available() == 0)
-    {
-        // No data available.
-        return false;
-    }
+    if (mTransport.available() == 0)
+        return false; // No data available.
+
+    // clear the ErrorParse bit
+    mLastError &= ~(1UL << ErrorParse);
 
     // Parsing algorithm:
     // Get a byte from the serial buffer.
@@ -690,20 +798,11 @@ bool MidiInterface<SerialPort, Settings>::parse()
     // Else, add the extracted byte to the pending message, and check validity.
     // When the message is done, store it.
 
-    const byte extracted = mSerial.read();
+    const byte extracted = mTransport.read();
 
     // Ignore Undefined
-    if (extracted == 0xf9 || extracted == 0xfd)
-    {
-        if (Settings::Use1ByteParsing)
-        {
-            return false;
-        }
-        else
-        {
-            return parse();
-        }
-    }
+    if (extracted == Undefined_FD)
+        return (Settings::Use1ByteParsing) ? false : parse();
 
     if (mPendingMessageIndex == 0)
     {
@@ -737,6 +836,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             case Continue:
             case Stop:
             case Clock:
+            case Tick:
             case ActiveSensing:
             case SystemReset:
             case TuneRequest:
@@ -750,56 +850,63 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 // Do not reset all input attributes, Running Status must remain unchanged.
                 // We still need to reset these
                 mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
+                mPendingMessageExpectedLength = 0;
 
                 return true;
                 break;
 
-                // 2 bytes messages
+            // 2 bytes messages
             case ProgramChange:
             case AfterTouchChannel:
             case TimeCodeQuarterFrame:
             case SongSelect:
-                mPendingMessageExpectedLenght = 2;
+                mPendingMessageExpectedLength = 2;
                 break;
 
-                // 3 bytes messages
+            // 3 bytes messages
             case NoteOn:
             case NoteOff:
             case ControlChange:
             case PitchBend:
             case AfterTouchPoly:
             case SongPosition:
-                mPendingMessageExpectedLenght = 3;
+                mPendingMessageExpectedLength = 3;
                 break;
 
-            case SystemExclusive:
+            case SystemExclusiveStart:
+            case SystemExclusiveEnd:
                 // The message can be any lenght
                 // between 3 and MidiMessage::sSysExMaxSize bytes
-                mPendingMessageExpectedLenght = MidiMessage::sSysExMaxSize;
+                mPendingMessageExpectedLength = MidiMessage::sSysExMaxSize;
                 mRunningStatus_RX = InvalidType;
-                mMessage.sysexArray[0] = SystemExclusive;
+                mMessage.sysexArray[0] = pendingType;
                 break;
-
+                
             case InvalidType:
             default:
                 // This is obviously wrong. Let's get the hell out'a here.
+                mLastError |= 1UL << ErrorParse; // set the ErrorParse bit
+                if (mErrorCallback)
+                    mErrorCallback(mLastError);
+
                 resetInput();
                 return false;
                 break;
         }
 
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLength - 1))
         {
             // Reception complete
             mMessage.type    = pendingType;
             mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             mMessage.data1   = mPendingMessage[1];
             mMessage.data2   = 0; // Completed new message has 1 data byte
-
+            mMessage.length  = 1;
+            
             mPendingMessageIndex = 0;
-            mPendingMessageExpectedLenght = 0;
+            mPendingMessageExpectedLength = 0;
             mMessage.valid = true;
+            
             return true;
         }
         else
@@ -808,17 +915,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             mPendingMessageIndex++;
         }
 
-        if (Settings::Use1ByteParsing)
-        {
-            // Message is not complete.
-            return false;
-        }
-        else
-        {
-            // Call the parser recursively
-            // to parse the rest of the message.
-            return parse();
-        }
+        return (Settings::Use1ByteParsing) ? false : parse();
     }
     else
     {
@@ -831,6 +928,7 @@ bool MidiInterface<SerialPort, Settings>::parse()
             {
                 case Clock:
                 case Start:
+                case Tick:
                 case Continue:
                 case Stop:
                 case ActiveSensing:
@@ -847,29 +945,39 @@ bool MidiInterface<SerialPort, Settings>::parse()
                     mMessage.data1   = 0;
                     mMessage.data2   = 0;
                     mMessage.channel = 0;
+                    mMessage.length  = 1;
                     mMessage.valid   = true;
+                    
                     return true;
 
-                    // End of Exclusive
-                case 0xf7:
-                    if (mMessage.sysexArray[0] == SystemExclusive)
+                    // Exclusive
+                case SystemExclusiveStart:
+                case SystemExclusiveEnd:
+                    if ((mMessage.sysexArray[0] == SystemExclusiveStart)
+                    ||  (mMessage.sysexArray[0] == SystemExclusiveEnd))
                     {
                         // Store the last byte (EOX)
-                        mMessage.sysexArray[mPendingMessageIndex++] = 0xf7;
+                        mMessage.sysexArray[mPendingMessageIndex++] = extracted;
                         mMessage.type = SystemExclusive;
 
                         // Get length
                         mMessage.data1   = mPendingMessageIndex & 0xff; // LSB
                         mMessage.data2   = byte(mPendingMessageIndex >> 8);   // MSB
                         mMessage.channel = 0;
+                        mMessage.length  = mPendingMessageIndex;
                         mMessage.valid   = true;
 
                         resetInput();
+                        
                         return true;
                     }
                     else
                     {
                         // Well well well.. error.
+                        mLastError |= 1UL << ErrorParse; // set the error bits
+                        if (mErrorCallback)
+                            mErrorCallback(mLastError);
+
                         resetInput();
                         return false;
                     }
@@ -880,20 +988,43 @@ bool MidiInterface<SerialPort, Settings>::parse()
         }
 
         // Add extracted data byte to pending message
-        if (mPendingMessage[0] == SystemExclusive)
+        if ((mPendingMessage[0] == SystemExclusiveStart)
+        ||  (mPendingMessage[0] == SystemExclusiveEnd))
             mMessage.sysexArray[mPendingMessageIndex] = extracted;
         else
             mPendingMessage[mPendingMessageIndex] = extracted;
 
         // Now we are going to check if we have reached the end of the message
-        if (mPendingMessageIndex >= (mPendingMessageExpectedLenght - 1))
+        if (mPendingMessageIndex >= (mPendingMessageExpectedLength - 1))
         {
-            // "FML" case: fall down here with an overflown SysEx..
-            // This means we received the last possible data byte that can fit
-            // the buffer. If this happens, try increasing MidiMessage::sSysExMaxSize.
-            if (mPendingMessage[0] == SystemExclusive)
+            // SysEx larger than the allocated buffer size,
+            // Split SysEx like so:
+            //   first:  0xF0 .... 0xF0
+            //   midlle: 0xF7 .... 0xF0
+            //   last:   0xF7 .... 0xF7
+            if ((mPendingMessage[0] == SystemExclusiveStart)
+            ||  (mPendingMessage[0] == SystemExclusiveEnd))
             {
-                resetInput();
+                auto lastByte = mMessage.sysexArray[DefaultSettings::SysExMaxSize - 1];
+                mMessage.sysexArray[DefaultSettings::SysExMaxSize - 1] = SystemExclusiveStart;
+                mMessage.type = SystemExclusive;
+
+                // Get length
+                mMessage.data1   = DefaultSettings::SysExMaxSize & 0xff; // LSB
+                mMessage.data2   = byte(DefaultSettings::SysExMaxSize >> 8); // MSB
+                mMessage.channel = 0;
+                mMessage.length  = DefaultSettings::SysExMaxSize;
+                mMessage.valid   = true;
+
+                // No need to check against the inputChannel,
+                // SysEx ignores input channel
+                launchCallback();
+
+                mMessage.sysexArray[0] = SystemExclusiveEnd;
+                mMessage.sysexArray[1] = lastByte;
+                
+                mPendingMessageIndex = 2;
+                
                 return false;
             }
 
@@ -905,13 +1036,13 @@ bool MidiInterface<SerialPort, Settings>::parse()
                 mMessage.channel = 0;
 
             mMessage.data1 = mPendingMessage[1];
-
             // Save data2 only if applicable
-            mMessage.data2 = mPendingMessageExpectedLenght == 3 ? mPendingMessage[2] : 0;
-
+            mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;        
+            mMessage.length = mPendingMessageExpectedLength;
+            
             // Reset local variables
             mPendingMessageIndex = 0;
-            mPendingMessageExpectedLenght = 0;
+            mPendingMessageExpectedLength = 0;
 
             mMessage.valid = true;
 
@@ -941,23 +1072,14 @@ bool MidiInterface<SerialPort, Settings>::parse()
             // Then update the index of the pending message.
             mPendingMessageIndex++;
 
-            if (Settings::Use1ByteParsing)
-            {
-                // Message is not complete.
-                return false;
-            }
-            else
-            {
-                // Call the parser recursively to parse the rest of the message.
-                return parse();
-            }
+            return (Settings::Use1ByteParsing) ? false : parse();
         }
     }
 }
 
 // Private method, see midi_Settings.h for documentation
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::handleNullVelocityNoteOnAsNoteOff()
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::handleNullVelocityNoteOnAsNoteOff()
 {
     if (Settings::HandleNullVelocityNoteOnAsNoteOff &&
         getType() == NoteOn && getData2() == 0)
@@ -967,8 +1089,8 @@ inline void MidiInterface<SerialPort, Settings>::handleNullVelocityNoteOnAsNoteO
 }
 
 // Private method: check if the received message is on the listened channel
-template<class SerialPort, class Settings>
-inline bool MidiInterface<SerialPort, Settings>::inputFilter(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::inputFilter(Channel inChannel)
 {
     // This method handles recognition of channel
     // (to know if the message is destinated to the Arduino)
@@ -996,11 +1118,11 @@ inline bool MidiInterface<SerialPort, Settings>::inputFilter(Channel inChannel)
 }
 
 // Private method: reset input attributes
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::resetInput()
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::resetInput()
 {
     mPendingMessageIndex = 0;
-    mPendingMessageExpectedLenght = 0;
+    mPendingMessageExpectedLength = 0;
     mRunningStatus_RX = InvalidType;
 }
 
@@ -1010,8 +1132,8 @@ inline void MidiInterface<SerialPort, Settings>::resetInput()
 
  Returns an enumerated type. @see MidiType
  */
-template<class SerialPort, class Settings>
-inline MidiType MidiInterface<SerialPort, Settings>::getType() const
+template<class Transport, class Settings, class Platform>
+inline MidiType MidiInterface<Transport, Settings, Platform>::getType() const
 {
     return mMessage.type;
 }
@@ -1021,22 +1143,22 @@ inline MidiType MidiInterface<SerialPort, Settings>::getType() const
  \return Channel range is 1 to 16.
  For non-channel messages, this will return 0.
  */
-template<class SerialPort, class Settings>
-inline Channel MidiInterface<SerialPort, Settings>::getChannel() const
+template<class Transport, class Settings, class Platform>
+inline Channel MidiInterface<Transport, Settings, Platform>::getChannel() const
 {
     return mMessage.channel;
 }
 
 /*! \brief Get the first data byte of the last received message. */
-template<class SerialPort, class Settings>
-inline DataByte MidiInterface<SerialPort, Settings>::getData1() const
+template<class Transport, class Settings, class Platform>
+inline DataByte MidiInterface<Transport, Settings, Platform>::getData1() const
 {
     return mMessage.data1;
 }
 
 /*! \brief Get the second data byte of the last received message. */
-template<class SerialPort, class Settings>
-inline DataByte MidiInterface<SerialPort, Settings>::getData2() const
+template<class Transport, class Settings, class Platform>
+inline DataByte MidiInterface<Transport, Settings, Platform>::getData2() const
 {
     return mMessage.data2;
 }
@@ -1045,8 +1167,8 @@ inline DataByte MidiInterface<SerialPort, Settings>::getData2() const
 
  @see getSysExArrayLength to get the array's length in bytes.
  */
-template<class SerialPort, class Settings>
-inline const byte* MidiInterface<SerialPort, Settings>::getSysExArray() const
+template<class Transport, class Settings, class Platform>
+inline const byte* MidiInterface<Transport, Settings, Platform>::getSysExArray() const
 {
     return mMessage.sysexArray;
 }
@@ -1056,23 +1178,23 @@ inline const byte* MidiInterface<SerialPort, Settings>::getSysExArray() const
  It is coded using data1 as LSB and data2 as MSB.
  \return The array's length, in bytes.
  */
-template<class SerialPort, class Settings>
-inline unsigned MidiInterface<SerialPort, Settings>::getSysExArrayLength() const
+template<class Transport, class Settings, class Platform>
+inline unsigned MidiInterface<Transport, Settings, Platform>::getSysExArrayLength() const
 {
     return mMessage.getSysExSize();
 }
 
 /*! \brief Check if a valid message is stored in the structure. */
-template<class SerialPort, class Settings>
-inline bool MidiInterface<SerialPort, Settings>::check() const
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::check() const
 {
     return mMessage.valid;
 }
 
 // -----------------------------------------------------------------------------
 
-template<class SerialPort, class Settings>
-inline Channel MidiInterface<SerialPort, Settings>::getInputChannel() const
+template<class Transport, class Settings, class Platform>
+inline Channel MidiInterface<Transport, Settings, Platform>::getInputChannel() const
 {
     return mInputChannel;
 }
@@ -1081,8 +1203,8 @@ inline Channel MidiInterface<SerialPort, Settings>::getInputChannel() const
  \param inChannel the channel value. Valid values are 1 to 16, MIDI_CHANNEL_OMNI
  if you want to listen to all channels, and MIDI_CHANNEL_OFF to disable input.
  */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::setInputChannel(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::setInputChannel(Channel inChannel)
 {
     mInputChannel = inChannel;
 }
@@ -1094,37 +1216,32 @@ inline void MidiInterface<SerialPort, Settings>::setInputChannel(Channel inChann
  This is a utility static method, used internally,
  made public so you can handle MidiTypes more easily.
  */
-template<class SerialPort, class Settings>
-MidiType MidiInterface<SerialPort, Settings>::getTypeFromStatusByte(byte inStatus)
+template<class Transport, class Settings, class Platform>
+MidiType MidiInterface<Transport, Settings, Platform>::getTypeFromStatusByte(byte inStatus)
 {
     if ((inStatus  < 0x80) ||
-        (inStatus == 0xf4) ||
-        (inStatus == 0xf5) ||
-        (inStatus == 0xf9) ||
-        (inStatus == 0xfD))
-    {
-        // Data bytes and undefined.
-        return InvalidType;
-    }
+        (inStatus == Undefined_F4) ||
+        (inStatus == Undefined_F5) ||
+        (inStatus == Undefined_FD))
+        return InvalidType; // Data bytes and undefined.
+    
     if (inStatus < 0xf0)
-    {
         // Channel message, remove channel nibble.
         return MidiType(inStatus & 0xf0);
-    }
 
     return MidiType(inStatus);
 }
 
 /*! \brief Returns channel in the range 1-16
  */
-template<class SerialPort, class Settings>
-inline Channel MidiInterface<SerialPort, Settings>::getChannelFromStatusByte(byte inStatus)
+template<class Transport, class Settings, class Platform>
+inline Channel MidiInterface<Transport, Settings, Platform>::getChannelFromStatusByte(byte inStatus)
 {
     return Channel((inStatus & 0x0f) + 1);
 }
 
-template<class SerialPort, class Settings>
-bool MidiInterface<SerialPort, Settings>::isChannelMessage(MidiType inType)
+template<class Transport, class Settings, class Platform>
+bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inType)
 {
     return (inType == NoteOff           ||
             inType == NoteOn            ||
@@ -1137,58 +1254,36 @@ bool MidiInterface<SerialPort, Settings>::isChannelMessage(MidiType inType)
 
 // -----------------------------------------------------------------------------
 
-/*! \addtogroup callbacks
- @{
- */
-
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOffCallback              = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))           { mNoteOnCallback               = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure))   { mAfterTouchPolyCallback       = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))     { mControlChangeCallback        = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleProgramChange(void (*fptr)(byte channel, byte number))                 { mProgramChangeCallback        = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure))           { mAfterTouchChannelCallback    = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandlePitchBend(void (*fptr)(byte channel, int bend))                        { mPitchBendCallback            = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSystemExclusive(void (*fptr)(byte* array, unsigned size))              { mSystemExclusiveCallback      = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleTimeCodeQuarterFrame(void (*fptr)(byte data))                          { mTimeCodeQuarterFrameCallback = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSongPosition(void (*fptr)(unsigned beats))                             { mSongPositionCallback         = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSongSelect(void (*fptr)(byte songnumber))                              { mSongSelectCallback           = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleTuneRequest(void (*fptr)(void))                                        { mTuneRequestCallback          = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleClock(void (*fptr)(void))                                              { mClockCallback                = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleStart(void (*fptr)(void))                                              { mStartCallback                = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleContinue(void (*fptr)(void))                                           { mContinueCallback             = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleStop(void (*fptr)(void))                                               { mStopCallback                 = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleActiveSensing(void (*fptr)(void))                                      { mActiveSensingCallback        = fptr; }
-template<class SerialPort, class Settings> void MidiInterface<SerialPort, Settings>::setHandleSystemReset(void (*fptr)(void))                                        { mSystemResetCallback          = fptr; }
-
 /*! \brief Detach an external function from the given type.
 
  Use this method to cancel the effects of setHandle********.
  \param inType        The type of message to unbind.
  When a message of this type is received, no function will be called.
  */
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::disconnectCallbackFromType(MidiType inType)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(MidiType inType)
 {
     switch (inType)
     {
-        case NoteOff:               mNoteOffCallback                = 0; break;
-        case NoteOn:                mNoteOnCallback                 = 0; break;
-        case AfterTouchPoly:        mAfterTouchPolyCallback         = 0; break;
-        case ControlChange:         mControlChangeCallback          = 0; break;
-        case ProgramChange:         mProgramChangeCallback          = 0; break;
-        case AfterTouchChannel:     mAfterTouchChannelCallback      = 0; break;
-        case PitchBend:             mPitchBendCallback              = 0; break;
-        case SystemExclusive:       mSystemExclusiveCallback        = 0; break;
-        case TimeCodeQuarterFrame:  mTimeCodeQuarterFrameCallback   = 0; break;
-        case SongPosition:          mSongPositionCallback           = 0; break;
-        case SongSelect:            mSongSelectCallback             = 0; break;
-        case TuneRequest:           mTuneRequestCallback            = 0; break;
-        case Clock:                 mClockCallback                  = 0; break;
-        case Start:                 mStartCallback                  = 0; break;
-        case Continue:              mContinueCallback               = 0; break;
-        case Stop:                  mStopCallback                   = 0; break;
-        case ActiveSensing:         mActiveSensingCallback          = 0; break;
-        case SystemReset:           mSystemResetCallback            = 0; break;
+        case NoteOff:               mNoteOffCallback                = nullptr; break;
+        case NoteOn:                mNoteOnCallback                 = nullptr; break;
+        case AfterTouchPoly:        mAfterTouchPolyCallback         = nullptr; break;
+        case ControlChange:         mControlChangeCallback          = nullptr; break;
+        case ProgramChange:         mProgramChangeCallback          = nullptr; break;
+        case AfterTouchChannel:     mAfterTouchChannelCallback      = nullptr; break;
+        case PitchBend:             mPitchBendCallback              = nullptr; break;
+        case SystemExclusive:       mSystemExclusiveCallback        = nullptr; break;
+        case TimeCodeQuarterFrame:  mTimeCodeQuarterFrameCallback   = nullptr; break;
+        case SongPosition:          mSongPositionCallback           = nullptr; break;
+        case SongSelect:            mSongSelectCallback             = nullptr; break;
+        case TuneRequest:           mTuneRequestCallback            = nullptr; break;
+        case Clock:                 mClockCallback                  = nullptr; break;
+        case Start:                 mStartCallback                  = nullptr; break;
+        case Tick:                  mTickCallback                   = nullptr; break;
+        case Continue:              mContinueCallback               = nullptr; break;
+        case Stop:                  mStopCallback                   = nullptr; break;
+        case ActiveSensing:         mActiveSensingCallback          = nullptr; break;
+        case SystemReset:           mSystemResetCallback            = nullptr; break;
         default:
             break;
     }
@@ -1197,39 +1292,42 @@ void MidiInterface<SerialPort, Settings>::disconnectCallbackFromType(MidiType in
 /*! @} */ // End of doc group MIDI Callbacks
 
 // Private - launch callback function based on received type.
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::launchCallback()
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::launchCallback()
 {
+    if (mMessageCallback != 0) mMessageCallback(mMessage);
+
     // The order is mixed to allow frequent messages to trigger their callback faster.
     switch (mMessage.type)
     {
             // Notes
-        case NoteOff:               if (mNoteOffCallback != 0)               mNoteOffCallback(mMessage.channel, mMessage.data1, mMessage.data2);   break;
-        case NoteOn:                if (mNoteOnCallback != 0)                mNoteOnCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
+        case NoteOff:               if (mNoteOffCallback != nullptr)               mNoteOffCallback(mMessage.channel, mMessage.data1, mMessage.data2);   break;
+        case NoteOn:                if (mNoteOnCallback != nullptr)                mNoteOnCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
 
             // Real-time messages
-        case Clock:                 if (mClockCallback != 0)                 mClockCallback();           break;
-        case Start:                 if (mStartCallback != 0)                 mStartCallback();           break;
-        case Continue:              if (mContinueCallback != 0)              mContinueCallback();        break;
-        case Stop:                  if (mStopCallback != 0)                  mStopCallback();            break;
-        case ActiveSensing:         if (mActiveSensingCallback != 0)         mActiveSensingCallback();   break;
+        case Clock:                 if (mClockCallback != nullptr)                 mClockCallback();           break;
+        case Start:                 if (mStartCallback != nullptr)                 mStartCallback();           break;
+        case Tick:                  if (mTickCallback != nullptr)                  mTickCallback();            break;
+        case Continue:              if (mContinueCallback != nullptr)              mContinueCallback();        break;
+        case Stop:                  if (mStopCallback != nullptr)                  mStopCallback();            break;
+        case ActiveSensing:         if (mActiveSensingCallback != nullptr)         mActiveSensingCallback();   break;
 
             // Continuous controllers
-        case ControlChange:         if (mControlChangeCallback != 0)         mControlChangeCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
-        case PitchBend:             if (mPitchBendCallback != 0)             mPitchBendCallback(mMessage.channel, (int)((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)) + MIDI_PITCHBEND_MIN); break; // TODO: check this
-        case AfterTouchPoly:        if (mAfterTouchPolyCallback != 0)        mAfterTouchPolyCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
-        case AfterTouchChannel:     if (mAfterTouchChannelCallback != 0)     mAfterTouchChannelCallback(mMessage.channel, mMessage.data1);    break;
+        case ControlChange:         if (mControlChangeCallback != nullptr)         mControlChangeCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
+        case PitchBend:             if (mPitchBendCallback != nullptr)             mPitchBendCallback(mMessage.channel, (int)((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)) + MIDI_PITCHBEND_MIN); break;
+        case AfterTouchPoly:        if (mAfterTouchPolyCallback != nullptr)        mAfterTouchPolyCallback(mMessage.channel, mMessage.data1, mMessage.data2);    break;
+        case AfterTouchChannel:     if (mAfterTouchChannelCallback != nullptr)     mAfterTouchChannelCallback(mMessage.channel, mMessage.data1);    break;
 
-        case ProgramChange:         if (mProgramChangeCallback != 0)         mProgramChangeCallback(mMessage.channel, mMessage.data1);    break;
-        case SystemExclusive:       if (mSystemExclusiveCallback != 0)       mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());    break;
+        case ProgramChange:         if (mProgramChangeCallback != nullptr)         mProgramChangeCallback(mMessage.channel, mMessage.data1);    break;
+        case SystemExclusive:       if (mSystemExclusiveCallback != nullptr)       mSystemExclusiveCallback(mMessage.sysexArray, mMessage.getSysExSize());    break;
 
             // Occasional messages
-        case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != 0)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
-        case SongPosition:          if (mSongPositionCallback != 0)          mSongPositionCallback(unsigned((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)));    break;
-        case SongSelect:            if (mSongSelectCallback != 0)            mSongSelectCallback(mMessage.data1);    break;
-        case TuneRequest:           if (mTuneRequestCallback != 0)           mTuneRequestCallback();    break;
+        case TimeCodeQuarterFrame:  if (mTimeCodeQuarterFrameCallback != nullptr)  mTimeCodeQuarterFrameCallback(mMessage.data1);    break;
+        case SongPosition:          if (mSongPositionCallback != nullptr)          mSongPositionCallback(unsigned((mMessage.data1 & 0x7f) | ((mMessage.data2 & 0x7f) << 7)));    break;
+        case SongSelect:            if (mSongSelectCallback != nullptr)            mSongSelectCallback(mMessage.data1);    break;
+        case TuneRequest:           if (mTuneRequestCallback != nullptr)           mTuneRequestCallback();    break;
 
-        case SystemReset:           if (mSystemResetCallback != 0)           mSystemResetCallback();    break;
+        case SystemReset:           if (mSystemResetCallback != nullptr)           mSystemResetCallback();    break;
 
         case InvalidType:
         default:
@@ -1252,37 +1350,44 @@ void MidiInterface<SerialPort, Settings>::launchCallback()
 
  @see Thru::Mode
  */
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::setThruFilterMode(Thru::Mode inThruFilterMode)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::setThruFilterMode(Thru::Mode inThruFilterMode)
 {
     mThruFilterMode = inThruFilterMode;
     mThruActivated  = mThruFilterMode != Thru::Off;
 }
 
-template<class SerialPort, class Settings>
-inline Thru::Mode MidiInterface<SerialPort, Settings>::getFilterMode() const
+template<class Transport, class Settings, class Platform>
+inline Thru::Mode MidiInterface<Transport, Settings, Platform>::getFilterMode() const
 {
     return mThruFilterMode;
 }
 
-template<class SerialPort, class Settings>
-inline bool MidiInterface<SerialPort, Settings>::getThruState() const
+template<class Transport, class Settings, class Platform>
+inline bool MidiInterface<Transport, Settings, Platform>::getThruState() const
 {
     return mThruActivated;
 }
 
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::turnThruOn(Thru::Mode inThruFilterMode)
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::turnThruOn(Thru::Mode inThruFilterMode)
 {
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
 }
 
-template<class SerialPort, class Settings>
-inline void MidiInterface<SerialPort, Settings>::turnThruOff()
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 {
     mThruActivated = false;
     mThruFilterMode = Thru::Off;
+}
+
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::UpdateLastSentTime()
+{
+    if (Settings::UseSenderActiveSensing && mSenderActiveSensingPeriodicity)
+        mLastMessageSentTime = Platform::now();
 }
 
 /*! @} */ // End of doc group MIDI Thru
@@ -1293,8 +1398,8 @@ inline void MidiInterface<SerialPort, Settings>::turnThruOff()
 //   to output unless filter is set to Off.
 // - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
-template<class SerialPort, class Settings>
-void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
+template<class Transport, class Settings, class Platform>
+void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
 {
     // If the feature is disabled, don't do anything.
     if (!mThruActivated || (mThruFilterMode == Thru::Off))

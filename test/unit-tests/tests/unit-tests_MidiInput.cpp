@@ -14,7 +14,8 @@ BEGIN_UNNAMED_NAMESPACE
 using namespace testing;
 USING_NAMESPACE_UNIT_TESTS
 typedef test_mocks::SerialMock<32> SerialMock;
-typedef midi::MidiInterface<SerialMock> MidiInterface;
+typedef midi::SerialMIDI<SerialMock> Transport;
+typedef midi::MidiInterface<Transport> MidiInterface;
 
 template<unsigned Size>
 struct VariableSysExSettings : midi::DefaultSettings
@@ -53,7 +54,6 @@ TEST(MidiInput, getTypeFromStatusByte)
     }
     EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf4), midi::InvalidType);
     EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf5), midi::InvalidType);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf9), midi::InvalidType);
     EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfd), midi::InvalidType);
 }
 
@@ -93,12 +93,13 @@ TEST(MidiInput, isChannelMessage)
 TEST(MidiInput, begin)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     // Default channel
     midi.begin();
     EXPECT_EQ(serial.mBaudrate, 31250);
-    EXPECT_EQ(midi.getInputChannel(), 1);
+    EXPECT_EQ(midi.getInputChannel(), 0);
 
     // Specific channel
     midi.begin(12);
@@ -109,7 +110,8 @@ TEST(MidiInput, begin)
 TEST(MidiInput, initInputChannel)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     EXPECT_EQ(midi.getInputChannel(), 0);
     midi.setInputChannel(12);
@@ -119,7 +121,9 @@ TEST(MidiInput, initInputChannel)
 TEST(MidiInput, initMessage)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     EXPECT_EQ(midi.getType(),               midi::InvalidType);
     EXPECT_EQ(midi.getChannel(),            0);
     EXPECT_EQ(midi.getData1(),              0);
@@ -131,7 +135,9 @@ TEST(MidiInput, initMessage)
 TEST(MidiInput, channelFiltering)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 3;
     static const byte rxData[rxSize] = { 0x9b, 12, 34 };
     midi.begin(4); // Mistmatching channel
@@ -144,7 +150,9 @@ TEST(MidiInput, channelFiltering)
 TEST(MidiInput, noRxData)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     midi.begin();
     EXPECT_EQ(midi.read(), false);
 }
@@ -152,7 +160,9 @@ TEST(MidiInput, noRxData)
 TEST(MidiInput, inputDisabled)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 3;
     static const byte rxData[rxSize] = { 0x9b, 12, 34 };
     midi.begin(MIDI_CHANNEL_OFF); // Invalid channel
@@ -165,10 +175,12 @@ TEST(MidiInput, inputDisabled)
 TEST(MidiInput, multiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MultiByteMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
-    MultiByteMidiInterface midi(serial);
+    Transport transport(serial);
+    MultiByteMidiInterface midi(transport);
+    
     static const unsigned rxSize = 3;
     static const byte rxData[rxSize] = { 0x9b, 12, 34 };
     midi.begin(12);
@@ -179,7 +191,9 @@ TEST(MidiInput, multiByteParsing)
 TEST(MidiInput, noteOn)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 10;
     static const byte rxData[rxSize] = {
         0x9b, 12, 34,
@@ -230,7 +244,9 @@ TEST(MidiInput, noteOn)
 TEST(MidiInput, noteOff)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 8;
     static const byte rxData[rxSize] = {
         0x8b, 12, 34,
@@ -272,7 +288,9 @@ TEST(MidiInput, noteOff)
 TEST(MidiInput, programChange)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = {
         0xc3, 12, 34,
@@ -316,7 +334,9 @@ TEST(MidiInput, programChange)
 TEST(MidiInput, controlChange)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 8;
     static const byte rxData[rxSize] = {
         0xbb, 12, 34,
@@ -358,7 +378,9 @@ TEST(MidiInput, controlChange)
 TEST(MidiInput, pitchBend)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 8;
     static const byte rxData[rxSize] = {
         0xeb, 12, 34,
@@ -400,7 +422,9 @@ TEST(MidiInput, pitchBend)
 TEST(MidiInput, afterTouchPoly)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 8;
     static const byte rxData[rxSize] = {
         0xab, 12, 34,
@@ -442,7 +466,9 @@ TEST(MidiInput, afterTouchPoly)
 TEST(MidiInput, afterTouchChannel)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = {
         0xd3, 12, 34,
@@ -487,10 +513,12 @@ TEST(MidiInput, sysExWithinBufferSize)
 {
     typedef VariableSysExSettings<1024> Settings;
     typedef test_mocks::SerialMock<2048> LargerSerialMock;
-    typedef midi::MidiInterface<LargerSerialMock, Settings> LargerMidiInterface;
+    typedef midi::SerialMIDI<LargerSerialMock> LargerTransport;
+    typedef midi::MidiInterface<LargerTransport, Settings> LargerMidiInterface;
 
     LargerSerialMock serial;
-    LargerMidiInterface midi(serial);
+    LargerTransport transport(serial);
+    LargerMidiInterface midi(transport);
 
     // Short Frame < 256
     {
@@ -553,10 +581,11 @@ TEST(MidiInput, sysExWithinBufferSize)
 TEST(MidiInput, sysExOverBufferSize)
 {
     typedef VariableSysExSettings<8> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> SmallMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> SmallMidiInterface;
 
     SerialMock serial;
-    SmallMidiInterface midi(serial);
+    Transport transport(serial);
+    SmallMidiInterface midi(transport);
 
     static const unsigned frameLength = 15;
     static const byte frame[frameLength] = {
@@ -566,17 +595,29 @@ TEST(MidiInput, sysExOverBufferSize)
     midi.begin();
     serial.mRxBuffer.write(frame, frameLength);
 
-    for (unsigned i = 0; i < frameLength - 1; ++i)
-    {
-        EXPECT_EQ(midi.read(), false);
-    }
-    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false); // start sysex f0
+    EXPECT_EQ(midi.read(), false); // H
+    EXPECT_EQ(midi.read(), false); // e
+    EXPECT_EQ(midi.read(), false); // l
+    EXPECT_EQ(midi.read(), false); // l
+    EXPECT_EQ(midi.read(), false); // o
+    EXPECT_EQ(midi.read(), false); // , message send and buffer cleared.
+    EXPECT_EQ(midi.read(), false); // start sysex 
+    EXPECT_EQ(midi.read(), false); // (space)
+    EXPECT_EQ(midi.read(), false); // W
+    EXPECT_EQ(midi.read(), false); // o   
+    EXPECT_EQ(midi.read(), false); // r
+    EXPECT_EQ(midi.read(), false); // l   
+    EXPECT_EQ(midi.read(), false); // d
+    EXPECT_EQ(midi.read(), true);  // end sysex
 }
 
 TEST(MidiInput, mtcQuarterFrame)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 4;
     static const byte rxData[rxSize] = {
         0xf1, 12,
@@ -606,7 +647,9 @@ TEST(MidiInput, mtcQuarterFrame)
 TEST(MidiInput, songPosition)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = {
         0xf2, 12, 34,
@@ -638,7 +681,9 @@ TEST(MidiInput, songPosition)
 TEST(MidiInput, songSelect)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 4;
     static const byte rxData[rxSize] = {
         0xf3, 12,
@@ -668,7 +713,9 @@ TEST(MidiInput, songSelect)
 TEST(MidiInput, tuneRequest)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 1;
     static const byte rxData[rxSize] = {
         0xf6
@@ -686,7 +733,9 @@ TEST(MidiInput, tuneRequest)
 TEST(MidiInput, realTime)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
     static const unsigned rxSize = 8;
     static const byte rxData[rxSize] = {
         0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff
@@ -700,7 +749,11 @@ TEST(MidiInput, realTime)
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
 
-    EXPECT_EQ(midi.read(), false); // 0xf9 = undefined
+    EXPECT_EQ(midi.read(), true); 
+    EXPECT_EQ(midi.getType(),       midi::Tick);
+    EXPECT_EQ(midi.getChannel(),    0);
+    EXPECT_EQ(midi.getData1(),      0);
+    EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
     EXPECT_EQ(midi.getType(),       midi::Start);
@@ -740,7 +793,8 @@ TEST(MidiInput, realTime)
 TEST(MidiInput, interleavedRealTime)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     // Interleaved Clocks between NoteOn / Off messages (with running status)
     {
@@ -754,6 +808,7 @@ TEST(MidiInput, interleavedRealTime)
         };
         midi.begin(12);
         serial.mRxBuffer.write(rxData, rxSize);
+
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), false);
 
@@ -816,6 +871,7 @@ TEST(MidiInput, interleavedRealTime)
         };
         midi.begin(12);
         serial.mRxBuffer.write(rxData, rxSize);
+        
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), false);
@@ -841,13 +897,16 @@ TEST(MidiInput, strayEox)
 {
     // A stray End of Exclusive will reset the parser, but should it ?
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+    
     static const unsigned rxSize = 4;
     static const byte rxData[rxSize] = {
         0x8b, 42, 0xf7, 12
     };
     midi.begin(MIDI_CHANNEL_OMNI);
     serial.mRxBuffer.write(rxData, rxSize);
+
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
@@ -857,18 +916,20 @@ TEST(MidiInput, strayEox)
 TEST(MidiInput, strayUndefinedOneByteParsing)
 {
     SerialMock serial;
-    MidiInterface midi(serial);
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
 
     static const unsigned rxSize = 13;
     static const byte rxData[rxSize] = {
-        0xbb, 12, 0xf9, 34,
+        0xbb, 12, 0xfd, 34,
         12, 0,
         42, 0xfd, 127,
-        0xf9,
+        0xfd,
         42, 0xfd, 0
     };
     midi.begin(12);
     serial.mRxBuffer.write(rxData, rxSize);
+
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false); // Invalid, should not reset parser
@@ -907,17 +968,19 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
 TEST(MidiInput, strayUndefinedMultiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
-    typedef midi::MidiInterface<SerialMock, Settings> MultiByteMidiInterface;
+    typedef midi::MidiInterface<Transport, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
-    MultiByteMidiInterface midi(serial);
+    Transport transport(serial);
+    MultiByteMidiInterface midi(transport);
 
     static const unsigned rxSize = 4;
     static const byte rxData[rxSize] = {
-        0xbb, 12, 0xf9, 34,
+        0xbb, 12, 0xfd, 34,
     };
     midi.begin(12);
     serial.mRxBuffer.write(rxData, rxSize);
+
     EXPECT_EQ(midi.read(), true);
     EXPECT_EQ(midi.getType(),       midi::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);

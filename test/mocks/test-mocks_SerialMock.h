@@ -2,9 +2,35 @@
 
 #include "test-mocks.h"
 #include <inttypes.h>
-#include <src/midi_RingBuffer.h>
 
 BEGIN_TEST_MOCKS_NAMESPACE
+
+template<typename DataType, int Size>
+class RingBuffer
+{
+public:
+     RingBuffer();
+    ~RingBuffer();
+
+public:
+    int getLength() const;
+    bool isEmpty() const;
+
+public:
+    void write(DataType inData);
+    void write(const DataType* inData, int inSize);
+    void clear();
+
+public:
+    DataType peek() const;
+    DataType read();
+    void read(DataType* outData, int inSize);
+
+private:
+    DataType mData[Size];
+    DataType* mWriteHead;
+    DataType* mReadHead;
+};
 
 template<int BufferSize>
 class SerialMock
@@ -23,7 +49,7 @@ public: // Test Helpers API
     void moveTxToRx(); // Simulate loopback
 
 public:
-    typedef midi::RingBuffer<uint8_t, BufferSize> Buffer;
+    typedef RingBuffer<uint8_t, BufferSize> Buffer;
     Buffer mTxBuffer;
     Buffer mRxBuffer;
     int mBaudrate;

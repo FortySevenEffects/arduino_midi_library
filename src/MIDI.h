@@ -2,7 +2,7 @@
  *  @file       MIDI.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino
- *  @author     Francois Best
+ *  @author     Francois Best, lathoub
  *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best
  *
@@ -28,12 +28,20 @@
 #pragma once
 
 #include "midi_Defs.h"
+#include "midi_Platform.h"
 #include "midi_Settings.h"
 #include "midi_Message.h"
+
+#include "serialMIDI.h"
 
 // -----------------------------------------------------------------------------
 
 BEGIN_MIDI_NAMESPACE
+
+#define MIDI_LIBRARY_VERSION        0x050000
+#define MIDI_LIBRARY_VERSION_MAJOR  5
+#define MIDI_LIBRARY_VERSION_MINOR  0
+#define MIDI_LIBRARY_VERSION_PATCH  0
 
 /*! \brief The main class for MIDI handling.
 It is templated over the type of serial port to provide abstraction from
@@ -41,18 +49,20 @@ the hardware interface, meaning you can use HardwareSerial, SoftwareSerial
 or ak47's Uart classes. The only requirement is that the class implements
 the begin, read, write and available methods.
  */
-template<class SerialPort, class _Settings = DefaultSettings>
+template<class Transport, class _Settings = DefaultSettings, class _Platform = DefaultPlatform>
 class MidiInterface
 {
 public:
     typedef _Settings Settings;
+    typedef _Platform Platform;
+    typedef Message<Settings::SysExMaxSize> MidiMessage;
 
 public:
-    inline  MidiInterface(SerialPort& inSerial);
+    inline  MidiInterface(Transport&);
     inline ~MidiInterface();
 
 public:
-    void begin(Channel inChannel = 1);
+    void begin(Channel inChannel = MIDI_CHANNEL_OMNI);
 
     // -------------------------------------------------------------------------
     // MIDI Output
@@ -97,8 +107,19 @@ public:
     inline void sendSongPosition(unsigned inBeats);
     inline void sendSongSelect(DataByte inSongNumber);
     inline void sendTuneRequest();
-    inline void sendRealTime(MidiType inType);
 
+    inline void sendCommon(MidiType inType, unsigned = 0);
+
+    inline void sendClock()         { sendRealTime(Clock); };
+    inline void sendStart()         { sendRealTime(Start); };
+    inline void sendStop()          { sendRealTime(Stop);  };
+    inline void sendTick()          { sendRealTime(Tick);  };
+    inline void sendContinue()      { sendRealTime(Continue);  };
+    inline void sendActiveSensing() { sendRealTime(ActiveSensing);  };
+    inline void sendSystemReset()   { sendRealTime(SystemReset);  };
+
+    inline void sendRealTime(MidiType inType);
+    
     inline void beginRpn(unsigned inNumber,
                          Channel inChannel);
     inline void sendRpnValue(unsigned inValue,
@@ -125,6 +146,8 @@ public:
                                   Channel inChannel);
     inline void endNrpn(Channel inChannel);
 
+    inline void send(const MidiMessage&);
+    
 public:
     void send(MidiType inType,
               DataByte inData1,
@@ -160,48 +183,54 @@ public:
     // Input Callbacks
 
 public:
-    inline void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
-    inline void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
-    inline void setHandleAfterTouchPoly(void (*fptr)(byte channel, byte note, byte pressure));
-    inline void setHandleControlChange(void (*fptr)(byte channel, byte number, byte value));
-    inline void setHandleProgramChange(void (*fptr)(byte channel, byte number));
-    inline void setHandleAfterTouchChannel(void (*fptr)(byte channel, byte pressure));
-    inline void setHandlePitchBend(void (*fptr)(byte channel, int bend));
-    inline void setHandleSystemExclusive(void (*fptr)(byte * array, unsigned size));
-    inline void setHandleTimeCodeQuarterFrame(void (*fptr)(byte data));
-    inline void setHandleSongPosition(void (*fptr)(unsigned beats));
-    inline void setHandleSongSelect(void (*fptr)(byte songnumber));
-    inline void setHandleTuneRequest(void (*fptr)(void));
-    inline void setHandleClock(void (*fptr)(void));
-    inline void setHandleStart(void (*fptr)(void));
-    inline void setHandleContinue(void (*fptr)(void));
-    inline void setHandleStop(void (*fptr)(void));
-    inline void setHandleActiveSensing(void (*fptr)(void));
-    inline void setHandleSystemReset(void (*fptr)(void));
+    inline void setHandleMessage(void (*fptr)(const MidiMessage&)) { mMessageCallback = fptr; };
+    inline void setHandleError(ErrorCallback fptr) { mErrorCallback = fptr; }
+    inline void setHandleNoteOff(NoteOffCallback fptr) { mNoteOffCallback = fptr; }
+    inline void setHandleNoteOn(NoteOnCallback fptr) { mNoteOnCallback = fptr; }
+    inline void setHandleAfterTouchPoly(AfterTouchPolyCallback fptr) { mAfterTouchPolyCallback = fptr; }
+    inline void setHandleControlChange(ControlChangeCallback fptr) { mControlChangeCallback = fptr; }
+    inline void setHandleProgramChange(ProgramChangeCallback fptr) { mProgramChangeCallback = fptr; }
+    inline void setHandleAfterTouchChannel(AfterTouchChannelCallback fptr) { mAfterTouchChannelCallback = fptr; }
+    inline void setHandlePitchBend(PitchBendCallback fptr) { mPitchBendCallback = fptr; }
+    inline void setHandleSystemExclusive(SystemExclusiveCallback fptr) { mSystemExclusiveCallback = fptr; }
+    inline void setHandleTimeCodeQuarterFrame(TimeCodeQuarterFrameCallback fptr) { mTimeCodeQuarterFrameCallback = fptr; }
+    inline void setHandleSongPosition(SongPositionCallback fptr) { mSongPositionCallback = fptr; }
+    inline void setHandleSongSelect(SongSelectCallback fptr) { mSongSelectCallback = fptr; }
+    inline void setHandleTuneRequest(TuneRequestCallback fptr) { mTuneRequestCallback = fptr; }
+    inline void setHandleClock(ClockCallback fptr) { mClockCallback = fptr; }
+    inline void setHandleStart(StartCallback fptr) { mStartCallback = fptr; }
+    inline void setHandleTick(TickCallback fptr) { mTickCallback = fptr; }
+    inline void setHandleContinue(ContinueCallback fptr) { mContinueCallback = fptr; }
+    inline void setHandleStop(StopCallback fptr) { mStopCallback = fptr; }
+    inline void setHandleActiveSensing(ActiveSensingCallback fptr) { mActiveSensingCallback = fptr; }
+    inline void setHandleSystemReset(SystemResetCallback fptr) { mSystemResetCallback = fptr; }
 
     inline void disconnectCallbackFromType(MidiType inType);
 
 private:
     void launchCallback();
 
-    void (*mNoteOffCallback)(byte channel, byte note, byte velocity);
-    void (*mNoteOnCallback)(byte channel, byte note, byte velocity);
-    void (*mAfterTouchPolyCallback)(byte channel, byte note, byte velocity);
-    void (*mControlChangeCallback)(byte channel, byte, byte);
-    void (*mProgramChangeCallback)(byte channel, byte);
-    void (*mAfterTouchChannelCallback)(byte channel, byte);
-    void (*mPitchBendCallback)(byte channel, int);
-    void (*mSystemExclusiveCallback)(byte * array, unsigned size);
-    void (*mTimeCodeQuarterFrameCallback)(byte data);
-    void (*mSongPositionCallback)(unsigned beats);
-    void (*mSongSelectCallback)(byte songnumber);
-    void (*mTuneRequestCallback)(void);
-    void (*mClockCallback)(void);
-    void (*mStartCallback)(void);
-    void (*mContinueCallback)(void);
-    void (*mStopCallback)(void);
-    void (*mActiveSensingCallback)(void);
-    void (*mSystemResetCallback)(void);
+    void (*mMessageCallback)(const MidiMessage& message) = nullptr;
+    ErrorCallback mErrorCallback = nullptr;
+    NoteOffCallback mNoteOffCallback = nullptr;
+    NoteOnCallback mNoteOnCallback = nullptr;
+    AfterTouchPolyCallback mAfterTouchPolyCallback = nullptr;
+    ControlChangeCallback mControlChangeCallback = nullptr;
+    ProgramChangeCallback mProgramChangeCallback = nullptr;
+    AfterTouchChannelCallback mAfterTouchChannelCallback = nullptr;
+    PitchBendCallback mPitchBendCallback = nullptr;
+    SystemExclusiveCallback mSystemExclusiveCallback = nullptr;
+    TimeCodeQuarterFrameCallback mTimeCodeQuarterFrameCallback = nullptr;
+    SongPositionCallback mSongPositionCallback = nullptr;
+    SongSelectCallback mSongSelectCallback = nullptr;
+    TuneRequestCallback mTuneRequestCallback = nullptr;
+    ClockCallback mClockCallback = nullptr;
+    StartCallback mStartCallback = nullptr;
+    TickCallback mTickCallback = nullptr;
+    ContinueCallback mContinueCallback = nullptr;
+    StopCallback mStopCallback = nullptr;
+    ActiveSensingCallback mActiveSensingCallback = nullptr;
+    SystemResetCallback mSystemResetCallback = nullptr;
 
     // -------------------------------------------------------------------------
     // MIDI Soft Thru
@@ -217,31 +246,45 @@ public:
 private:
     void thruFilter(byte inChannel);
 
+    // -------------------------------------------------------------------------
+    // MIDI Parsing
+
 private:
     bool parse();
     inline void handleNullVelocityNoteOnAsNoteOff();
     inline bool inputFilter(Channel inChannel);
     inline void resetInput();
+    inline void UpdateLastSentTime();
+
+    // -------------------------------------------------------------------------
+    // Transport
+
+public:
+    Transport* getTransport() { return &mTransport; };
 
 private:
-    typedef Message<Settings::SysExMaxSize> MidiMessage;
+    Transport& mTransport;
 
-private:
-    SerialPort& mSerial;
+    // -------------------------------------------------------------------------
+    // Internal variables
 
 private:
     Channel         mInputChannel;
     StatusByte      mRunningStatus_RX;
     StatusByte      mRunningStatus_TX;
     byte            mPendingMessage[3];
-    unsigned        mPendingMessageExpectedLenght;
+    unsigned        mPendingMessageExpectedLength;
     unsigned        mPendingMessageIndex;
     unsigned        mCurrentRpnNumber;
     unsigned        mCurrentNrpnNumber;
     bool            mThruActivated  : 1;
     Thru::Mode      mThruFilterMode : 7;
     MidiMessage     mMessage;
-
+    unsigned long   mLastMessageSentTime;
+    unsigned long   mLastMessageReceivedTime;
+    unsigned long   mSenderActiveSensingPeriodicity;
+    bool            mReceiverActiveSensingActivated;
+    int8_t          mLastError;
 
 private:
     inline StatusByte getStatus(MidiType inType,

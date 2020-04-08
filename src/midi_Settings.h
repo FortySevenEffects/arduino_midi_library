@@ -67,16 +67,38 @@ struct DefaultSettings
     */
     static const bool Use1ByteParsing = true;
 
-    /*! Override the default MIDI baudrate to transmit over USB serial, to
-    a decoding program such as Hairless MIDI (set baudrate to 115200)\n
-    http://projectgus.github.io/hairless-midiserial/
-    */
-    static const long BaudRate = 31250;
-
     /*! Maximum size of SysEx receivable. Decrease to save RAM if you don't expect
     to receive SysEx, or adjust accordingly.
     */
     static const unsigned SysExMaxSize = 128;
+
+    /*! Global switch to turn on/off sender ActiveSensing
+    Set to true to send ActiveSensing
+    Set to false will not send ActiveSensing message (will also save memory)
+    */
+    static const bool UseSenderActiveSensing = false;
+
+    /*! Global switch to turn on/off receiver ActiveSensing
+    Set to true to check for message timeouts (via ErrorCallback)
+    Set to false will not check if chained device are still alive (if they use ActiveSensing) (will also save memory)
+    */
+    static const bool UseReceiverActiveSensing = false;
+
+    /*! Active Sensing is intended to be sent
+    repeatedly by the sender to tell the receiver that a connection is alive. Use
+    of this message is optional. When initially received, the
+    receiver will expect to receive another Active Sensing
+    message each 300ms (max), and if it does not then it will
+    assume that the connection has been terminated. At
+    termination, the receiver will turn off all voices and return to
+    normal (non- active sensing) operation.
+
+    Typical value is 250 (ms) - an Active Sensing command is send every 250ms.
+    (All Roland devices send Active Sensing every 250ms)
+
+    Setting this field to 0 will disable sending MIDI active sensing.
+    */
+    static const uint16_t SenderActiveSensingPeriodicity = 0;
 };
 
 END_MIDI_NAMESPACE

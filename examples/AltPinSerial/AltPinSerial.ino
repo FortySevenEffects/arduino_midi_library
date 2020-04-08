@@ -1,10 +1,12 @@
 #include <MIDI.h>
+#include "altPinSerialMIDI.h"
 
 // Simple tutorial on how to receive and send MIDI messages.
 // Here, when receiving any message on channel 4, the Arduino
 // will blink a led and play back a note for 1 second.
 
-MIDI_CREATE_DEFAULT_INSTANCE();
+AltSerialMIDI<HardwareSerial> serialMIDI(Serial1, 18, 19);
+MIDI_NAMESPACE::MidiInterface<AltSerialMIDI<HardwareSerial>> MIDI((AltSerialMIDI<HardwareSerial>&)serialMIDI);
 
 void setup()
 {
