@@ -50,6 +50,52 @@ void loop()
 
 3. Read the [documentation](#documentation) or watch the awesome video tutorials from [Notes & Volts](https://www.youtube.com/playlist?list=PL4_gPbvyebyH2xfPXePHtx8gK5zPBrVkg).
 
+## USB Migration
+
+All USB related code has been moved into a separate repository [Arduino-USB-MIDI](https://github.com/lathoub/Arduino-USBMIDI), USB MIDI Device support with [`MIDIUSB`](https://github.com/arduino-libraries/MIDIUSB), still using this library to do all the MIDI heavy-lifting.
+
+Migration has been made as easy as possible: only the declaration of the MIDI object has been modified, the code remains identical.
+
+`4.3.1` code:
+
+```c++
+    #include <MIDI.h>
+    #include <midi_UsbTransport.h>
+    
+    static const unsigned sUsbTransportBufferSize = 16;
+    typedef midi::UsbTransport<sUsbTransportBufferSize> UsbTransport;
+    
+    UsbTransport sUsbTransport;
+    
+    MIDI_CREATE_INSTANCE(UsbTransport, sUsbTransport, MIDI);
+    ...
+```
+
+become in `5.0.0`
+
+```c++
+    #include  <USB-MIDI.h>
+    USBMIDI_CREATE_DEFAULT_INSTANCE();
+    ...
+```
+
+Start with the [NoteOnOffEverySec](https://github.com/lathoub/Arduino-USBMIDI/blob/master/examples/NoteOnOffEverySec/NoteOnOffEverySec.ino) example that is based on the original MidiUSB [sketch](https://github.com/lathoub/arduino_midi_library/blob/master/examples/MidiUSB/MidiUSB.ino). Note the only difference is in the declaration.
+
+The [USB-MIDI](https://github.com/lathoub/Arduino-USBMIDI) Arduino library depends on [this library](https://github.com/FortySevenEffects/arduino_midi_library) and the [MIDIUSB](https://github.com/arduino-libraries/MIDIUSB) library.
+
+[USB-MIDI](https://github.com/lathoub/Arduino-USBMIDI) uses the latest Arduino IDE `depends` feature in the `library.properties` file installing all the dependencies automatically when installing from the IDE.
+
+## Other Transportation mechanisms
+
+Version 5 of this library, allows for other Transportation layers than the original MIDI 1.0 Electrical Specification.
+
+ - [USB-MIDI](https://github.com/lathoub/Arduino-USBMIDI)
+ - [AppleMIDI or rtpMIDI](https://github.com/lathoub/Arduino-AppleMIDI-Library)
+ - [ipMIDI](https://github.com/lathoub/Arduino-ipMIDI)
+ - [BLE-MIDI](https://github.com/lathoub/Arduino-BLE-MIDI)
+
+All these Transportation layers use this library for all the underlying MIDI work, making it easy to switch transport protocols or making transport protocol bridges.
+
 ## Documentation
 
 -   [Doxygen Extended Documentation](https://fortyseveneffects.github.io/arduino_midi_library/).
