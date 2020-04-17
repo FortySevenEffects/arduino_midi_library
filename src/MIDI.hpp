@@ -1005,15 +1005,15 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             if ((mPendingMessage[0] == SystemExclusiveStart)
             ||  (mPendingMessage[0] == SystemExclusiveEnd))
             {
-                auto lastByte = mMessage.sysexArray[DefaultSettings::SysExMaxSize - 1];
-                mMessage.sysexArray[DefaultSettings::SysExMaxSize - 1] = SystemExclusiveStart;
+                auto lastByte = mMessage.sysexArray[Settings::SysExMaxSize - 1];
+                mMessage.sysexArray[Settings::SysExMaxSize - 1] = SystemExclusiveStart;
                 mMessage.type = SystemExclusive;
 
                 // Get length
-                mMessage.data1   = DefaultSettings::SysExMaxSize & 0xff; // LSB
-                mMessage.data2   = byte(DefaultSettings::SysExMaxSize >> 8); // MSB
+                mMessage.data1   = Settings::SysExMaxSize & 0xff; // LSB
+                mMessage.data2   = byte(Settings::SysExMaxSize >> 8); // MSB
                 mMessage.channel = 0;
-                mMessage.length  = DefaultSettings::SysExMaxSize;
+                mMessage.length  = Settings::SysExMaxSize;
                 mMessage.valid   = true;
 
                 // No need to check against the inputChannel,
