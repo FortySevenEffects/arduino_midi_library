@@ -85,9 +85,6 @@ script:
                 --board="teensy2"         \
                 --board="teensy30"        \
                 --board="teensy31"        \
-                --board="teensy35"        \
-                --board="teensy36"        \
-                --board="teensy40"        \
                 --board="teensylc"
         fi
 
