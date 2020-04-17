@@ -10,7 +10,7 @@
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial,     midiA);
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
 #elif defined(ARDUINO_SAMD_ZERO)
-    MIDI_CREATE_INSTANCE(HardwareSerial, SerialUSB,  midiA);
+    MIDI_CREATE_INSTANCE(Serial_, SerialUSB,  midiA);
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
 #elif defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     #include <SoftwareSerial.h>
