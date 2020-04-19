@@ -29,6 +29,7 @@ env:
         - PLATFORMIO_CI_SRC=examples/Input
         - PLATFORMIO_CI_SRC=examples/RPN_NRPN
         - PLATFORMIO_CI_SRC=examples/SimpleSynth
+        - PLATFORMIO_CI_SRC=examples/AltPinSerial
 
 addons:
     apt:
