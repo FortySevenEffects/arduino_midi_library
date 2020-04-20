@@ -9,7 +9,7 @@ int rxPin = 18;
 int txPin = 19;
 SoftwareSerial mySerial = SoftwareSerial(rxPin, txPin);
 MIDI_NAMESPACE::SerialMIDI<SoftwareSerial> serialMIDI(mySerial);
-MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<HardwareSerial>> MIDI((MIDI_NAMESPACE::SerialMIDI<HardwareSerial>&)serialMIDI);
+MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>> MIDI((MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>&)serialMIDI);
 
 void setup()
 {
