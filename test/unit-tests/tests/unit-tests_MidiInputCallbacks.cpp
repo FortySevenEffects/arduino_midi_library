@@ -21,8 +21,10 @@ struct VariableSysExSettings : midi::DefaultSettings
 };
 
 typedef test_mocks::SerialMock<256> SerialMock;
+typedef midi::SerialMIDI<SerialMock> Transport;
+
 typedef VariableSysExSettings<256> Settings;
-typedef midi::MidiInterface<SerialMock, Settings> MidiInterface;
+typedef midi::MidiInterface<Transport, Settings> MidiInterface;
 
 MidiInterface* midi;
 
@@ -30,7 +32,8 @@ class MidiInputCallbacks : public Test
 {
 public:
     MidiInputCallbacks()
-        : mMidi(mSerial)
+        : mTransport(mSerial)
+        , mMidi(mTransport)
     {
     }
     virtual ~MidiInputCallbacks()
@@ -50,6 +53,7 @@ protected:
 
 protected:
     SerialMock      mSerial;
+    Transport       mTransport;
     MidiInterface   mMidi;
 };
 

@@ -1,4 +1,13 @@
-// Place your settings in this file to overwrite default and user settings.
 {
-    "cmake.experimental.enableTargetDebugging": true
+    "files.associations": {
+        "cstddef": "cpp",
+        "ostream": "cpp",
+        "__locale": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "vector": "cpp",
+        "istream": "cpp"
+    }
 }

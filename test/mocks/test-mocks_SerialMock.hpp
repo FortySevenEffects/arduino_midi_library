@@ -126,13 +126,13 @@ int SerialMock<BufferSize>::available() const
 }
 
 template<int BufferSize>
-void SerialMock<BufferSize>::write(uint8 inData)
+void SerialMock<BufferSize>::write(uint8_t inData)
 {
     mTxBuffer.write(inData);
 }
 
 template<int BufferSize>
-uint8 SerialMock<BufferSize>::read()
+uint8_t SerialMock<BufferSize>::read()
 {
     return mRxBuffer.read();
 }

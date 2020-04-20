@@ -8,11 +8,26 @@ macro(setup_builder)
 
     include_directories(${ROOT_SOURCE_DIR})
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -W -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -Wno-deprecated -Woverloaded-virtual")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+      -Wall                 \
+      -W                    \
+      -Wshadow              \
+      -Wunused-variable     \
+      -Wunused-parameter    \
+      -Wunused-function     \
+      -Wunused              \
+      -Wno-system-headers   \
+      -Wno-deprecated       \
+      -Woverloaded-virtual  \
+    ")
     if (BUILDER_ENABLE_PROFILING)
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")
     endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+endmacro()
+
+macro(increase_warning_level)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wsign-conversion")
 endmacro()
