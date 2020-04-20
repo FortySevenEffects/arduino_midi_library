@@ -9,7 +9,8 @@ This library adds MIDI I/O communications to an Arduino board.
 
 ### Features
 
--   **New** : USB MIDI Device support with [`MIDIUSB`](https://github.com/arduino-libraries/MIDIUSB).
+-   **New** : MIDI over USB, Bluetooth & IP (see [Transports](#other-transport-mechanisms)).
+-   **New** : Active Sensing support
 -   Compatible with all Arduino boards (and clones with an AVR processor).
 -   Simple and fast way to send and receive every kind of MIDI message (including all System messages, SysEx, Clock, etc..).
 -   OMNI input reading (read all channels).
@@ -111,6 +112,21 @@ protocol bridges.
 To report a bug, contribute, discuss on usage, or simply request support, please [create an issue here](https://github.com/FortySevenEffects/arduino_midi_library/issues/new).
 
 You can also contact me on Twitter: [@fortysevenfx](https://twitter.com/fortysevenfx).
+
+## Contributors
+
+Special thanks to all who have contributed to this open-source project !
+
+-   [@lathoub](https://github.com/lathoub)
+-   [@jarosz](https://github.com/jarosz)
+-   [@ivankravets](https://github.com/ivankravets)
+-   [@insolace](https://github.com/insolace)
+-   [@softegg](https://github.com/softegg)
+-   [@per1234](https://github.com/per1234)
+-   [@LnnrtS](https://github.com/LnnrtS)
+-   [@DavidMenting](https://github.com/DavidMenting)
+
+You want to help ? Check out the [contribution guidelines](./CONTRIBUTING.md).
 
 ## License
 
