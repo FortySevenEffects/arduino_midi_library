@@ -62,7 +62,7 @@ public:
     inline ~MidiInterface();
 
 public:
-    void begin(Channel inChannel = MIDI_CHANNEL_OMNI);
+    void begin(Channel inChannel = 1);
 
     // -------------------------------------------------------------------------
     // MIDI Output
