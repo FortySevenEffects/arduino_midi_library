@@ -1,15 +1,20 @@
-#include <SoftwareSerial.h>
 #include <MIDI.h>
 
 // Simple tutorial on how to receive and send MIDI messages.
 // Here, when receiving any message on channel 4, the Arduino
 // will blink a led and play back a note for 1 second.
 
-int rxPin = 18;
-int txPin = 19;
-SoftwareSerial mySerial = SoftwareSerial(rxPin, txPin);
-MIDI_NAMESPACE::SerialMIDI<SoftwareSerial> serialMIDI(mySerial);
-MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>> MIDI((MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>&)serialMIDI);
+#if defined(ARDUINO_SAM_DUE) || defined(SAMD_SERIES) 
+   /* example not relevant for this hardware */
+   MIDI_CREATE_DEFAULT_INSTANCE();
+#else
+   #include <SoftwareSerial.h>
+   int rxPin = 18;
+   int txPin = 19;
+   SoftwareSerial mySerial = SoftwareSerial(rxPin, txPin);
+   MIDI_NAMESPACE::SerialMIDI<SoftwareSerial> serialMIDI(mySerial);
+   MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>> MIDI((MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>&)serialMIDI);
+#endif
 
 void setup()
 {
