@@ -9,7 +9,7 @@ This library adds MIDI I/O communications to an Arduino board.
 
 ### Features
 
--   **New** : MIDI over USB, Bluetooth & IP (see [Transports](#other-transport-mechanisms)).
+-   **New** : MIDI over USB, Bluetooth, IP & AppleMIDI (see [Transports](#other-transport-mechanisms)).
 -   **New** : Active Sensing support
 -   Compatible with all Arduino boards (and clones with an AVR processor).
 -   Simple and fast way to send and receive every kind of MIDI message (including all System messages, SysEx, Clock, etc..).
