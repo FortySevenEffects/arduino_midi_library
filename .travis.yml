@@ -94,6 +94,7 @@ after_success:
         if [ "${GENERATE_COVERAGE}" ]; then
             # Generate code coverage information & send to Coveralls
             lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
+            rm -rf ./external/**/*.gcda
             lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
             lcov --list coverage.info
             coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
