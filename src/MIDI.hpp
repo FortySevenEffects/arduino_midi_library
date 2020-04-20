@@ -107,7 +107,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
 
 /*! \brief Send a MIDI message.
 \param inMessage    The message
- 
+
  This method is used when you want to send a Message that has not been constructed
  by the library, but by an external source.
  This method does *not* check against any of the constraints.
@@ -119,12 +119,12 @@ void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMes
 {
     if (!inMessage.valid)
         return;
-    
+
     if (mTransport.beginTransmission(inMessage.type))
     {
         const StatusByte status = getStatus(inMessage.type, inMessage.channel);
         mTransport.write(status);
-        
+
         if (inMessage.type != MidiType::SystemExclusive)
         {
             if (inMessage.length > 1) mTransport.write(inMessage.data1);
@@ -726,7 +726,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
         sendActiveSensing();
         mLastMessageSentTime = Platform::now();
     }
-    
+
     if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActivated && (mLastMessageReceivedTime + ActiveSensingTimeout < Platform::now()))
     {
         mReceiverActiveSensingActivated = false;
@@ -742,7 +742,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
 
     if (!parse())
         return false;
-  
+
     #ifndef RegionActiveSending
 
     if (Settings::UseReceiverActiveSensing && mMessage.type == ActiveSensing)
@@ -881,13 +881,13 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 mRunningStatus_RX = InvalidType;
                 mMessage.sysexArray[0] = pendingType;
                 break;
-                
+
             case InvalidType:
             default:
                 // This is obviously wrong. Let's get the hell out'a here.
                 mLastError |= 1UL << ErrorParse; // set the ErrorParse bit
                 if (mErrorCallback)
-                    mErrorCallback(mLastError);
+                    mErrorCallback(mLastError); // LCOV_EXCL_LINE
 
                 resetInput();
                 return false;
@@ -902,11 +902,11 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.data1   = mPendingMessage[1];
             mMessage.data2   = 0; // Completed new message has 1 data byte
             mMessage.length  = 1;
-            
+
             mPendingMessageIndex = 0;
             mPendingMessageExpectedLength = 0;
             mMessage.valid = true;
-            
+
             return true;
         }
         else
@@ -947,7 +947,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                     mMessage.channel = 0;
                     mMessage.length  = 1;
                     mMessage.valid   = true;
-                    
+
                     return true;
 
                     // Exclusive
@@ -968,7 +968,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                         mMessage.valid   = true;
 
                         resetInput();
-                        
+
                         return true;
                     }
                     else
@@ -976,7 +976,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                         // Well well well.. error.
                         mLastError |= 1UL << ErrorParse; // set the error bits
                         if (mErrorCallback)
-                            mErrorCallback(mLastError);
+                            mErrorCallback(mLastError); // LCOV_EXCL_LINE
 
                         resetInput();
                         return false;
@@ -1022,9 +1022,9 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
 
                 mMessage.sysexArray[0] = SystemExclusiveEnd;
                 mMessage.sysexArray[1] = lastByte;
-                
+
                 mPendingMessageIndex = 2;
-                
+
                 return false;
             }
 
@@ -1037,9 +1037,9 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
 
             mMessage.data1 = mPendingMessage[1];
             // Save data2 only if applicable
-            mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;        
+            mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;
             mMessage.length = mPendingMessageExpectedLength;
-            
+
             // Reset local variables
             mPendingMessageIndex = 0;
             mPendingMessageExpectedLength = 0;
@@ -1224,7 +1224,7 @@ MidiType MidiInterface<Transport, Settings, Platform>::getTypeFromStatusByte(byt
         (inStatus == Undefined_F5) ||
         (inStatus == Undefined_FD))
         return InvalidType; // Data bytes and undefined.
-    
+
     if (inStatus < 0xf0)
         // Channel message, remove channel nibble.
         return MidiType(inStatus & 0xf0);
