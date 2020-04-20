@@ -38,11 +38,15 @@ BEGIN_MIDI_NAMESPACE
  \param inData The data to encode.
  \param outSysEx The output buffer where to store the encoded message.
  \param inLength The length of the input buffer.
+ \param inFlipHeaderBits True for Korg and other who store MSB in reverse order
  \return The length of the encoded output buffer.
  @see decodeSysEx
  Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */
-unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
+unsigned encodeSysEx(const byte* inData,
+                     byte* outSysEx,
+                     unsigned inLength,
+                     bool inFlipHeaderBits)
 {
     unsigned outLength  = 0;     // Num bytes in output array.
     byte count          = 0;     // Num 7bytes in a block.
@@ -54,7 +58,7 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
         const byte msb  = data >> 7;
         const byte body = data & 0x7f;
 
-        outSysEx[0] |= (msb << (6 - count));
+        outSysEx[0] |= (msb << (inFlipHeaderBits ? count : (6 - count)));
         outSysEx[1 + count] = body;
 
         if (count++ == 6)
@@ -73,13 +77,17 @@ unsigned encodeSysEx(const byte* inData, byte* outSysEx, unsigned inLength)
  127 without breaking the MIDI protocol. Use this static method to reassemble
  your received message.
  \param inSysEx The SysEx data received from MIDI in.
- \param outData    The output buffer where to store the decrypted message.
+ \param outData The output buffer where to store the decrypted message.
  \param inLength The length of the input buffer.
+ \param inFlipHeaderBits True for Korg and other who store MSB in reverse order
  \return The length of the output buffer.
  @see encodeSysEx @see getSysExArrayLength
  Code inspired from Ruin & Wesen's SysEx encoder/decoder - http://ruinwesen.com
  */
-unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
+unsigned decodeSysEx(const byte* inSysEx,
+                     byte* outData,
+                     unsigned inLength,
+                     bool inFlipHeaderBits)
 {
     unsigned count  = 0;
     byte msbStorage = 0;
@@ -94,8 +102,10 @@ unsigned decodeSysEx(const byte* inSysEx, byte* outData, unsigned inLength)
         }
         else
         {
-            const byte body = inSysEx[i];
-            const byte msb  = byte(((msbStorage >> byteIndex--) & 1) << 7);
+            const byte body     = inSysEx[i];
+            const byte shift    = inFlipHeaderBits ? 6 - byteIndex : byteIndex;
+            const byte msb      = byte(((msbStorage >> shift) & 1) << 7);
+            byteIndex--;
             outData[count++] = msb | body;
         }
     }

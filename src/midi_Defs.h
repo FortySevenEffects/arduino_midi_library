@@ -2,7 +2,7 @@
  *  @file       midi_Defs.h
  *  Project     Arduino MIDI Library
  *  @brief      MIDI Library for the Arduino - Definitions
- *  @author     Francois Best
+ *  @author     Francois Best, lathoub
  *  @date       24/02/11
  *  @license    MIT - Copyright (c) 2015 Francois Best
  *
@@ -38,11 +38,6 @@ typedef uint8_t byte;
 
 BEGIN_MIDI_NAMESPACE
 
-#define MIDI_LIBRARY_VERSION        0x040300
-#define MIDI_LIBRARY_VERSION_MAJOR  4
-#define MIDI_LIBRARY_VERSION_MINOR  3
-#define MIDI_LIBRARY_VERSION_PATCH  0
-
 // -----------------------------------------------------------------------------
 
 #define MIDI_CHANNEL_OMNI       0
@@ -50,6 +45,10 @@ BEGIN_MIDI_NAMESPACE
 
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
+
+/*! Receiving Active Sensing 
+*/
+static const uint16_t ActiveSensingTimeout = 300;
 
 // -----------------------------------------------------------------------------
 // Type definitions
@@ -60,27 +59,64 @@ typedef byte Channel;
 typedef byte FilterMode;
 
 // -----------------------------------------------------------------------------
+// Errors
+static const uint8_t ErrorParse = 0;
+static const uint8_t ErrorActiveSensingTimeout = 1;
+static const uint8_t WarningSplitSysEx = 2;
+
+// -----------------------------------------------------------------------------
+// Aliasing
+
+using ErrorCallback                = void (*)(int8_t);
+using NoteOffCallback              = void (*)(Channel channel, byte note, byte velocity);
+using NoteOnCallback               = void (*)(Channel channel, byte note, byte velocity);
+using AfterTouchPolyCallback       = void (*)(Channel channel, byte note, byte velocity);
+using ControlChangeCallback        = void (*)(Channel channel, byte, byte);
+using ProgramChangeCallback        = void (*)(Channel channel, byte);
+using AfterTouchChannelCallback    = void (*)(Channel channel, byte);
+using PitchBendCallback            = void (*)(Channel channel, int);
+using SystemExclusiveCallback      = void (*)(byte * array, unsigned size);
+using TimeCodeQuarterFrameCallback = void (*)(byte data);
+using SongPositionCallback         = void (*)(unsigned beats);
+using SongSelectCallback           = void (*)(byte songnumber);
+using TuneRequestCallback          = void (*)(void);
+using ClockCallback                = void (*)(void);
+using StartCallback                = void (*)(void);
+using TickCallback                 = void (*)(void);
+using ContinueCallback             = void (*)(void);
+using StopCallback                 = void (*)(void);
+using ActiveSensingCallback        = void (*)(void);
+using SystemResetCallback          = void (*)(void);
+
+// -----------------------------------------------------------------------------
 
 /*! Enumeration of MIDI types */
-enum MidiType
+enum MidiType: uint8_t
 {
     InvalidType           = 0x00,    ///< For notifying errors
-    NoteOff               = 0x80,    ///< Note Off
-    NoteOn                = 0x90,    ///< Note On
-    AfterTouchPoly        = 0xA0,    ///< Polyphonic AfterTouch
-    ControlChange         = 0xB0,    ///< Control Change / Channel Mode
-    ProgramChange         = 0xC0,    ///< Program Change
-    AfterTouchChannel     = 0xD0,    ///< Channel (monophonic) AfterTouch
-    PitchBend             = 0xE0,    ///< Pitch Bend
+    NoteOff               = 0x80,    ///< Channel Message - Note Off
+    NoteOn                = 0x90,    ///< Channel Message - Note On
+    AfterTouchPoly        = 0xA0,    ///< Channel Message - Polyphonic AfterTouch
+    ControlChange         = 0xB0,    ///< Channel Message - Control Change / Channel Mode
+    ProgramChange         = 0xC0,    ///< Channel Message - Program Change
+    AfterTouchChannel     = 0xD0,    ///< Channel Message - Channel (monophonic) AfterTouch
+    PitchBend             = 0xE0,    ///< Channel Message - Pitch Bend
     SystemExclusive       = 0xF0,    ///< System Exclusive
+	SystemExclusiveStart  = SystemExclusive,   ///< System Exclusive Start
     TimeCodeQuarterFrame  = 0xF1,    ///< System Common - MIDI Time Code Quarter Frame
     SongPosition          = 0xF2,    ///< System Common - Song Position Pointer
     SongSelect            = 0xF3,    ///< System Common - Song Select
+    Undefined_F4          = 0xF4,
+    Undefined_F5          = 0xF5,
     TuneRequest           = 0xF6,    ///< System Common - Tune Request
+	SystemExclusiveEnd    = 0xF7,    ///< System Exclusive End
     Clock                 = 0xF8,    ///< System Real Time - Timing Clock
+    Undefined_F9          = 0xF9,
+    Tick                  = Undefined_F9, ///< System Real Time - Timing Tick (1 tick = 10 milliseconds)
     Start                 = 0xFA,    ///< System Real Time - Start
     Continue              = 0xFB,    ///< System Real Time - Continue
     Stop                  = 0xFC,    ///< System Real Time - Stop
+    Undefined_FD          = 0xFD,
     ActiveSensing         = 0xFE,    ///< System Real Time - Active Sensing
     SystemReset           = 0xFF,    ///< System Real Time - System Reset
 };
@@ -99,24 +135,13 @@ struct Thru
     };
 };
 
-/*! Deprecated: use Thru::Mode instead.
- Will be removed in v5.0.
-*/
-enum __attribute__ ((deprecated)) MidiFilterMode
-{
-    Off                 = Thru::Off,
-    Full                = Thru::Full,
-    SameChannel         = Thru::SameChannel,
-    DifferentChannel    = Thru::DifferentChannel,
-};
-
 // -----------------------------------------------------------------------------
 
 /*! \brief Enumeration of Control Change command numbers.
  See the detailed controllers numbers & description here:
  http://www.somascape.org/midi/tech/spec.html#ctrlnums
  */
-enum MidiControlChangeNumber
+enum MidiControlChangeNumber: uint8_t
 {
     // High resolution Continuous Controllers MSB (+32 for LSB) ----------------
     BankSelect                  = 0,
@@ -192,7 +217,7 @@ enum MidiControlChangeNumber
 
 struct RPN
 {
-    enum RegisteredParameterNumbers
+    enum RegisteredParameterNumbers: uint16_t
     {
         PitchBendSensitivity    = 0x0000,
         ChannelFineTuning       = 0x0001,
@@ -203,36 +228,5 @@ struct RPN
         NullFunction            = (0x7f << 7) + 0x7f,
     };
 };
-
-// -----------------------------------------------------------------------------
-
-/*! \brief Create an instance of the library attached to a serial port.
- You can use HardwareSerial or SoftwareSerial for the serial port.
- Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
- Then call midi2.begin(), midi2.read() etc..
- */
-#define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)                            \
-    midi::MidiInterface<Type> Name((Type&)SerialPort);
-
-#if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
-    // Leonardo, Due and other USB boards use Serial1 by default.
-    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
-        MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
-#else
-    /*! \brief Create an instance of the library with default name, serial port
-    and settings, for compatibility with sketches written with pre-v4.2 MIDI Lib,
-    or if you don't bother using custom names, serial port or settings.
-    */
-    #define MIDI_CREATE_DEFAULT_INSTANCE()                                      \
-        MIDI_CREATE_INSTANCE(HardwareSerial, Serial,  MIDI);
-#endif
-
-/*! \brief Create an instance of the library attached to a serial port with
- custom settings.
- @see DefaultSettings
- @see MIDI_CREATE_INSTANCE
- */
-#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
-    midi::MidiInterface<Type, Settings> Name((Type&)SerialPort);
 
 END_MIDI_NAMESPACE

@@ -29,6 +29,9 @@
 
 #include "midi_Namespace.h"
 #include "midi_Defs.h"
+#ifndef ARDUINO
+#include <string.h>
+#endif
 
 BEGIN_MIDI_NAMESPACE
 
@@ -43,7 +46,7 @@ struct Message
     */
     inline Message()
         : channel(0)
-        , type(midi::InvalidType)
+        , type(MIDI_NAMESPACE::InvalidType)
         , data1(0)
         , data2(0)
         , valid(false)
@@ -88,6 +91,10 @@ struct Message
      */
     bool valid;
 
+    /*! Total Length of the message.
+     */
+    unsigned length;
+    
     inline unsigned getSysExSize() const
     {
         const unsigned size = unsigned(data2) << 8 | data1;

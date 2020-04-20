@@ -1,10 +1,10 @@
 /*!
- *  @file       midi_UsbTransport.h
+ *  @file       midi_Platform.h
  *  Project     Arduino MIDI Library
- *  @brief      MIDI Library for the Arduino - Transport layer for USB MIDI
- *  @author     Francois Best
- *  @date       10/10/2016
- *  @license    MIT - Copyright (c) 2016 Francois Best
+ *  @brief      MIDI Library for the Arduino - Platform
+ *  @license    MIT - Copyright (c) 2015 Francois Best
+ *  @author     lathoub
+ *  @date       22/03/20
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,45 +28,24 @@
 #pragma once
 
 #include "midi_Defs.h"
-#include "midi_RingBuffer.h"
-#include <MIDIUSB.h>
 
 BEGIN_MIDI_NAMESPACE
 
-template<unsigned BuffersSize>
-class UsbTransport
+#if ARDUINO
+
+// DefaultPlatform is the Arduino Platform
+struct DefaultPlatform
 {
-public:
-    inline UsbTransport();
-    inline ~UsbTransport();
-
-public: // Serial / Stream API required for template compatibility
-    inline void begin(unsigned inBaudrate);
-    inline unsigned available();
-    inline byte read();
-    inline void write(byte inData);
-
-private:
-    inline bool pollUsbMidi();
-    inline void recomposeAndSendTxPackets();
-    inline void resetTx();
-    static inline byte encodePacketHeader(StatusByte inStatusByte);
-    static inline int getPacketLength(const midiEventPacket_t& inPacket);
-
-private:
-    typedef RingBuffer<byte, BuffersSize> Buffer;
-    Buffer mTxBuffer;
-    Buffer mRxBuffer;
-
-    union TxPacket
-    {
-        byte mDataArray[4];
-        midiEventPacket_t mPacket;
-    };
-    TxPacket mCurrentTxPacket;
-    int mCurrentTxPacketByteIndex;
+   static unsigned long now() { return ::millis(); };
 };
 
-END_MIDI_NAMESPACE
+#else
 
-#include "midi_UsbTransport.hpp"
+struct DefaultPlatform
+{
+   static unsigned long now() { return 0; };
+};
+
+#endif
+
+END_MIDI_NAMESPACE
