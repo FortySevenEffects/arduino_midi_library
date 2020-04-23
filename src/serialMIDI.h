@@ -51,7 +51,7 @@ public:
 	};
 
 public:
-    static const bool thruActivated = false;
+    static const bool thruActivated = true;
     
     void begin()
 	{
