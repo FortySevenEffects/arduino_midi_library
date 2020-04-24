@@ -107,6 +107,10 @@ All these Transport layers use this library for all the underlying MIDI
 work, making it easy to switch transport protocols or making transport
 protocol bridges.
 
+### Differences between Serial & other transports
+
+-   Software Thru is enabled by default on Serial, but not on other transports.
+
 ## Contact
 
 To report a bug, contribute, discuss on usage, or simply request support, please [create an issue here](https://github.com/FortySevenEffects/arduino_midi_library/issues/new).
