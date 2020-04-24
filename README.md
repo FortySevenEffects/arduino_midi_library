@@ -78,7 +78,7 @@ MIDI_CREATE_INSTANCE(UsbTransport, sUsbTransport, MIDI);
 // ...
 ```
 
-now becomes in `5.0.0`:
+now becomes in `5.x`:
 
 ```c++
 #include <USB-MIDI.h>
