@@ -94,7 +94,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mMessage.length  = 0;
 
     mThruFilterMode = Thru::Full;
-    mThruActivated  = true;
+    mThruActivated  = mTransport.thruActivated;
 }
 
 // -----------------------------------------------------------------------------

@@ -51,7 +51,9 @@ public:
 	};
 
 public:
-	void begin()
+    static const bool thruActivated = true;
+    
+    void begin()
 	{
         // Initialise the Serial port
         #if defined(AVR_CAKE)
