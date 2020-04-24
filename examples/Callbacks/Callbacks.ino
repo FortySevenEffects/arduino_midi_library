@@ -7,7 +7,7 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 // This function will be automatically called when a NoteOn is received.
 // It must be a void-returning function with the correct parameters,
 // see documentation here:
-// http://arduinomidilib.fortyseveneffects.com/a00022.html
+// https://github.com/FortySevenEffects/arduino_midi_library/wiki/Using-Callbacks
 
 void handleNoteOn(byte channel, byte pitch, byte velocity)
 {
