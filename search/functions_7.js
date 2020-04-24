@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['ischannelmessage',['isChannelMessage',['../a00042.html#ga833885e236de37d75838cb6447fdc694',1,'MidiInterface']]],
-  ['isempty',['isEmpty',['../a00064.html#a74f3129b2c026604cc5877962ca45b59',1,'RingBuffer']]]
+  ['message_312',['Message',['../a00051.html#a539ee7ccd80e06cb2fa45b1f47569837',1,'Message']]],
+  ['midiinterface_313',['MidiInterface',['../a00039.html#aa32dc5a4cc9a28f82e0509832c73cd18',1,'MidiInterface']]]
 ];

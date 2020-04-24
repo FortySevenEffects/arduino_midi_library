@@ -1,12 +1,11 @@
 var annotated_dup =
 [
-    [ "CodeIndexNumbers", "a00072.html", "a00072" ],
-    [ "DefaultSettings", "a00068.html", "a00068" ],
-    [ "Message", "a00060.html", "a00060" ],
-    [ "MidiInterface", "a00048.html", "a00048" ],
-    [ "RingBuffer", "a00064.html", "a00064" ],
-    [ "RPN", "a00056.html", "a00056" ],
-    [ "Thru", "a00052.html", "a00052" ],
-    [ "UsbMidiEventPacket", "a00076.html", "a00076" ],
-    [ "UsbTransport", "a00080.html", "a00080" ]
+    [ "DefaultPlatform", "a00055.html", "a00055" ],
+    [ "DefaultSerialSettings", "a00063.html", "a00063" ],
+    [ "DefaultSettings", "a00059.html", "a00059" ],
+    [ "Message", "a00051.html", "a00051" ],
+    [ "MidiInterface", "a00039.html", "a00039" ],
+    [ "RPN", "a00047.html", "a00047" ],
+    [ "SerialMIDI", "a00067.html", "a00067" ],
+    [ "Thru", "a00043.html", "a00043" ]
 ];

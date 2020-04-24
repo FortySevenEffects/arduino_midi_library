@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['baudrate',['BaudRate',['../a00068.html#a3af54ace87effb366e1ec455be22b52a',1,'DefaultSettings']]]
+  ['activesensingtimeout_372',['ActiveSensingTimeout',['../a00008.html#af79ca3d3b506cd128de71cc7d3930846',1,'midi_Defs.h']]]
 ];

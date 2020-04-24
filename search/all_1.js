@@ -1,10 +1,13 @@
 var searchData=
 [
-  ['activesensing',['ActiveSensing',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a55c1135b4b41d3cff4b7832b81352823',1,'midi_Defs.h']]],
-  ['aftertouchchannel',['AfterTouchChannel',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a040c84d19624cf23edd3f54c2d432793',1,'midi_Defs.h']]],
-  ['aftertouchpoly',['AfterTouchPoly',['../a00008.html#af8bb3cf501a6b530be54ef36864af943aef074e16a30d86e0a42b873dd6843cd2',1,'midi_Defs.h']]],
-  ['allnotesoff',['AllNotesOff',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a0ff39bd822a95c907b989d90e9c8f945',1,'midi_Defs.h']]],
-  ['allsoundoff',['AllSoundOff',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a980953c0f8a2bfed6ff76ee05885a908',1,'midi_Defs.h']]],
-  ['available',['available',['../a00080.html#ad850ea7fa2dfe63ea199bb841c535402',1,'UsbTransport']]],
-  ['arduino_20midi_20library',['Arduino MIDI Library',['../index.html',1,'']]]
+  ['balance_11',['Balance',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a5dbc35c72252e48e38e11a93fab41655',1,'midi_Defs.h']]],
+  ['bankselect_12',['BankSelect',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263ad35194f91f02370bc6a3370a8038cecf',1,'midi_Defs.h']]],
+  ['baudrate_13',['BaudRate',['../a00063.html#accffbf2590a3dd7a0f57bc89a8c91c39',1,'DefaultSerialSettings']]],
+  ['begin_14',['begin',['../a00039.html#adf46f7fa45d06da8e4f0f7e32fe07a6f',1,'MidiInterface::begin()'],['../a00067.html#a0521cf5f89f0d6412dfa51d789e6dbe0',1,'SerialMIDI::begin()']]],
+  ['begin_5fmidi_5fnamespace_15',['BEGIN_MIDI_NAMESPACE',['../a00014.html#adf6b690441eb0a31c4abd3bc4fb99673',1,'midi_Namespace.h']]],
+  ['beginnrpn_16',['beginNrpn',['../a00032.html#ga8b26d6bf9ee8b1ec412b9fa000825c1b',1,'MidiInterface']]],
+  ['beginrpn_17',['beginRpn',['../a00032.html#ga8c0d80cbbc31164207a5daac5c2c0250',1,'MidiInterface']]],
+  ['begintransmission_18',['beginTransmission',['../a00067.html#a10757027628eafb6b01a545b10eb93b4',1,'SerialMIDI']]],
+  ['breathcontroller_19',['BreathController',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a96b4207d98300fb7ebbef4a63f0ba25a',1,'midi_Defs.h']]],
+  ['byte_20',['byte',['../a00008.html#ab8ef12fab634c171394422d0ee8baf94',1,'midi_Defs.h']]]
 ];

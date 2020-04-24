@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['channel',['Channel',['../a00008.html#af0fba1bdf23d6f77614ea9697290325d',1,'midi_Defs.h']]]
+  ['byte_396',['byte',['../a00008.html#ab8ef12fab634c171394422d0ee8baf94',1,'midi_Defs.h']]]
 ];

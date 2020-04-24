@@ -1,6 +1,24 @@
 var searchData=
 [
-  ['filtermode',['FilterMode',['../a00008.html#a6f8b374e6eb3328986bff00ee778f42b',1,'midi_Defs.h']]],
-  ['footcontroller',['FootController',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a998c8740d90691c0dfd234878e7179da',1,'midi_Defs.h']]],
-  ['full',['Full',['../a00052.html#ad19abe318ba3710100aefdea1895fbbba6825ba5f5365bc48725e4e885e8c20a3',1,'Thru']]]
+  ['generalpurposecontroller1_65',['GeneralPurposeController1',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a5c5e259560524b09d6063160e1e1a9f0',1,'midi_Defs.h']]],
+  ['generalpurposecontroller2_66',['GeneralPurposeController2',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a1fdb656b591a391877bc89095254e8c9',1,'midi_Defs.h']]],
+  ['generalpurposecontroller3_67',['GeneralPurposeController3',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a0e451059b88b60a7347f2c029b2a1d4a',1,'midi_Defs.h']]],
+  ['generalpurposecontroller4_68',['GeneralPurposeController4',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a1c9648b95804874f357440279258d0f0',1,'midi_Defs.h']]],
+  ['generalpurposecontroller5_69',['GeneralPurposeController5',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a94f03d2efb296a0c98ddaf6429cb129b',1,'midi_Defs.h']]],
+  ['generalpurposecontroller6_70',['GeneralPurposeController6',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263aaafe7e883fdddc2af7461b18c8fb2b36',1,'midi_Defs.h']]],
+  ['generalpurposecontroller7_71',['GeneralPurposeController7',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263aaa78fcab6105723e2ce9f0c281dd75c8',1,'midi_Defs.h']]],
+  ['generalpurposecontroller8_72',['GeneralPurposeController8',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a9d585419de34459cd561da434d2aeb20',1,'midi_Defs.h']]],
+  ['getchannel_73',['getChannel',['../a00033.html#ga0d2a0037fd9e4b06cafe7b2388451767',1,'MidiInterface']]],
+  ['getchannelfromstatusbyte_74',['getChannelFromStatusByte',['../a00033.html#ga49243944909bc4152fa7b9817a6950e5',1,'MidiInterface']]],
+  ['getdata1_75',['getData1',['../a00033.html#ga749f258c959d2edf2ebf45a2be919d46',1,'MidiInterface']]],
+  ['getdata2_76',['getData2',['../a00033.html#gabd651766b36741f1a7ea63ab793ab64b',1,'MidiInterface']]],
+  ['getfiltermode_77',['getFilterMode',['../a00035.html#ga3c6194164d6581b39b640fe78c45a660',1,'MidiInterface']]],
+  ['getinputchannel_78',['getInputChannel',['../a00033.html#ga31faedfa01ecc91343acbbc0b7a566ae',1,'MidiInterface']]],
+  ['getsysexarray_79',['getSysExArray',['../a00033.html#gac1c9d068800507aaa262e9be8b0cbb85',1,'MidiInterface']]],
+  ['getsysexarraylength_80',['getSysExArrayLength',['../a00033.html#ga07f93f92808f72b080a7afdcd8160f06',1,'MidiInterface']]],
+  ['getsysexsize_81',['getSysExSize',['../a00051.html#ab4397a36b44edf4b49cad1fec4b4c41e',1,'Message']]],
+  ['getthrustate_82',['getThruState',['../a00035.html#gaa32c6d966f351f59a0daacb7ae74a2c2',1,'MidiInterface']]],
+  ['gettransport_83',['getTransport',['../a00039.html#a24c72b9f397ff648ef51c640b04b1733',1,'MidiInterface']]],
+  ['gettype_84',['getType',['../a00033.html#ga751630ff3b0829f0de19ea724999df25',1,'MidiInterface']]],
+  ['gettypefromstatusbyte_85',['getTypeFromStatusByte',['../a00033.html#ga5fba3159de1c4aac8b8a33a0a9dbf7de',1,'MidiInterface']]]
 ];

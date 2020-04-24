@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['filtermode',['FilterMode',['../a00008.html#a6f8b374e6eb3328986bff00ee778f42b',1,'midi_Defs.h']]]
+  ['databyte_401',['DataByte',['../a00008.html#a7c1eccfe3d7d44de8ee9138d5378cd91',1,'midi_Defs.h']]]
 ];

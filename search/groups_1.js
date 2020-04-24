@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['midi_20input',['MIDI Input',['../a00042.html',1,'']]],
-  ['midi_20output',['MIDI Output',['../a00041.html',1,'']]],
-  ['midi_20thru',['MIDI Thru',['../a00044.html',1,'']]]
+  ['midi_20input_534',['MIDI Input',['../a00033.html',1,'']]],
+  ['midi_20output_535',['MIDI Output',['../a00032.html',1,'']]],
+  ['midi_20thru_536',['MIDI Thru',['../a00035.html',1,'']]]
 ];

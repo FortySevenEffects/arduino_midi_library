@@ -1,12 +1,15 @@
 var searchData=
 [
-  ['balance',['Balance',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a5dbc35c72252e48e38e11a93fab41655',1,'midi_Defs.h']]],
-  ['bankselect',['BankSelect',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92ad35194f91f02370bc6a3370a8038cecf',1,'midi_Defs.h']]],
-  ['baudrate',['BaudRate',['../a00068.html#a3af54ace87effb366e1ec455be22b52a',1,'DefaultSettings']]],
-  ['begin',['begin',['../a00048.html#a0d438900bdb796d134cf9996a12493cf',1,'MidiInterface::begin()'],['../a00080.html#afc6e724fdcc96fb83af0285c5e583741',1,'UsbTransport::begin()']]],
-  ['begin_5fmidi_5fnamespace',['BEGIN_MIDI_NAMESPACE',['../a00014.html#adf6b690441eb0a31c4abd3bc4fb99673',1,'midi_Namespace.h']]],
-  ['beginnrpn',['beginNrpn',['../a00041.html#gaf5cb8554777fbfab8fb02417572f3a39',1,'MidiInterface']]],
-  ['beginrpn',['beginRpn',['../a00041.html#gad8187cac8d24d76be47f3b22d8534b39',1,'MidiInterface']]],
-  ['breathcontroller',['BreathController',['../a00008.html#ade475dd0413662853b5a7cd8dbe8ed92a96b4207d98300fb7ebbef4a63f0ba25a',1,'midi_Defs.h']]],
-  ['byte',['byte',['../a00008.html#ab8ef12fab634c171394422d0ee8baf94',1,'midi_Defs.h']]]
+  ['callbacks_21',['Callbacks',['../a00034.html',1,'']]],
+  ['channel_22',['channel',['../a00051.html#a3e088d88b4c2c84efd78f080a6ba3384',1,'Message::channel()'],['../a00008.html#af0fba1bdf23d6f77614ea9697290325d',1,'Channel():&#160;midi_Defs.h']]],
+  ['channelcoarsetuning_23',['ChannelCoarseTuning',['../a00047.html#a8204295a9a411a3b0687f9301cd9f292a7468aca7d7ca5a635896322db47632c0',1,'RPN']]],
+  ['channelfinetuning_24',['ChannelFineTuning',['../a00047.html#a8204295a9a411a3b0687f9301cd9f292a3810636a8ceea03e1032802a29de0549',1,'RPN']]],
+  ['channelvolume_25',['ChannelVolume',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a3909dfba26e88cb4b7346b5b80a97c7d',1,'midi_Defs.h']]],
+  ['check_26',['check',['../a00033.html#ga039812eacd923a50b74a587cabd92ef1',1,'MidiInterface']]],
+  ['clock_27',['Clock',['../a00008.html#ab8db39dcdc3eea8045b9c71b56bba84ca4b52d61cc39d9427f91d3b8606319e2c',1,'midi_Defs.h']]],
+  ['clockcallback_28',['ClockCallback',['../a00008.html#afcb8111d613b2db971326e9d07131e6a',1,'midi_Defs.h']]],
+  ['continue_29',['Continue',['../a00008.html#ab8db39dcdc3eea8045b9c71b56bba84ca45a66636ecd16b869e4aadd738813583',1,'midi_Defs.h']]],
+  ['continuecallback_30',['ContinueCallback',['../a00008.html#aa1d3c27a58b8f5aebd53a73a16378916',1,'midi_Defs.h']]],
+  ['controlchange_31',['ControlChange',['../a00008.html#ab8db39dcdc3eea8045b9c71b56bba84cac150258f2e69ec1e535cee9df3f5bb1e',1,'midi_Defs.h']]],
+  ['controlchangecallback_32',['ControlChangeCallback',['../a00008.html#a60199bde936cb246c54a6f895a852bf5',1,'midi_Defs.h']]]
 ];

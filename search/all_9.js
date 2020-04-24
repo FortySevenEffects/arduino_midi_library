@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['invalidtype',['InvalidType',['../a00008.html#af8bb3cf501a6b530be54ef36864af943a791c6b5c1e5f30ce6c7b0937e93adbbb',1,'midi_Defs.h']]],
-  ['ischannelmessage',['isChannelMessage',['../a00042.html#ga833885e236de37d75838cb6447fdc694',1,'MidiInterface']]],
-  ['isempty',['isEmpty',['../a00064.html#a74f3129b2c026604cc5877962ca45b59',1,'RingBuffer']]]
+  ['legato_90',['Legato',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263ac3b5e4b280ea7b852d4ee1e1a4c904f7',1,'midi_Defs.h']]],
+  ['length_91',['length',['../a00051.html#af67ce3b9cd644441799ac6897696f7a6',1,'Message']]],
+  ['localcontrol_92',['LocalControl',['../a00008.html#aa1cfd7d9d1fe50ec27b566e854e98263a1be862ad663b07b873f29e2170b994c5',1,'midi_Defs.h']]]
 ];
