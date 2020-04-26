@@ -113,5 +113,13 @@ private:
         MIDI_CREATE_INSTANCE(HardwareSerial, Serial,  MIDI);
 #endif
 
+/*! \brief Create an instance of the library attached to a serial port with
+ custom settings.
+ @see DefaultSettings
+ @see MIDI_CREATE_INSTANCE
+ */
+#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
+    MIDI_NAMESPACE::SerialMIDI<Type, Settings> serial##Name(SerialPort);\
+    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type, Settings>> Name((MIDI_NAMESPACE::SerialMIDI<Type, Settings>&)serial##Name);
 
 END_MIDI_NAMESPACE
