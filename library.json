@@ -1,6 +1,6 @@
 {
     "name": "MIDI Library",
-    "version": "5.0.1",
+    "version": "5.0.2",
     "keywords": "midi",
     "description": "Enables MIDI I/O communications on the Arduino serial ports",
     "license": "MIT",
