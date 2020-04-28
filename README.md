@@ -129,6 +129,7 @@ Special thanks to all who have contributed to this open-source project !
 -   [@per1234](https://github.com/per1234)
 -   [@LnnrtS](https://github.com/LnnrtS)
 -   [@DavidMenting](https://github.com/DavidMenting)
+-   [@Rolel](https://github.com/Rolel)
 
 You want to help ? Check out the [contribution guidelines](./CONTRIBUTING.md).
 
