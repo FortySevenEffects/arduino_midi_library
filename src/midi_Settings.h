@@ -38,12 +38,12 @@ BEGIN_MIDI_NAMESPACE
  macro to create your instance. The settings you don't override will keep their
  default value. Eg:
  \code{.cpp}
- struct MySettings : public midi::DefaultSettings
+ struct MySettings : public MIDI_NAMESPACE::DefaultSettings
  {
     static const unsigned SysExMaxSize = 1024; // Accept SysEx messages up to 1024 bytes long.
  };
 
- MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, midi, MySettings);
+ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial1, MIDI, MySettings);
  \endcode
  */
 struct DefaultSettings
@@ -75,6 +75,9 @@ struct DefaultSettings
     /*! Global switch to turn on/off sender ActiveSensing
     Set to true to send ActiveSensing
     Set to false will not send ActiveSensing message (will also save memory)
+
+    When setting UseSenderActiveSensing to true, MIDI.read() *must* be called
+    as often as possible (1000 / SenderActiveSensingPeriodicity per second).
     */
     static const bool UseSenderActiveSensing = false;
 
