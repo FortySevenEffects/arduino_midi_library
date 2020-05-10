@@ -44,11 +44,9 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mThruFilterMode(Thru::Full)
     , mLastMessageSentTime(0)
     , mLastMessageReceivedTime(0)
-    , mSenderActiveSensingPeriodicity(0)
     , mReceiverActiveSensingActivated(false)
     , mLastError(0)
 {
-        mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -720,7 +718,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     // assume that the connection has been terminated. At
     // termination, the receiver will turn off all voices and return to
     // normal (non- active sensing) operation.
-    if (Settings::UseSenderActiveSensing && (mSenderActiveSensingPeriodicity > 0) && (Platform::now() - mLastMessageSentTime) > mSenderActiveSensingPeriodicity)
+    if (Settings::UseSenderActiveSensing && (Platform::now() - mLastMessageSentTime) > Settings::SenderActiveSensingPeriodicity)
     {
         sendActiveSensing();
         mLastMessageSentTime = Platform::now();
@@ -1384,7 +1382,7 @@ inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 template<class Transport, class Settings, class Platform>
 inline void MidiInterface<Transport, Settings, Platform>::UpdateLastSentTime()
 {
-    if (Settings::UseSenderActiveSensing && mSenderActiveSensingPeriodicity)
+    if (Settings::UseSenderActiveSensing)
         mLastMessageSentTime = Platform::now();
 }
 
