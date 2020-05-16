@@ -1,6 +1,6 @@
 # Arduino MIDI Library
 
-[![Build Status](https://travis-ci.org/FortySevenEffects/arduino_midi_library.svg?branch=master)](https://travis-ci.org/FortySevenEffects/arduino_midi_library)
+[![arduino-library-badge](https://www.ardu-badge.com/badge/MIDI%20Library.svg?)](https://www.ardu-badge.com/MIDI%20Library)[![Build Status](https://travis-ci.org/FortySevenEffects/arduino_midi_library.svg?branch=master)](https://travis-ci.org/FortySevenEffects/arduino_midi_library)
 [![Coveralls](https://img.shields.io/coveralls/FortySevenEffects/arduino_midi_library.svg?maxAge=3600)](https://coveralls.io/github/FortySevenEffects/arduino_midi_library)
 [![GitHub release](https://img.shields.io/github/release/FortySevenEffects/arduino_midi_library.svg?maxAge=3600)](https://github.com/FortySevenEffects/arduino_midi_library/releases/latest)
 [![License](https://img.shields.io/github/license/FortySevenEffects/arduino_midi_library.svg?maxAge=3600)](LICENSE)
