@@ -38,12 +38,12 @@ BEGIN_MIDI_NAMESPACE
  macro to create your instance. The settings you don't override will keep their
  default value. Eg:
  \code{.cpp}
- struct MySettings : public midi::DefaultSettings
+ struct MySettings : public MIDI_NAMESPACE::DefaultSettings
  {
     static const unsigned SysExMaxSize = 1024; // Accept SysEx messages up to 1024 bytes long.
  };
 
- MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, midi, MySettings);
+ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, MIDI, MySettings);
  \endcode
  */
 struct DefaultSettings
