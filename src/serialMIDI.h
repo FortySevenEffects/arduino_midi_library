@@ -91,6 +91,8 @@ private:
     SerialPort& mSerial;
 };
 
+END_MIDI_NAMESPACE
+
 /*! \brief Create an instance of the library attached to a serial port.
  You can use HardwareSerial or SoftwareSerial for the serial port.
  Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
@@ -119,7 +121,5 @@ private:
  @see MIDI_CREATE_INSTANCE
  */
 #define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
-    MIDI_NAMESPACE::SerialMIDI<Type, Settings> serial##Name(SerialPort);\
-    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type, Settings>> Name((MIDI_NAMESPACE::SerialMIDI<Type, Settings>&)serial##Name);
-
-END_MIDI_NAMESPACE
+    MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
+    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>, Settings> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
