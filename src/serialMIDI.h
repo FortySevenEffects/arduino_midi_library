@@ -116,10 +116,11 @@ END_MIDI_NAMESPACE
 #endif
 
 /*! \brief Create an instance of the library attached to a serial port with
- custom settings.
+ custom MIDI settings (not to be confused with modified Serial Settings, like BaudRate) 
  @see DefaultSettings
  @see MIDI_CREATE_INSTANCE
  */
 #define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
     MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
     MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>, Settings> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
+

@@ -75,6 +75,7 @@ struct DefaultSettings
     /*! Global switch to turn on/off sender ActiveSensing
     Set to true to send ActiveSensing
     Set to false will not send ActiveSensing message (will also save memory)
+    as often as possible (1000 / SenderActiveSensingPeriodicity per second).
     */
     static const bool UseSenderActiveSensing = false;
 
@@ -95,10 +96,8 @@ struct DefaultSettings
 
     Typical value is 250 (ms) - an Active Sensing command is send every 250ms.
     (All Roland devices send Active Sensing every 250ms)
-
-    Setting this field to 0 will disable sending MIDI active sensing.
     */
-    static const uint16_t SenderActiveSensingPeriodicity = 0;
+    static const uint16_t SenderActiveSensingPeriodicity = 250;
 };
 
 END_MIDI_NAMESPACE
