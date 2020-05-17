@@ -72,8 +72,6 @@ struct DefaultSettings
     */
     static const unsigned SysExMaxSize = 128;
 
-    /*! Global switch to turn on/off sender ActiveSensing
-    Set to true to send ActiveSensing
     /*! Global switch to turn on/off sending and receiving ActiveSensing
     Set to true to activate ActiveSensing
     Set to false will not send/receive ActiveSensing message (will also save 236 bytes of memory)
