@@ -282,7 +282,7 @@ private:
     MidiMessage     mMessage;
     unsigned long   mLastMessageSentTime;
     unsigned long   mLastMessageReceivedTime;
-    bool            mReceiverActiveSensingActivated;
+    bool            mReceiverActiveSensingActive;
     int8_t          mLastError;
 
 private:

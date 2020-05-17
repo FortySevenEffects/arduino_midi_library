@@ -46,10 +46,6 @@ BEGIN_MIDI_NAMESPACE
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
 
-/*! Receiving Active Sensing 
-*/
-static const uint16_t ActiveSensingTimeout = 300;
-
 // -----------------------------------------------------------------------------
 // Type definitions
 
