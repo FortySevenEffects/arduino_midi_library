@@ -736,7 +736,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
 
             // its up to the handler to send the stop processing messages
             // (also, no clue what the channel is on which to send them)
-            mActiveSensingTimeoutCallback(true);
+            mActiveSensingTimeoutCallback(mReceiverActiveSensingActive);
         }
     }
     #endif
@@ -757,7 +757,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
         {
             mReceiverActiveSensingActive = true;
 
-            mActiveSensingTimeoutCallback(false);
+            mActiveSensingTimeoutCallback(mReceiverActiveSensingActive);
         }
     }
 
