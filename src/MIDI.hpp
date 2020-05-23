@@ -769,24 +769,20 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
             sendActiveSensing();
     }
 
+    // Once an Active Sensing message is received, the unit will begin monitoring 
+    // the intervalbetween all subsequent messages. If there is an interval of 420 ms 
+    // or longer betweenmessages while monitoring is active, the same processing 
+    // as when All Sound Off, All Notes Off,and Reset All Controllers messages are 
+    // received will be carried out. The unit will then stopmonitoring the message interval.
     if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActive)
     {
         if ((Platform::now() - mLastMessageReceivedTime > Settings::ReceiverActiveSensingTimeout))
         {
-            // Once an Active Sensing message is received, the unit will begin monitoring 
-            // the intervalbetween all subsequent messages. If there is an interval of 420 ms 
-            // or longer betweenmessages while monitoring is active, the same processing 
-            // as when All Sound Off, All Notes Off,and Reset All Controllers messages are 
-            // received will be carried out. The unit will then stopmonitoring the message interval.
             mReceiverActiveSensingActive = false;
 
-            // its up to the error handler to send the stop processing messages
+            // its up to the handler to send the stop processing messages
             // (also, no clue what the channel is on which to send them)
-
-            // no need to check if bit is already set, it is not (due to the mActiveSensingActive switch)
-            mLastError |= 1UL << ErrorActiveSensingTimeout; // set the ErrorActiveSensingTimeout bit
-            if (mErrorCallback)
-                mErrorCallback(mLastError);
+            mActiveSensingTimeoutCallback(true);
         }
     }
     #endif
@@ -805,17 +801,9 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
 
         if  (mMessage.type == ActiveSensing && !mReceiverActiveSensingActive)
         {
-            // Once an Active Sensing message is received, the unit will begin monitoring 
-            // the intervalbetween all subsequent messages. If there is an interval of 420 ms 
-            // or longer betweenmessages while monitoring is active, the same processing 
-            // as when All Sound Off, All Notes Off,and Reset All Controllers messages are 
-            // received will be carried out. The unit will then stopmonitoring the message interval.
             mReceiverActiveSensingActive = true;
 
-            // Clear the ErrorActiveSensingTimeout bit
-            mLastError &= ~(1UL << ErrorActiveSensingTimeout); 
-            if (mErrorCallback)
-                mErrorCallback(mLastError);
+            mActiveSensingTimeoutCallback(false);
         }
     }
 

@@ -212,6 +212,7 @@ private:
 
     void (*mMessageCallback)(const MidiMessage& message) = nullptr;
     ErrorCallback mErrorCallback = nullptr;
+    ActiveSensingTimeoutCallback mActiveSensingTimeoutCallback = nullptr;
     NoteOffCallback mNoteOffCallback = nullptr;
     NoteOnCallback mNoteOnCallback = nullptr;
     AfterTouchPolyCallback mAfterTouchPolyCallback = nullptr;
