@@ -185,6 +185,7 @@ public:
 public:
     inline void setHandleMessage(void (*fptr)(const MidiMessage&)) { mMessageCallback = fptr; };
     inline void setHandleError(ErrorCallback fptr) { mErrorCallback = fptr; }
+    inline void setHandleActiveSensingTimeout(ActiveSensingTimeoutCallback fptr) { mActiveSensingTimeoutCallback = fptr; }
     inline void setHandleNoteOff(NoteOffCallback fptr) { mNoteOffCallback = fptr; }
     inline void setHandleNoteOn(NoteOnCallback fptr) { mNoteOnCallback = fptr; }
     inline void setHandleAfterTouchPoly(AfterTouchPolyCallback fptr) { mAfterTouchPolyCallback = fptr; }
@@ -212,6 +213,7 @@ private:
 
     void (*mMessageCallback)(const MidiMessage& message) = nullptr;
     ErrorCallback mErrorCallback = nullptr;
+    ActiveSensingTimeoutCallback mActiveSensingTimeoutCallback = nullptr;
     NoteOffCallback mNoteOffCallback = nullptr;
     NoteOnCallback mNoteOnCallback = nullptr;
     AfterTouchPolyCallback mAfterTouchPolyCallback = nullptr;

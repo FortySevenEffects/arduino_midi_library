@@ -22,9 +22,9 @@ struct MyMIDISettings : public MIDI_NAMESPACE::DefaultSettings
 
 MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial1, MIDI, MyMIDISettings);
 
-void errorHandler(int8_t err)
+void activeSensingTimeoutExceptionHandler(bool active)
 {
-  if (bitRead(err, ErrorActiveSensingTimeout))
+  if (!active)
   {
     MIDI.sendControlChange(AllSoundOff, 0, 1);
     MIDI.sendControlChange(AllNotesOff, 0, 1);
@@ -41,7 +41,7 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 
-  MIDI.setHandleError(errorHandler);
+  MIDI.setHandleActiveSensingTimeout(activeSensingTimeoutExceptionHandler);
   MIDI.begin(1);
 }
 
