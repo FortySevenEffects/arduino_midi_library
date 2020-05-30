@@ -339,7 +339,7 @@ template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::sendPitchBend(double inPitchValue,
                                                         Channel inChannel)
 {
-    const int scale = inPitchValue > 0.0 ? MIDI_PITCHBEND_MAX : MIDI_PITCHBEND_MIN;
+    const int scale = inPitchValue > 0.0 ? MIDI_PITCHBEND_MAX : - MIDI_PITCHBEND_MIN;
     const int value = int(inPitchValue * double(scale));
     sendPitchBend(value, inChannel);
 }
