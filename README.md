@@ -24,7 +24,7 @@ This library adds MIDI I/O communications to an Arduino board.
 ### Getting Started
 
 1. Use the Arduino Library Manager to install the library.
-   ![Type "MIDI" in the Arduino IDE Library Manager](res/library-manager.png)
+   ![Type "MIDI I/Os for Arduino" in the Arduino IDE Library Manager](res/library-manager.png)
 
 2. Start coding:
 
