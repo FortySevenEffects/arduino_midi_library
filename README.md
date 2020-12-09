@@ -111,9 +111,9 @@ protocol bridges.
 
 -   Software Thru is enabled by default on Serial, but not on other transports.
 
-## Contact
+## Contact & Contribution
 
-To report a bug, contribute, discuss on usage, or simply request support, please [create an issue here](https://github.com/FortySevenEffects/arduino_midi_library/issues/new).
+To report a bug, contribute, discuss on usage, or request support, please [discuss it here](https://github.com/FortySevenEffects/arduino_midi_library/discussions/new).
 
 You can also contact me on Twitter: [@fortysevenfx](https://twitter.com/fortysevenfx).
 
