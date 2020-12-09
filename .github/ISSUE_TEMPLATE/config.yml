@@ -1,1 +1,5 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Discussions
+    url: https://github.com/FortySevenEffects/arduino_midi_library/discussions
+    about: Please ask and answer questions here.
