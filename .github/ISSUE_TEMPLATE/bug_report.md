@@ -7,6 +7,15 @@ assignees: ''
 
 ---
 
+<!-- 
+Before opening an issue, check if your problem already has been solved by looking in:
+- The existing issues: https://github.com/FortySevenEffects/arduino_midi_library/issues
+- The discussions: https://github.com/FortySevenEffects/arduino_midi_library/discussions
+
+Consider opening a discussion instead of an issue if you need help with your project:
+https://github.com/FortySevenEffects/arduino_midi_library/discussions/new
+-->
+
 ## Context
 
 Please answer a few questions to help us understand your problem better and guide you to a solution:
