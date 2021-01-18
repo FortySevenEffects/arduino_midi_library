@@ -114,7 +114,7 @@ struct DefaultSettings
 
     Default is SERIAL_8N1
     */
-    static const uint8_t SerialFormat = SERIAL_8N1;
+    static const uint16_t SerialFormat = SERIAL_8N1;
     #endif
 };
 
