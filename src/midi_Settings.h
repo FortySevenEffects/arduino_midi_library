@@ -101,6 +101,19 @@ struct DefaultSettings
     static const uint16_t SenderActiveSensingPeriodicity = 0;
 
     #if defined(TEENSYDUINO)
+    /*! Teensy supports various Serial data formats. 
+    This allows to use circuits that may require inversion of polarity on the RX, TX
+    or both signals
+
+    Format Name             Data Bits   Parity  Stop Bits   RX Polarity TX Polarity
+
+    SERIAL_8N1              8           None                Normal      Normal
+    SERIAL_8N1_RXINV        8           None                Inverted    Normal
+    SERIAL_8N1_TXINV        8           None                Normal      Inverted
+    SERIAL_8N1_RXINV_TXINV  8           None                Inverted    Inverted
+
+    Default is SERIAL_8N1
+    */
     static const uint8_t SerialFormat = SERIAL_8N1;
     #endif
 };
