@@ -58,6 +58,8 @@ public:
         // Initialise the Serial port
         #if defined(AVR_CAKE)
             mSerial. template open<Settings::BaudRate>();
+        #elif defined(TEENSYDUINO)
+            mSerial.begin(Settings::BaudRate, SERIAL_8N1_TXINV);
         #else
             mSerial.begin(Settings::BaudRate);
         #endif

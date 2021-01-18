@@ -99,6 +99,10 @@ struct DefaultSettings
     Setting this field to 0 will disable sending MIDI active sensing.
     */
     static const uint16_t SenderActiveSensingPeriodicity = 0;
+
+    #if defined(TEENSYDUINO)
+    static const uint8_t SerialFormat = SERIAL_8N1;
+    #endif
 };
 
 END_MIDI_NAMESPACE
