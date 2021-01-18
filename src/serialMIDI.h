@@ -59,7 +59,7 @@ public:
         #if defined(AVR_CAKE)
             mSerial. template open<Settings::BaudRate>();
         #elif defined(TEENSYDUINO)
-            mSerial.begin(Settings::BaudRate, SERIAL_8N1_TXINV);
+            mSerial.begin(Settings::BaudRate, Settings::SerialFormat);
         #else
             mSerial.begin(Settings::BaudRate);
         #endif
