@@ -37,7 +37,7 @@ struct DefaultSerialSettings : public MIDI_NAMESPACE::DefaultSettings
     http://projectgus.github.io/hairless-midiserial/
     */
     static const long BaudRate = 31250;
-    #if defined(TEENSYDUINO)
+    #if defined(TEENSYDUINO) && !defined(ARDUINO_TEENSY2)
     /*! Teensy supports various Serial data formats. 
     Override the default Serial Format to use circuits that may require inversion of 
     polarity on the RX, TX or both signals.
@@ -74,7 +74,7 @@ public:
         // Initialise the Serial port
         #if defined(AVR_CAKE)
             mSerial. template open<Settings::BaudRate>();
-        #elif defined(TEENSYDUINO)
+        #elif defined(TEENSYDUINO) && !defined(ARDUINO_TEENSY2)
             mSerial.begin(Settings::BaudRate, Settings::SerialFormat);
         #else
             mSerial.begin(Settings::BaudRate);
