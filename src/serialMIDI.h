@@ -63,6 +63,11 @@ public:
         #endif
 	}
 
+    void end()
+    {
+        mSerial.end();
+    }
+
 	bool beginTransmission(MidiType)
 	{
 		return true;
