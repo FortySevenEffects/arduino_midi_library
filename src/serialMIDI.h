@@ -30,13 +30,29 @@
 
 BEGIN_MIDI_NAMESPACE
 
-struct DefaultSerialSettings
+struct DefaultSerialSettings : public MIDI_NAMESPACE::DefaultSettings
 {
     /*! Override the default MIDI baudrate to transmit over USB serial, to
     a decoding program such as Hairless MIDI (set baudrate to 115200)\n
     http://projectgus.github.io/hairless-midiserial/
     */
     static const long BaudRate = 31250;
+    #if defined(TEENSYDUINO) && !defined(ARDUINO_TEENSY2)
+    /*! Teensy supports various Serial data formats. 
+    Override the default Serial Format to use circuits that may require inversion of 
+    polarity on the RX, TX or both signals.
+    https://www.pjrc.com/teensy/td_serial.html
+
+    Format Name             Data Bits   Parity  RX Polarity  TX Polarity
+
+    SERIAL_8N1              8           None    Normal       Normal
+    SERIAL_8N1_RXINV        8           None    Inverted     Normal
+    SERIAL_8N1_TXINV        8           None    Normal       Inverted
+    SERIAL_8N1_RXINV_TXINV  8           None    Inverted     Inverted
+
+    */
+    static const uint16_t SerialFormat = SERIAL_8N1;
+    #endif
 };
 
 template <class SerialPort, class _Settings = DefaultSerialSettings>
@@ -58,6 +74,8 @@ public:
         // Initialise the Serial port
         #if defined(AVR_CAKE)
             mSerial. template open<Settings::BaudRate>();
+        #elif defined(TEENSYDUINO) && !defined(ARDUINO_TEENSY2)
+            mSerial.begin(Settings::BaudRate, Settings::SerialFormat);
         #else
             mSerial.begin(Settings::BaudRate);
         #endif
@@ -126,5 +144,5 @@ END_MIDI_NAMESPACE
  @see MIDI_CREATE_INSTANCE
  */
 #define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
-    MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
-    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>, Settings> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
+    MIDI_NAMESPACE::SerialMIDI<Type, Settings> serial##Name(SerialPort);\
+    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type, Settings>, Settings> Name((MIDI_NAMESPACE::SerialMIDI<Type, Settings>&)serial##Name);
