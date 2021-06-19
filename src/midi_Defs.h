@@ -46,10 +46,6 @@ BEGIN_MIDI_NAMESPACE
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
 
-/*! Receiving Active Sensing 
-*/
-static const uint16_t ActiveSensingTimeout = 300;
-
 // -----------------------------------------------------------------------------
 // Type definitions
 
@@ -61,13 +57,13 @@ typedef byte FilterMode;
 // -----------------------------------------------------------------------------
 // Errors
 static const uint8_t ErrorParse = 0;
-static const uint8_t ErrorActiveSensingTimeout = 1;
 static const uint8_t WarningSplitSysEx = 2;
 
 // -----------------------------------------------------------------------------
 // Aliasing
 
 using ErrorCallback                = void (*)(int8_t);
+using ActiveSensingTimeoutCallback = void (*)(bool);
 using NoteOffCallback              = void (*)(Channel channel, byte note, byte velocity);
 using NoteOnCallback               = void (*)(Channel channel, byte note, byte velocity);
 using AfterTouchPolyCallback       = void (*)(Channel channel, byte note, byte velocity);
