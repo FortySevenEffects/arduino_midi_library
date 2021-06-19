@@ -844,6 +844,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 mMessage.channel = 0;
                 mMessage.data1   = 0;
                 mMessage.data2   = 0;
+                mMessage.length  = 1;
                 mMessage.valid   = true;
 
                 // Do not reset all input attributes, Running Status must remain unchanged.
@@ -859,6 +860,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             case AfterTouchChannel:
             case TimeCodeQuarterFrame:
             case SongSelect:
+                mMessage.length = 2;
                 mPendingMessageExpectedLength = 2;
                 break;
 
@@ -869,6 +871,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             case PitchBend:
             case AfterTouchPoly:
             case SongPosition:
+                mMessage.length = 3;
                 mPendingMessageExpectedLength = 3;
                 break;
 
@@ -900,7 +903,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             mMessage.data1   = mPendingMessage[1];
             mMessage.data2   = 0; // Completed new message has 1 data byte
-            mMessage.length  = 1;
+            mMessage.length  = 2;
 
             mPendingMessageIndex = 0;
             mPendingMessageExpectedLength = 0;
