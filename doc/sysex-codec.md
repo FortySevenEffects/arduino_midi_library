@@ -62,7 +62,7 @@ becomes:
 ```
 
 The order of the bits in the "header" byte is reversed.
-To follow this beheaviour, set the inFlipHeaderBits argument to true.
+To follow this behaviour, set the inFlipHeaderBits argument to true.
 
 Example:
 ```c++
