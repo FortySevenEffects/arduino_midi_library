@@ -386,4 +386,123 @@ TEST(MidiThru, invalidMode)
     EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
 }
 
+TEST(MidiThru, unmutedChannelsNoneMuted) // acts like full
+{
+    SerialMock serial;
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
+    Buffer buffer;
+
+    midi.begin(MIDI_CHANNEL_OMNI);
+    midi.setThruFilterMode(midi::Thru::UnmutedChannels);
+
+    static const unsigned rxSize = 6;
+    static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
+    serial.mRxBuffer.write(rxData, rxSize);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), true);
+
+    buffer.clear();
+    buffer.resize(3);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 3);
+    serial.mTxBuffer.read(&buffer[0], 3);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0x9b, 12, 34
+    }));
+
+    buffer.clear();
+    buffer.resize(3);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), true);
+
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 3); // Not using TX running status
+    serial.mTxBuffer.read(&buffer[0], 3);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0x9c, 56, 78
+    }));
+}
+
+TEST(MidiThru, unmutedChannelsWithMutedChannelTwelve)
+{
+    SerialMock serial;
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
+    Buffer buffer;
+
+    midi.begin(MIDI_CHANNEL_OMNI);
+    midi.setThruFilterMode(midi::Thru::UnmutedChannels);
+    bool thruMutedChannels[17] = {
+        false,
+        false, false, false, false, false, false, false, false,
+        false, false, false, true,  false, false, false, false
+    };
+    midi.setThruMutedChannels(thruMutedChannels);
+
+
+    static const unsigned rxSize = 6;
+    static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
+    serial.mRxBuffer.write(rxData, rxSize);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(midi.read(), true);
+
+    buffer.clear();
+    buffer.resize(3);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 3);
+    serial.mTxBuffer.read(&buffer[0], 3);
+    EXPECT_THAT(buffer, ElementsAreArray({
+        0x9c, 56, 78
+    }));
+}
+
+TEST(MidiThru, unmutedChannelsWithChannelZeroMuted) // acts like off
+{
+    SerialMock serial;
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
+    Buffer buffer;
+
+    midi.begin(MIDI_CHANNEL_OMNI);
+    midi.setThruFilterMode(midi::Thru::UnmutedChannels);
+    bool thruMutedChannels[17] = {
+        true,
+        false, false, false, false, false, false, false, false,
+        false, false, false, true,  false, false, false, false
+    };
+    midi.setThruMutedChannels(thruMutedChannels);
+
+
+    static const unsigned rxSize = 6;
+    static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
+    serial.mRxBuffer.write(rxData, rxSize);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), false);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    EXPECT_EQ(midi.read(), true);
+    EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+}
+
 END_UNNAMED_NAMESPACE

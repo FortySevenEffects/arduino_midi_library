@@ -242,6 +242,7 @@ public:
     inline void turnThruOn(Thru::Mode inThruFilterMode = Thru::Full);
     inline void turnThruOff();
     inline void setThruFilterMode(Thru::Mode inThruFilterMode);
+    inline void setThruMutedChannels(bool (&inThruMutedChannels)[17]);
 
 private:
     void thruFilter(byte inChannel);
@@ -279,6 +280,7 @@ private:
     unsigned        mCurrentNrpnNumber;
     bool            mThruActivated  : 1;
     Thru::Mode      mThruFilterMode : 7;
+    bool            mThruMutedChannels[17];
     MidiMessage     mMessage;
     unsigned long   mLastMessageSentTime;
     unsigned long   mLastMessageReceivedTime;

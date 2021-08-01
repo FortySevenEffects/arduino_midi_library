@@ -1356,6 +1356,12 @@ inline void MidiInterface<Transport, Settings, Platform>::setThruFilterMode(Thru
 }
 
 template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::setThruMutedChannels(bool (&inThruMutedChannels)[17])
+{
+    memcpy(mThruMutedChannels, inThruMutedChannels, sizeof(inThruMutedChannels));
+}
+
+template<class Transport, class Settings, class Platform>
 inline Thru::Mode MidiInterface<Transport, Settings, Platform>::getFilterMode() const
 {
     return mThruFilterMode;
@@ -1431,6 +1437,17 @@ void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
 
             case Thru::DifferentChannel:
                 if (!filter_condition)
+                {
+                    send(mMessage.type,
+                         mMessage.data1,
+                         mMessage.data2,
+                         mMessage.channel);
+                }
+                break;
+
+            case Thru::UnmutedChannels:
+                if ((mMessage.type == NoteOff) ||
+                    (!mThruMutedChannels[0] && !mThruMutedChannels[mMessage.channel]))
                 {
                     send(mMessage.type,
                          mMessage.data1,
