@@ -130,6 +130,7 @@ Special thanks to all who have contributed to this open-source project !
 -   [@LnnrtS](https://github.com/LnnrtS)
 -   [@DavidMenting](https://github.com/DavidMenting)
 -   [@Rolel](https://github.com/Rolel)
+-   [@kant](https://github.com/kant)
 
 You want to help ? Check out the [contribution guidelines](./CONTRIBUTING.md).
 
