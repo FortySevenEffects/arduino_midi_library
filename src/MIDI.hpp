@@ -816,7 +816,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     if (channelMatch)
         launchCallback();
 
-    thruFilter();
+    processThru();
 
     return channelMatch;
 }
@@ -1397,13 +1397,7 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
  */
 
 template<class Transport, class Settings, class Platform>
-inline bool MidiInterface<Transport, Settings, Platform>::getThruState() const
-{
-    return mThruFilterCallback != thruOff;
-}
-
-template<class Transport, class Settings, class Platform>
-inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::turnThruOn(ThruFilterCallback fptr)
+inline void MidiInterface<Transport, Settings, Platform>::turnThruOn(ThruFilterCallback fptr)
 {
     mThruFilterCallback = fptr;
     return *this;
@@ -1425,7 +1419,7 @@ inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Se
 // - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::thruFilter()
+void MidiInterface<Transport, Settings, Platform>::processThru()
 {
    if (!mThruFilterCallback(mMessage))
       return;
@@ -1433,7 +1427,7 @@ void MidiInterface<Transport, Settings, Platform>::thruFilter()
    MidiMessage thruMessage = mThruMapCallback(mMessage);
 
     // First, check if the received message is Channel
-    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
+    if (thruMessage.type >= NoteOff && thruMessage.type <= PitchBend)
     {
        send(thruMessage.type,
             thruMessage.data1,
@@ -1443,7 +1437,7 @@ void MidiInterface<Transport, Settings, Platform>::thruFilter()
     else
     {
         // Send the message to the output
-        switch (mMessage.type)
+        switch (thruMessage.type)
         {
                 // Real Time and 1 byte
             case Clock:
@@ -1453,7 +1447,7 @@ void MidiInterface<Transport, Settings, Platform>::thruFilter()
             case ActiveSensing:
             case SystemReset:
             case TuneRequest:
-                sendRealTime(mMessage.type);
+                sendRealTime(thruMessage.type);
                 break;
 
             case SystemExclusive:
