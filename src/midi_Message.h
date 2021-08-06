@@ -54,6 +54,20 @@ struct Message
         memset(sysexArray, 0, sSysExMaxSize * sizeof(DataByte));
     }
 
+    inline Message(const Message& inOther)
+        : channel(inOther.channel)
+        , type(inOther.type)
+        , data1(inOther.data1)
+        , data2(inOther.data2)
+        , valid(inOther.valid)
+        , length(inOther.length)
+    {
+        if (type == midi::SystemExclusive)
+        {
+            memcpy(sysexArray, inOther.sysexArray, sSysExMaxSize * sizeof(DataByte));
+        }
+    }
+
     /*! The maximum size for the System Exclusive array.
     */
     static const unsigned sSysExMaxSize = SysExMaxSize;
@@ -94,7 +108,7 @@ struct Message
     /*! Total Length of the message.
      */
     unsigned length;
-    
+
     inline unsigned getSysExSize() const
     {
         const unsigned size = unsigned(data2) << 8 | data1;
