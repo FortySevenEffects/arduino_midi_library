@@ -254,7 +254,7 @@ private:
     inline void handleNullVelocityNoteOnAsNoteOff();
     inline bool inputFilter(Channel inChannel);
     inline void resetInput();
-    inline void UpdateLastSentTime();
+    inline void updateLastSentTime();
 
     // -------------------------------------------------------------------------
     // Transport

@@ -48,7 +48,7 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mReceiverActiveSensingActivated(false)
     , mLastError(0)
 {
-        mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
+    mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -141,7 +141,7 @@ void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMes
         }
     }
     mTransport.endTransmission();
-    UpdateLastSentTime();
+    updateLastSentTime();
 }
 
 
@@ -202,7 +202,7 @@ void MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
             }
 
             mTransport.endTransmission();
-            UpdateLastSentTime();
+            updateLastSentTime();
         }
     }
     else if (inType >= Clock && inType <= SystemReset)
@@ -372,7 +372,7 @@ void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
             mTransport.write(MidiType::SystemExclusiveEnd);
 
         mTransport.endTransmission();
-        UpdateLastSentTime();
+        updateLastSentTime();
    }
 
     if (Settings::UseRunningStatus)
@@ -475,7 +475,7 @@ void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, u
                 break; // LCOV_EXCL_LINE - Coverage blind spot
         }
         mTransport.endTransmission();
-        UpdateLastSentTime();
+        updateLastSentTime();
     }
 
     if (Settings::UseRunningStatus)
@@ -506,7 +506,7 @@ void MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
             {
                 mTransport.write((byte)inType);
                 mTransport.endTransmission();
-                UpdateLastSentTime();
+                updateLastSentTime();
             }
             break;
         default:
@@ -671,6 +671,13 @@ inline void MidiInterface<Transport, Settings, Platform>::endNrpn(Channel inChan
     sendControlChange(NRPNLSB, 0x7f, inChannel);
     sendControlChange(NRPNMSB, 0x7f, inChannel);
     mCurrentNrpnNumber = 0xffff;
+}
+
+template<class Transport, class Settings, class Platform>
+inline void MidiInterface<Transport, Settings, Platform>::updateLastSentTime()
+{
+    if (Settings::UseSenderActiveSensing && mSenderActiveSensingPeriodicity)
+        mLastMessageSentTime = Platform::now();
 }
 
 /*! @} */ // End of doc group MIDI Output
@@ -1381,12 +1388,6 @@ inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
     mThruFilterMode = Thru::Off;
 }
 
-template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::UpdateLastSentTime()
-{
-    if (Settings::UseSenderActiveSensing && mSenderActiveSensingPeriodicity)
-        mLastMessageSentTime = Platform::now();
-}
 
 /*! @} */ // End of doc group MIDI Thru
 
