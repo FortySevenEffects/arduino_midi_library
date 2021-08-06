@@ -236,8 +236,6 @@ private:
     // MIDI Soft Thru
 
 public:
-    inline bool getThruState() const;
-
     using ThruFilterCallback = bool (*)(const MidiMessage& inMessage);
     using ThruMapCallback = MidiMessage (*)(const MidiMessage& inMessage);
     inline void turnThruOn(ThruFilterCallback fptr = thruOn);
@@ -246,7 +244,7 @@ public:
     inline void setThruMap(ThruMapCallback fptr) { mThruMapCallback = fptr; }
 
 private:
-    void thruFilter();
+    void processThru();
     static inline bool thruOn(const MidiMessage& inMessage) { (void)inMessage; return true; }
     static inline bool thruOff(const MidiMessage& inMessage) { (void)inMessage; return false; }
     static inline MidiMessage thruEcho(const MidiMessage& inMessage) { return inMessage; }

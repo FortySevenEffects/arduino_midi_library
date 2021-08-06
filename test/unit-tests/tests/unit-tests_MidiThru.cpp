@@ -59,30 +59,6 @@ MidiMessage thruMapNoteOnFullVelocity(const MidiMessage& inMessage)
 
 // -----------------------------------------------------------------------------
 
-TEST(MidiThru, defaultValues)
-{
-    EXPECT_EQ(midi.getThruState(),  true);
-    midi.begin(); // Should not change the state
-    EXPECT_EQ(midi.getThruState(),  true);
-}
-
-TEST(MidiThru, beginEnablesThru)
-{
-    midi.turnThruOff();
-    EXPECT_EQ(midi.getThruState(),  false);
-    midi.begin();
-    EXPECT_EQ(midi.getThruState(),  true);
-}
-
-TEST(MidiThru, setGet)
-{
-    midi.turnThruOff();
-    EXPECT_EQ(midi.getThruState(),  false);
-
-    midi.turnThruOn();
-    EXPECT_EQ(midi.getThruState(),  true);
-}
-
 TEST(MidiThru, off)
 {
     midi.begin(MIDI_CHANNEL_OMNI);
