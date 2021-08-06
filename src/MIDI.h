@@ -236,15 +236,30 @@ private:
     // MIDI Soft Thru
 
 public:
-    inline Thru::Mode getFilterMode() const;
     inline bool getThruState() const;
 
-    inline MidiInterface& turnThruOn(Thru::Mode inThruFilterMode = Thru::Full);
+    using ThruFilterCallback = bool (*)(const MidiMessage& inMessage);
+    using ThruMapCallback = MidiMessage (*)(const MidiMessage& inMessage);
+    inline MidiInterface& turnThruOn(ThruFilterCallback fptr = thruOn);
     inline MidiInterface& turnThruOff();
-    inline MidiInterface& setThruFilterMode(Thru::Mode inThruFilterMode);
+    inline MidiInterface& setThruFilter(ThruFilterCallback fptr)
+    {
+        mThruFilterCallback = fptr;
+        return *this;
+    }
+    inline MidiInterface& setThruMap(ThruMapCallback fptr)
+    {
+        mThruMapCallback = fptr;
+        return *this;
+    }
 
 private:
-    void thruFilter(byte inChannel);
+    void thruFilter();
+    static inline bool thruOn(const MidiMessage& inMessage) { (void)inMessage; return true; }
+    static inline bool thruOff(const MidiMessage& inMessage) { (void)inMessage; return false; }
+    static inline MidiMessage thruEcho(const MidiMessage& inMessage) { return inMessage; }
+    ThruFilterCallback mThruFilterCallback;
+    ThruMapCallback mThruMapCallback;
 
     // -------------------------------------------------------------------------
     // MIDI Parsing
@@ -277,8 +292,6 @@ private:
     unsigned        mPendingMessageIndex;
     unsigned        mCurrentRpnNumber;
     unsigned        mCurrentNrpnNumber;
-    bool            mThruActivated  : 1;
-    Thru::Mode      mThruFilterMode : 7;
     MidiMessage     mMessage;
     unsigned long   mLastMessageSentTime;
     unsigned long   mLastMessageReceivedTime;
