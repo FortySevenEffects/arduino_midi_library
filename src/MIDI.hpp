@@ -91,7 +91,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mMessage.data2   = 0;
     mMessage.length  = 0;
 
-    mThruFilterCallback = thruOn;
+    mThruFilterCallback = Transport::thruActivated ? thruOn : thruOff;
     mThruMapCallback = thruEcho;
 }
 
@@ -1371,7 +1371,7 @@ inline void MidiInterface<Transport, Settings, Platform>::UpdateLastSentTime()
 template<class Transport, class Settings, class Platform>
 void MidiInterface<Transport, Settings, Platform>::processThru()
 {
-   if (!mThruFilterCallback(mMessage))
+   if (!Transport::thruActivated || !mThruFilterCallback(mMessage))
       return;
 
    MidiMessage thruMessage = mThruMapCallback(mMessage);
