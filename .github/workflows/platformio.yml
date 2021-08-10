@@ -12,15 +12,15 @@ jobs:
       fail-fast: false
       matrix:
         example:
-          - examples/AltPinSerial
-          - examples/Basic_IO
-          - examples/Bench
-          - examples/Callbacks
-          - examples/DualMerger
-          - examples/ErrorCallback
-          - examples/Input
-          - examples/RPN_NRPN
-          - examples/SimpleSynth
+          - AltPinSerial
+          - Basic_IO
+          - Bench
+          - Callbacks
+          - DualMerger
+          - ErrorCallback
+          - Input
+          - RPN_NRPN
+          - SimpleSynth
         board:
           - uno
           - due
@@ -55,4 +55,4 @@ jobs:
     - name: Run PlatformIO
       run: pio ci --lib="." --board="${{matrix.board}}"
       env:
-        PLATFORMIO_CI_SRC: ${{ matrix.example }}
+        PLATFORMIO_CI_SRC: examples/${{ matrix.example }}
