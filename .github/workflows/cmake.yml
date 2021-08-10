@@ -9,6 +9,8 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  LCOV_ROOT: ${{github.workspace}}/lcov
+  PATH: "$LCOV_ROOT;$PATH"
 
 jobs:
   build:
@@ -19,10 +21,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - run: echo $PATH
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    
+
+    - name: Install coverage tools
+      run: ${{github.workspace}}/builder/install-lcov.sh
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -35,4 +41,4 @@ jobs:
     - name: Run Unit Tests
       working-directory: ${{github.workspace}}/build
       run: ./test/unit-tests/unit-tests
-      
+
