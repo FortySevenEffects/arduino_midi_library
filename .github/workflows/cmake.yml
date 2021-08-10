@@ -7,10 +7,9 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
   GENERATE_COVERAGE: true
   LCOV_ROOT: ${{github.workspace}}/lcov
-  GCOV: gcov-4.8
 
 jobs:
   build:
@@ -32,10 +31,6 @@ jobs:
         tar -xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C "$LCOV_ROOT"
         echo "$LCOV_ROOT/bin" >> $GITHUB_PATH
       shell: bash
-    - name: Info
-      run: |
-        lcov --version
-        gcov --version
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -52,6 +47,8 @@ jobs:
 
     - name: Prune external code coverage
       run: rm -rf ./external/google-test/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.gcda
+
+    - name: Inspect
 
     - name: Generate code coverage report
       working-directory: ${{github.workspace}}/build
