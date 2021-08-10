@@ -2,13 +2,14 @@ name: CMake
 
 on:
   push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
+  GENERATE_COVERAGE: true
+  LCOV_ROOT: ${{github.workspace}}/lcov
 
 jobs:
   build:
@@ -22,11 +23,19 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    
+
+    - name: Install lcov
+      run: |
+        mkdir -p "$LCOV_ROOT"
+        wget https://github.com/linux-test-project/lcov/releases/download/v1.15/lcov-1.15.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
+        tar -xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C "$LCOV_ROOT"
+        echo "$LCOV_ROOT/bin" >> $GITHUB_PATH
+      shell: bash
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILDER_ENABLE_PROFILING=true
 
     - name: Build
       # Build your program with the given configuration
@@ -34,5 +43,17 @@ jobs:
 
     - name: Run Unit Tests
       working-directory: ${{github.workspace}}/build
-      run: ./test/unit-tests/unit-tests
-      
+      run: ctest --verbose
+
+    - name: Generate code coverage report
+      working-directory: ${{github.workspace}}/build
+      run: |
+        lcov --directory . --capture --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' "${{github.workspace}}/test/*" "${{github.workspace}}/external/*" --output-file coverage.info
+        lcov --list coverage.info
+
+    - uses: coverallsapp/github-action@9ba913c152ae4be1327bfb9085dc806cedb44057
+      name: Upload code coverage report to Coveralls
+      with:
+        path-to-lcov: ${{github.workspace}}/build/coverage.info
+        github-token: ${{ secrets.GITHUB_TOKEN }}
