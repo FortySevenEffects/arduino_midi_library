@@ -53,7 +53,8 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         lcov --directory . --capture --output-file coverage.info
-        lcov --remove coverage.info '/usr/*' './test/*' './external/*' --output-file coverage.info
+        cat coverage.info
+        lcov --remove coverage.info '/usr/*' "$(pwd)/test/*" "$(pwd)/external/*" --output-file coverage.info
         lcov --list coverage.info
 
     - uses: coverallsapp/github-action@9ba913c152ae4be1327bfb9085dc806cedb44057
