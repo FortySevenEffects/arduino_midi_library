@@ -20,6 +20,18 @@ jobs:
           - examples/Input
           - examples/RPN_NRPN
           - examples/SimpleSynth
+        board:
+          - uno
+          - due
+          - zero
+          - leonardo
+          - micro
+          - nanoatmega328
+          - megaatmega2560
+          - teensy2
+          - teensy30
+          - teensy31
+          - teensylc
     steps:
     - uses: actions/checkout@v2
     - name: Cache pip
@@ -40,20 +52,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade platformio
     - name: Run PlatformIO
-      run: >
-        pio ci
-        --verbose
-        --lib="."
-        --board="uno"
-        --board="due"
-        --board="zero"
-        --board="leonardo"
-        --board="micro"
-        --board="nanoatmega328"
-        --board="megaatmega2560"
-        --board="teensy2"
-        --board="teensy30"
-        --board="teensy31"
-        --board="teensylc"
+      run: pio ci --lib="." --board="${{matrix.board}}"
       env:
         PLATFORMIO_CI_SRC: ${{ matrix.example }}
