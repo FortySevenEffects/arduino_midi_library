@@ -49,11 +49,11 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         lcov --directory . --capture --output-file coverage-raw.info
-        lcov --remove coverage-raw.info '/usr/*' "$(pwd)/test/*" "$(pwd)/external/*" --output-file coverage.info
+        lcov --remove coverage-raw.info '/usr/*' "${{github.workspace}}/test/*" "${{github.workspace}}/external/*" --output-file coverage.info
         lcov --list coverage.info
 
     - uses: coverallsapp/github-action@9ba913c152ae4be1327bfb9085dc806cedb44057
-      name: Report code coverage
+      name: Upload code coverage report to Coveralls
       with:
         path-to-lcov: ${{github.workspace}}/build/coverage.info
         github-token: ${{ secrets.GITHUB_TOKEN }}
