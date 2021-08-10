@@ -9,7 +9,6 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   LCOV_ROOT: ${{github.workspace}}/lcov
-  PATH: "$LCOV_ROOT;$PATH"
 
 jobs:
   build:
@@ -21,6 +20,8 @@ jobs:
 
     steps:
     - run: echo $PATH
+    - run: echo $GITHUB_PATH
+    - run: echo $LCOV_ROOT
     - uses: actions/checkout@v2
       with:
         submodules: recursive
