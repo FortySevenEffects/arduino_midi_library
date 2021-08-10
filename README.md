@@ -1,9 +1,10 @@
 # Arduino MIDI Library
 
-[![Build Status](https://travis-ci.org/FortySevenEffects/arduino_midi_library.svg?branch=master)](https://travis-ci.org/FortySevenEffects/arduino_midi_library)
-[![Coveralls](https://img.shields.io/coveralls/FortySevenEffects/arduino_midi_library.svg?maxAge=3600)](https://coveralls.io/github/FortySevenEffects/arduino_midi_library)
 [![GitHub release](https://img.shields.io/github/release/FortySevenEffects/arduino_midi_library.svg?maxAge=3600)](https://github.com/FortySevenEffects/arduino_midi_library/releases/latest)
 [![License](https://img.shields.io/github/license/FortySevenEffects/arduino_midi_library.svg?maxAge=3600)](LICENSE)
+[![Build](https://github.com/FortySevenEffects/arduino_midi_library/actions/workflows/cmake.yml/badge.svg?branch=master)](https://github.com/FortySevenEffects/arduino_midi_library/actions/workflows/cmake.yml)
+[![Examples](https://github.com/FortySevenEffects/arduino_midi_library/actions/workflows/platformio.yml/badge.svg?branch=master)](https://github.com/FortySevenEffects/arduino_midi_library/actions/workflows/platformio.yml)
+[![Coveralls](https://img.shields.io/coveralls/FortySevenEffects/arduino_midi_library.svg?maxAge=3600)](https://coveralls.io/github/FortySevenEffects/arduino_midi_library)
 
 This library adds MIDI I/O communications to an Arduino board.
 
