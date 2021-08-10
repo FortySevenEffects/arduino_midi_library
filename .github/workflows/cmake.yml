@@ -24,13 +24,16 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install coverage tools
+    - name: Install lcov
       run: |
         mkdir -p "$LCOV_ROOT"
-        wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.14.orig.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
+        wget https://github.com/linux-test-project/lcov/releases/download/v1.15/lcov-1.15.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
         tar -xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C "$LCOV_ROOT"
-        echo "$LCOV_ROOT/bin" >> $GITHUB_PATH
+        cd "$LCOV_ROOT"
+        make install
       shell: bash
+    - name: lcov info
+      run: lcov --version
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
