@@ -32,6 +32,10 @@ jobs:
         tar -xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C "$LCOV_ROOT"
         echo "$LCOV_ROOT/bin" >> $GITHUB_PATH
       shell: bash
+    - name: Info
+      run: |
+        lcov --version
+        gcov --version
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -51,6 +55,6 @@ jobs:
 
     - name: Generate code coverage report
       run: |
-        lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
-        lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
+        lcov --directory . --capture --output-file coverage.info
+        lcov --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
         lcov --list coverage.info
