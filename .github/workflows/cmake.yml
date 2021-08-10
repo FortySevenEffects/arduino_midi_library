@@ -19,15 +19,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - run: echo $PATH
-    - run: echo $GITHUB_PATH
-    - run: echo $LCOV_ROOT
     - uses: actions/checkout@v2
       with:
         submodules: recursive
 
     - name: Install coverage tools
-      run: ${{github.workspace}}/builder/install-lcov.sh
+      run: |
+        mkdir -p "$LCOV_ROOT"
+        wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.14.orig.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
+        tar xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C "$LCOV_ROOT"
+        echo "$LCOV_ROOT/bin" >> $GITHUB_PATH
+        which lcov
+      shell: bash
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
