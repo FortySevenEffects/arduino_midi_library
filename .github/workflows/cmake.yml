@@ -31,7 +31,6 @@ jobs:
         wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.14.orig.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
         tar -xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C "$LCOV_ROOT"
         echo "$LCOV_ROOT/bin" >> $GITHUB_PATH
-        lcov --version
       shell: bash
 
     - name: Configure CMake
