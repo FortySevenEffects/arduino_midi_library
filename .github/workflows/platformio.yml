@@ -1,6 +1,9 @@
-name: PlatformIO CI
+name: PlatformIO
 
-on: [push]
+on:
+  push:
+  pull_request:
+    branches: [ master ]
 
 jobs:
   platformio:
@@ -37,17 +40,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade platformio
     - name: Run PlatformIO
-      run: pio ci --lib="."         \
-        --board="uno"               \
-        --board="due"               \
-        --board="zero"              \
-        --board="leonardo"          \
-        --board="micro"             \
-        --board="nanoatmega328"     \
-        --board="megaatmega2560"    \
-        --board="teensy2"           \
-        --board="teensy30"          \
-        --board="teensy31"          \
+      run: >
+        pio ci
+        --verbose
+        --lib="."
+        --board="uno"
+        --board="due"
+        --board="zero"
+        --board="leonardo"
+        --board="micro"
+        --board="nanoatmega328"
+        --board="megaatmega2560"
+        --board="teensy2"
+        --board="teensy30"
+        --board="teensy31"
         --board="teensylc"
       env:
         PLATFORMIO_CI_SRC: ${{ matrix.example }}
