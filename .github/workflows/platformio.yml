@@ -9,6 +9,7 @@ jobs:
   platformio:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         example:
           - examples/AltPinSerial
