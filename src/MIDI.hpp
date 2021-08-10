@@ -471,8 +471,10 @@ void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, u
                 break;
             case TuneRequest:
                 break;
+            // LCOV_EXCL_START - Coverage blind spot
             default:
-                break; // LCOV_EXCL_LINE - Coverage blind spot
+                break;
+            // LCOV_EXCL_STOP
         }
         mTransport.endTransmission();
         updateLastSentTime();
@@ -987,9 +989,10 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                         resetInput();
                         return false;
                     }
-
+                // LCOV_EXCL_START - Coverage blind spot
                 default:
-                    break; // LCOV_EXCL_LINE - Coverage blind spot
+                    break;
+                // LCOV_EXCL_STOP
             }
         }
 
@@ -1334,9 +1337,11 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
 
         case SystemReset:           if (mSystemResetCallback != nullptr)           mSystemResetCallback();    break;
 
+        // LCOV_EXCL_START - Unreacheable code, but prevents unhandled case warning.
         case InvalidType:
         default:
-            break; // LCOV_EXCL_LINE - Unreacheable code, but prevents unhandled case warning.
+            break;
+        // LCOV_EXCL_STOP
     }
 }
 
