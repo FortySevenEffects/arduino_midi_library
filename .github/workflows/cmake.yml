@@ -8,7 +8,9 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  GENERATE_COVERAGE: true
   LCOV_ROOT: ${{github.workspace}}/lcov
+  GCOV: gcov-4.8
 
 jobs:
   build:
@@ -29,14 +31,16 @@ jobs:
         wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.14.orig.tar.gz --output-document="$LCOV_ROOT/lcov.tar.gz"
         tar -xf "$LCOV_ROOT/lcov.tar.gz" --strip-components=1 -C "$LCOV_ROOT"
         echo "$LCOV_ROOT/bin" >> $GITHUB_PATH
+        lcov --version
       shell: bash
-    - name: LCOV Info
-      run: lcov --version
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake \
+        -B ${{github.workspace}}/build \
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DBUILDER_ENABLE_PROFILING=true # generate code coverage information
 
     - name: Build
       # Build your program with the given configuration
@@ -46,3 +50,11 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./test/unit-tests/unit-tests
 
+    - name: Prune external code coverage
+      run: rm -rf ./external/google-test/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.gcda
+
+    - name: Generate code coverage report
+      run: |
+        lcov --gcov-tool $GCOV --directory . --capture --output-file coverage.info
+        lcov --gcov-tool $GCOV --remove coverage.info 'test/*' '/usr/*' 'external/*' --output-file coverage.info
+        lcov --list coverage.info
