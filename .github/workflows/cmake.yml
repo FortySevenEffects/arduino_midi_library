@@ -48,8 +48,6 @@ jobs:
     - name: Prune external code coverage
       run: rm -rf ./external/google-test/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.gcda
 
-    - name: Inspect
-
     - name: Generate code coverage report
       working-directory: ${{github.workspace}}/build
       run: |
