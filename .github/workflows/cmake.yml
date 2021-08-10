@@ -55,3 +55,9 @@ jobs:
         lcov --directory . --capture --output-file coverage.info
         lcov --remove coverage.info '/usr/*' './test/*' './external/*' --output-file coverage.info
         lcov --list coverage.info
+
+    - uses: coverallsapp/github-action@9ba913c152ae4be1327bfb9085dc806cedb44057
+      name: Report code coverage
+      with:
+        path-to-lcov: ${{github.workspace}}/build/coverage.info
+        github-token: ${{ secrets.GITHUB_TOKEN }}
