@@ -52,7 +52,7 @@ public:
 
 public:
     static const bool thruActivated = true;
-    
+
     void begin()
 	{
         // Initialise the Serial port
@@ -103,9 +103,12 @@ END_MIDI_NAMESPACE
  Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
  Then call midi2.begin(), midi2.read() etc..
  */
-#define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)  \
-    MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
-    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
+#define MIDI_CREATE_INSTANCE(Type, SerialPort, Name) \
+    using Name##SerialTransport = MIDI_NAMESPACE::SerialMIDI<Type>; \
+    using Name##Interface = MIDI_NAMESPACE::MidiInterface<Name##SerialTransport>; \
+    using Name##Message = Name##Interface::MidiMessage; \
+    Name##SerialTransport serial##Name(SerialPort); \
+    Name##Interface Name((Name##SerialTransport&)serial##Name);
 
 #if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     // Leonardo, Due and other USB boards use Serial1 by default.
@@ -125,6 +128,9 @@ END_MIDI_NAMESPACE
  @see DefaultSettings
  @see MIDI_CREATE_INSTANCE
  */
-#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings)           \
-    MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
-    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>, Settings> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
+#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, Settings) \
+    using Name##SerialTransport = MIDI_NAMESPACE::SerialMIDI<Type>; \
+    using Name##Interface = MIDI_NAMESPACE::MidiInterface<Name##SerialTransport, Settings>; \
+    using Name##Message = Name##Interface::MidiMessage; \
+    Name##SerialTransport serial##Name(SerialPort); \
+    Name##Interface Name((Name##SerialTransport&)serial##Name);
