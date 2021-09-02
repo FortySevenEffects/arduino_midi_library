@@ -1,7 +1,5 @@
 #include <MIDI.h>
 
-using Message = midi::Message<midi::DefaultSettings::SysExMaxSize>;
-
 MIDI_CREATE_DEFAULT_INSTANCE();
 
 /**
@@ -17,7 +15,7 @@ MIDI_CREATE_DEFAULT_INSTANCE();
  * allowing to use a keyboard to change patches on a MIDI device.
  */
 
-bool filter(const Message& message)
+bool filter(const MIDIMessage& message)
 {
     if (message.type == midi::NoteOn)
     {
@@ -27,10 +25,10 @@ bool filter(const Message& message)
     return false;
 }
 
-Message map(const Message& message)
+MIDIMessage map(const MIDIMessage& message)
 {
     // Make a copy of the message
-    Message output(message);
+    MIDIMessage output(message);
     if (message.type == midi::NoteOn)
     {
         output.type = midi::ProgramChange;
