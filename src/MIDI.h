@@ -110,13 +110,13 @@ public:
 
     inline MidiInterface& sendCommon(MidiType inType, unsigned = 0);
 
-    inline MidiInterface& sendClock()         { sendRealTime(Clock); };
-    inline MidiInterface& sendStart()         { sendRealTime(Start); };
-    inline MidiInterface& sendStop()          { sendRealTime(Stop);  };
-    inline MidiInterface& sendTick()          { sendRealTime(Tick);  };
-    inline MidiInterface& sendContinue()      { sendRealTime(Continue);  };
-    inline MidiInterface& sendActiveSensing() { sendRealTime(ActiveSensing);  };
-    inline MidiInterface& sendSystemReset()   { sendRealTime(SystemReset);  };
+    inline MidiInterface& sendClock()         { return sendRealTime(Clock); };
+    inline MidiInterface& sendStart()         { return sendRealTime(Start); };
+    inline MidiInterface& sendStop()          { return sendRealTime(Stop);  };
+    inline MidiInterface& sendTick()          { return sendRealTime(Tick);  };
+    inline MidiInterface& sendContinue()      { return sendRealTime(Continue);  };
+    inline MidiInterface& sendActiveSensing() { return sendRealTime(ActiveSensing);  };
+    inline MidiInterface& sendSystemReset()   { return sendRealTime(SystemReset);  };
 
     inline MidiInterface& sendRealTime(MidiType inType);
 
