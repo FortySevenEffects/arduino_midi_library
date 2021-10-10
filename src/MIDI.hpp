@@ -69,7 +69,7 @@ inline MidiInterface<Transport, Settings, Platform>::~MidiInterface()
  - Full thru mirroring
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
 {
     // Initialise the Transport layer
     mTransport.begin();
@@ -95,6 +95,8 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
 
     mThruFilterMode = Thru::Full;
     mThruActivated  = mTransport.thruActivated;
+
+    return *this;
 }
 
 // -----------------------------------------------------------------------------
@@ -115,7 +117,7 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
  them thru.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMessage)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMessage)
 {
     if (!inMessage.valid)
         return;
@@ -142,6 +144,8 @@ void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMes
     }
     mTransport.endTransmission();
     updateLastSentTime();
+
+    return *this;
 }
 
 
@@ -157,7 +161,7 @@ void MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMes
  from your code, at your own risks.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
                                                DataByte inData1,
                                                DataByte inData2,
                                                Channel inChannel)
@@ -209,6 +213,8 @@ void MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
     {
         sendRealTime(inType); // System Real-time and 1 byte.
     }
+
+    return *this;
 }
 
 // -----------------------------------------------------------------------------
@@ -223,11 +229,11 @@ void MidiInterface<Transport, Settings, Platform>::send(MidiType inType,
  http://www.phys.unsw.edu.au/jw/notes.html
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendNoteOn(DataByte inNoteNumber,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendNoteOn(DataByte inNoteNumber,
                                                      DataByte inVelocity,
                                                      Channel inChannel)
 {
-    send(NoteOn, inNoteNumber, inVelocity, inChannel);
+    return send(NoteOn, inNoteNumber, inVelocity, inChannel);
 }
 
 /*! \brief Send a Note Off message
@@ -242,11 +248,11 @@ void MidiInterface<Transport, Settings, Platform>::sendNoteOn(DataByte inNoteNum
  http://www.phys.unsw.edu.au/jw/notes.html
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendNoteOff(DataByte inNoteNumber,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendNoteOff(DataByte inNoteNumber,
                                                       DataByte inVelocity,
                                                       Channel inChannel)
 {
-    send(NoteOff, inNoteNumber, inVelocity, inChannel);
+    return send(NoteOff, inNoteNumber, inVelocity, inChannel);
 }
 
 /*! \brief Send a Program Change message
@@ -254,10 +260,10 @@ void MidiInterface<Transport, Settings, Platform>::sendNoteOff(DataByte inNoteNu
  \param inChannel       The channel on which the message will be sent (1 to 16).
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendProgramChange(DataByte inProgramNumber,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendProgramChange(DataByte inProgramNumber,
                                                             Channel inChannel)
 {
-    send(ProgramChange, inProgramNumber, 0, inChannel);
+    return send(ProgramChange, inProgramNumber, 0, inChannel);
 }
 
 /*! \brief Send a Control Change message
@@ -267,11 +273,11 @@ void MidiInterface<Transport, Settings, Platform>::sendProgramChange(DataByte in
  @see MidiControlChangeNumber
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendControlChange(DataByte inControlNumber,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendControlChange(DataByte inControlNumber,
                                                             DataByte inControlValue,
                                                             Channel inChannel)
 {
-    send(ControlChange, inControlNumber, inControlValue, inChannel);
+    return send(ControlChange, inControlNumber, inControlValue, inChannel);
 }
 
 /*! \brief Send a Polyphonic AfterTouch message (applies to a specified note)
@@ -282,11 +288,11 @@ void MidiInterface<Transport, Settings, Platform>::sendControlChange(DataByte in
  library, @see sendAfterTouch to send polyphonic and monophonic AfterTouch messages.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendPolyPressure(DataByte inNoteNumber,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendPolyPressure(DataByte inNoteNumber,
                                                            DataByte inPressure,
                                                            Channel inChannel)
 {
-    send(AfterTouchPoly, inNoteNumber, inPressure, inChannel);
+    return send(AfterTouchPoly, inNoteNumber, inPressure, inChannel);
 }
 
 /*! \brief Send a MonoPhonic AfterTouch message (applies to all notes)
@@ -294,10 +300,10 @@ void MidiInterface<Transport, Settings, Platform>::sendPolyPressure(DataByte inN
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inPressure,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inPressure,
                                                          Channel inChannel)
 {
-    send(AfterTouchChannel, inPressure, 0, inChannel);
+    return send(AfterTouchChannel, inPressure, 0, inChannel);
 }
 
 /*! \brief Send a Polyphonic AfterTouch message (applies to a specified note)
@@ -307,11 +313,11 @@ void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inPre
  @see Replaces sendPolyPressure (which is now deprecated).
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inNoteNumber,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inNoteNumber,
                                                          DataByte inPressure,
                                                          Channel inChannel)
 {
-    send(AfterTouchPoly, inNoteNumber, inPressure, inChannel);
+    return send(AfterTouchPoly, inNoteNumber, inPressure, inChannel);
 }
 
 /*! \brief Send a Pitch Bend message using a signed integer value.
@@ -321,11 +327,11 @@ void MidiInterface<Transport, Settings, Platform>::sendAfterTouch(DataByte inNot
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendPitchBend(int inPitchValue,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendPitchBend(int inPitchValue,
                                                         Channel inChannel)
 {
     const unsigned bend = unsigned(inPitchValue - int(MIDI_PITCHBEND_MIN));
-    send(PitchBend, (bend & 0x7f), (bend >> 7) & 0x7f, inChannel);
+    return send(PitchBend, (bend & 0x7f), (bend >> 7) & 0x7f, inChannel);
 }
 
 
@@ -336,12 +342,12 @@ void MidiInterface<Transport, Settings, Platform>::sendPitchBend(int inPitchValu
  \param inChannel     The channel on which the message will be sent (1 to 16).
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendPitchBend(double inPitchValue,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendPitchBend(double inPitchValue,
                                                         Channel inChannel)
 {
     const int scale = inPitchValue > 0.0 ? MIDI_PITCHBEND_MAX : - MIDI_PITCHBEND_MIN;
     const int value = int(inPitchValue * double(scale));
-    sendPitchBend(value, inChannel);
+    return sendPitchBend(value, inChannel);
 }
 
 /*! \brief Generate and send a System Exclusive frame.
@@ -354,7 +360,7 @@ void MidiInterface<Transport, Settings, Platform>::sendPitchBend(double inPitchV
  with previous versions of the library.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
                                                     const byte* inArray,
                                                     bool inArrayContainsBoundaries)
 {
@@ -377,6 +383,8 @@ void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
 
     if (Settings::UseRunningStatus)
         mRunningStatus_TX = InvalidType;
+
+    return *this;
 }
 
 /*! \brief Send a Tune Request message.
@@ -385,9 +393,9 @@ void MidiInterface<Transport, Settings, Platform>::sendSysEx(unsigned inLength,
  it should tune its oscillators (if equipped with any).
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendTuneRequest()
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendTuneRequest()
 {
-    sendCommon(TuneRequest);
+    return sendCommon(TuneRequest);
 }
 
 /*! \brief Send a MIDI Time Code Quarter Frame.
@@ -397,11 +405,11 @@ void MidiInterface<Transport, Settings, Platform>::sendTuneRequest()
  See MIDI Specification for more information.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inTypeNibble,
                                                                             DataByte inValuesNibble)
 {
     const byte data = byte((((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f)));
-    sendTimeCodeQuarterFrame(data);
+    return sendTimeCodeQuarterFrame(data);
 }
 
 /*! \brief Send a MIDI Time Code Quarter Frame.
@@ -411,25 +419,25 @@ void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(Data
                 you can send the byte here.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inData)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendTimeCodeQuarterFrame(DataByte inData)
 {
-    sendCommon(TimeCodeQuarterFrame, inData);
+    return sendCommon(TimeCodeQuarterFrame, inData);
 }
 
 /*! \brief Send a Song Position Pointer message.
  \param inBeats    The number of beats since the start of the song.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendSongPosition(unsigned inBeats)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendSongPosition(unsigned inBeats)
 {
-    sendCommon(SongPosition, inBeats);
+    return sendCommon(SongPosition, inBeats);
 }
 
 /*! \brief Send a Song Select message */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendSongSelect(DataByte inSongNumber)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendSongSelect(DataByte inSongNumber)
 {
-    sendCommon(SongSelect, inSongNumber);
+    return sendCommon(SongSelect, inSongNumber);
 }
 
 /*! \brief Send a Common message. Common messages reset the running status.
@@ -440,7 +448,7 @@ void MidiInterface<Transport, Settings, Platform>::sendSongSelect(DataByte inSon
  \param inData1   The byte that goes with the common message.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, unsigned inData1)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, unsigned inData1)
 {
     switch (inType)
     {
@@ -482,6 +490,8 @@ void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, u
 
     if (Settings::UseRunningStatus)
         mRunningStatus_TX = InvalidType;
+
+        return *this;
 }
 
 /*! \brief Send a Real Time (one byte) message.
@@ -491,7 +501,7 @@ void MidiInterface<Transport, Settings, Platform>::sendCommon(MidiType inType, u
  @see MidiType
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
 {
     // Do not invalidate Running Status for real-time messages
     // as they can be interleaved within any message.
@@ -515,6 +525,8 @@ void MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
             // Invalid Real Time marker
             break;
     }
+
+    return *this;
 }
 
 /*! \brief Start a Registered Parameter Number frame.
@@ -522,7 +534,7 @@ void MidiInterface<Transport, Settings, Platform>::sendRealTime(MidiType inType)
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::beginRpn(unsigned inNumber,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::beginRpn(unsigned inNumber,
                                                           Channel inChannel)
 {
     if (mCurrentRpnNumber != inNumber)
@@ -533,6 +545,8 @@ inline void MidiInterface<Transport, Settings, Platform>::beginRpn(unsigned inNu
         sendControlChange(RPNMSB, numMsb, inChannel);
         mCurrentRpnNumber = inNumber;
     }
+
+    return *this;
 }
 
 /*! \brief Send a 14-bit value for the currently selected RPN number.
@@ -540,13 +554,15 @@ inline void MidiInterface<Transport, Settings, Platform>::beginRpn(unsigned inNu
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendRpnValue(unsigned inValue,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendRpnValue(unsigned inValue,
                                                               Channel inChannel)
 {;
     const byte valMsb = 0x7f & (inValue >> 7);
     const byte valLsb = 0x7f & inValue;
     sendControlChange(DataEntryMSB, valMsb, inChannel);
     sendControlChange(DataEntryLSB, valLsb, inChannel);
+
+    return *this;
 }
 
 /*! \brief Send separate MSB/LSB values for the currently selected RPN number.
@@ -555,32 +571,38 @@ inline void MidiInterface<Transport, Settings, Platform>::sendRpnValue(unsigned 
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendRpnValue(byte inMsb,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendRpnValue(byte inMsb,
                                                               byte inLsb,
                                                               Channel inChannel)
 {
     sendControlChange(DataEntryMSB, inMsb, inChannel);
     sendControlChange(DataEntryLSB, inLsb, inChannel);
+
+    return *this;
 }
 
 /* \brief Increment the value of the currently selected RPN number by the specified amount.
  \param inAmount The amount to add to the currently selected RPN value.
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendRpnIncrement(byte inAmount,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendRpnIncrement(byte inAmount,
                                                                   Channel inChannel)
 {
     sendControlChange(DataIncrement, inAmount, inChannel);
+
+    return *this;
 }
 
 /* \brief Decrement the value of the currently selected RPN number by the specified amount.
  \param inAmount The amount to subtract to the currently selected RPN value.
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendRpnDecrement(byte inAmount,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendRpnDecrement(byte inAmount,
                                                                   Channel inChannel)
 {
     sendControlChange(DataDecrement, inAmount, inChannel);
+
+    return *this;
 }
 
 /*! \brief Terminate an RPN frame.
@@ -588,11 +610,13 @@ This will send a Null Function to deselect the currently selected RPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::endRpn(Channel inChannel)
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::endRpn(Channel inChannel)
 {
     sendControlChange(RPNLSB, 0x7f, inChannel);
     sendControlChange(RPNMSB, 0x7f, inChannel);
     mCurrentRpnNumber = 0xffff;
+
+    return *this;
 }
 
 
@@ -602,7 +626,7 @@ inline void MidiInterface<Transport, Settings, Platform>::endRpn(Channel inChann
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::beginNrpn(unsigned inNumber,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::beginNrpn(unsigned inNumber,
                                                            Channel inChannel)
 {
     if (mCurrentNrpnNumber != inNumber)
@@ -613,6 +637,8 @@ inline void MidiInterface<Transport, Settings, Platform>::beginNrpn(unsigned inN
         sendControlChange(NRPNMSB, numMsb, inChannel);
         mCurrentNrpnNumber = inNumber;
     }
+
+    return *this;
 }
 
 /*! \brief Send a 14-bit value for the currently selected NRPN number.
@@ -620,13 +646,15 @@ inline void MidiInterface<Transport, Settings, Platform>::beginNrpn(unsigned inN
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendNrpnValue(unsigned inValue,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendNrpnValue(unsigned inValue,
                                                                Channel inChannel)
-{;
+{
     const byte valMsb = 0x7f & (inValue >> 7);
     const byte valLsb = 0x7f & inValue;
     sendControlChange(DataEntryMSB, valMsb, inChannel);
     sendControlChange(DataEntryLSB, valLsb, inChannel);
+
+    return *this;
 }
 
 /*! \brief Send separate MSB/LSB values for the currently selected NRPN number.
@@ -635,32 +663,38 @@ inline void MidiInterface<Transport, Settings, Platform>::sendNrpnValue(unsigned
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendNrpnValue(byte inMsb,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendNrpnValue(byte inMsb,
                                                                byte inLsb,
                                                                Channel inChannel)
 {
     sendControlChange(DataEntryMSB, inMsb, inChannel);
     sendControlChange(DataEntryLSB, inLsb, inChannel);
+
+    return *this;
 }
 
 /* \brief Increment the value of the currently selected NRPN number by the specified amount.
  \param inAmount The amount to add to the currently selected NRPN value.
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendNrpnIncrement(byte inAmount,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendNrpnIncrement(byte inAmount,
                                                                    Channel inChannel)
 {
     sendControlChange(DataIncrement, inAmount, inChannel);
+
+    return *this;
 }
 
 /* \brief Decrement the value of the currently selected NRPN number by the specified amount.
  \param inAmount The amount to subtract to the currently selected NRPN value.
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::sendNrpnDecrement(byte inAmount,
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::sendNrpnDecrement(byte inAmount,
                                                                    Channel inChannel)
 {
     sendControlChange(DataDecrement, inAmount, inChannel);
+
+    return *this;
 }
 
 /*! \brief Terminate an NRPN frame.
@@ -668,11 +702,13 @@ This will send a Null Function to deselect the currently selected NRPN.
  \param inChannel The channel on which the message will be sent (1 to 16).
 */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::endNrpn(Channel inChannel)
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::endNrpn(Channel inChannel)
 {
     sendControlChange(NRPNLSB, 0x7f, inChannel);
     sendControlChange(NRPNMSB, 0x7f, inChannel);
     mCurrentNrpnNumber = 0xffff;
+
+    return *this;
 }
 
 template<class Transport, class Settings, class Platform>
@@ -1212,9 +1248,11 @@ inline Channel MidiInterface<Transport, Settings, Platform>::getInputChannel() c
  if you want to listen to all channels, and MIDI_CHANNEL_OFF to disable input.
  */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::setInputChannel(Channel inChannel)
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::setInputChannel(Channel inChannel)
 {
     mInputChannel = inChannel;
+
+    return *this;
 }
 
 // -----------------------------------------------------------------------------
@@ -1269,7 +1307,7 @@ bool MidiInterface<Transport, Settings, Platform>::isChannelMessage(MidiType inT
  When a message of this type is received, no function will be called.
  */
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(MidiType inType)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(MidiType inType)
 {
     switch (inType)
     {
@@ -1295,13 +1333,15 @@ void MidiInterface<Transport, Settings, Platform>::disconnectCallbackFromType(Mi
         default:
             break;
     }
+
+    return *this;
 }
 
 /*! @} */ // End of doc group MIDI Callbacks
 
 // Private - launch callback function based on received type.
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::launchCallback()
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::launchCallback()
 {
     if (mMessageCallback != 0) mMessageCallback(mMessage);
 
@@ -1361,10 +1401,12 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
  @see Thru::Mode
  */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::setThruFilterMode(Thru::Mode inThruFilterMode)
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::setThruFilterMode(Thru::Mode inThruFilterMode)
 {
     mThruFilterMode = inThruFilterMode;
     mThruActivated  = mThruFilterMode != Thru::Off;
+
+    return *this;
 }
 
 template<class Transport, class Settings, class Platform>
@@ -1380,17 +1422,21 @@ inline bool MidiInterface<Transport, Settings, Platform>::getThruState() const
 }
 
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::turnThruOn(Thru::Mode inThruFilterMode)
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::turnThruOn(Thru::Mode inThruFilterMode)
 {
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
+
+    return *this;
 }
 
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::turnThruOff()
 {
     mThruActivated = false;
     mThruFilterMode = Thru::Off;
+
+    return *this;
 }
 
 
@@ -1403,7 +1449,7 @@ inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 // - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
+MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
 {
     // If the feature is disabled, don't do anything.
     if (!mThruActivated || (mThruFilterMode == Thru::Off))
@@ -1486,6 +1532,8 @@ void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
                 break; // LCOV_EXCL_LINE - Unreacheable code, but prevents unhandled case warning.
         }
     }
+
+    return *this;
 }
 
 END_MIDI_NAMESPACE
