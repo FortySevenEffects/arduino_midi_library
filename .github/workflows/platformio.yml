@@ -53,6 +53,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install --upgrade platformio
+        pip install "click!=8.0.2" # See platformio/platformio-core#4078
     - name: Run PlatformIO
       run: pio ci --lib="." --board="${{matrix.board}}"
       env:
