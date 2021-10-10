@@ -208,7 +208,7 @@ public:
     inline MidiInterface& disconnectCallbackFromType(MidiType inType);
 
 private:
-    MidiInterface& launchCallback();
+    void launchCallback();
 
     void (*mMessageCallback)(const MidiMessage& message) = nullptr;
     ErrorCallback mErrorCallback = nullptr;
@@ -244,7 +244,7 @@ public:
     inline MidiInterface& setThruFilterMode(Thru::Mode inThruFilterMode);
 
 private:
-    MidiInterface& thruFilter(byte inChannel);
+    void thruFilter(byte inChannel);
 
     // -------------------------------------------------------------------------
     // MIDI Parsing

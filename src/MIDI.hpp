@@ -1341,7 +1341,7 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
 
 // Private - launch callback function based on received type.
 template<class Transport, class Settings, class Platform>
-MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::launchCallback()
+void MidiInterface<Transport, Settings, Platform>::launchCallback()
 {
     if (mMessageCallback != 0) mMessageCallback(mMessage);
 
@@ -1449,11 +1449,11 @@ inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Se
 // - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
 template<class Transport, class Settings, class Platform>
-MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
+void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
 {
     // If the feature is disabled, don't do anything.
     if (!mThruActivated || (mThruFilterMode == Thru::Off))
-        return *this;
+        return;
 
     // First, check if the received message is Channel
     if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
@@ -1532,8 +1532,6 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
                 break; // LCOV_EXCL_LINE - Unreacheable code, but prevents unhandled case warning.
         }
     }
-
-    return *this;
 }
 
 END_MIDI_NAMESPACE
