@@ -120,7 +120,7 @@ template<class Transport, class Settings, class Platform>
 MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::send(const MidiMessage& inMessage)
 {
     if (!inMessage.valid)
-        return;
+        return *this;
 
     if (mTransport.beginTransmission(inMessage.type))
     {
@@ -173,7 +173,7 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
             inChannel == MIDI_CHANNEL_OMNI ||
             inType < 0x80)
         {
-            return; // Don't send anything
+            return *this; // Don't send anything
         }
         // Protection: remove MSBs on data
         inData1 &= 0x7f;
@@ -459,7 +459,7 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
             break;
         default:
             // Invalid Common marker
-            return;
+            return *this;
     }
 
     if (mTransport.beginTransmission(inType))
@@ -491,7 +491,7 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
     if (Settings::UseRunningStatus)
         mRunningStatus_TX = InvalidType;
 
-        return *this;
+    return *this;
 }
 
 /*! \brief Send a Real Time (one byte) message.
