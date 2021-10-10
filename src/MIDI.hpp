@@ -40,8 +40,6 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
-    , mThruActivated(true)
-    , mThruFilterMode(Thru::Full)
     , mLastMessageSentTime(0)
     , mLastMessageReceivedTime(0)
     , mSenderActiveSensingPeriodicity(0)
@@ -93,8 +91,8 @@ void MidiInterface<Transport, Settings, Platform>::begin(Channel inChannel)
     mMessage.data2   = 0;
     mMessage.length  = 0;
 
-    mThruFilterMode = Thru::Full;
-    mThruActivated  = mTransport.thruActivated;
+    mThruFilterCallback = Transport::thruActivated ? thruOn : thruOff;
+    mThruMapCallback = thruEcho;
 }
 
 // -----------------------------------------------------------------------------
@@ -780,7 +778,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     if (channelMatch)
         launchCallback();
 
-    thruFilter(inChannel);
+    processThru();
 
     return channelMatch;
 }
@@ -1355,42 +1353,16 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
  @{
  */
 
-/*! \brief Set the filter for thru mirroring
- \param inThruFilterMode a filter mode
-
- @see Thru::Mode
- */
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::setThruFilterMode(Thru::Mode inThruFilterMode)
+inline void MidiInterface<Transport, Settings, Platform>::turnThruOn(ThruFilterCallback fptr)
 {
-    mThruFilterMode = inThruFilterMode;
-    mThruActivated  = mThruFilterMode != Thru::Off;
-}
-
-template<class Transport, class Settings, class Platform>
-inline Thru::Mode MidiInterface<Transport, Settings, Platform>::getFilterMode() const
-{
-    return mThruFilterMode;
-}
-
-template<class Transport, class Settings, class Platform>
-inline bool MidiInterface<Transport, Settings, Platform>::getThruState() const
-{
-    return mThruActivated;
-}
-
-template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::turnThruOn(Thru::Mode inThruFilterMode)
-{
-    mThruActivated = true;
-    mThruFilterMode = inThruFilterMode;
+    mThruFilterCallback = fptr;
 }
 
 template<class Transport, class Settings, class Platform>
 inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 {
-    mThruActivated = false;
-    mThruFilterMode = Thru::Off;
+    mThruFilterCallback = thruOff;
 }
 
 
@@ -1403,56 +1375,25 @@ inline void MidiInterface<Transport, Settings, Platform>::turnThruOff()
 // - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
+void MidiInterface<Transport, Settings, Platform>::processThru()
 {
-    // If the feature is disabled, don't do anything.
-    if (!mThruActivated || (mThruFilterMode == Thru::Off))
-        return;
+   if (!Transport::thruActivated || !mThruFilterCallback(mMessage))
+      return;
+
+   MidiMessage thruMessage = mThruMapCallback(mMessage);
 
     // First, check if the received message is Channel
-    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
+    if (thruMessage.type >= NoteOff && thruMessage.type <= PitchBend)
     {
-        const bool filter_condition = ((mMessage.channel == inChannel) ||
-                                       (inChannel == MIDI_CHANNEL_OMNI));
-
-        // Now let's pass it to the output
-        switch (mThruFilterMode)
-        {
-            case Thru::Full:
-                send(mMessage.type,
-                     mMessage.data1,
-                     mMessage.data2,
-                     mMessage.channel);
-                break;
-
-            case Thru::SameChannel:
-                if (filter_condition)
-                {
-                    send(mMessage.type,
-                         mMessage.data1,
-                         mMessage.data2,
-                         mMessage.channel);
-                }
-                break;
-
-            case Thru::DifferentChannel:
-                if (!filter_condition)
-                {
-                    send(mMessage.type,
-                         mMessage.data1,
-                         mMessage.data2,
-                         mMessage.channel);
-                }
-                break;
-
-            default:
-                break;
-        }
+       send(thruMessage.type,
+            thruMessage.data1,
+            thruMessage.data2,
+            thruMessage.channel);
     }
     else
     {
         // Send the message to the output
-        switch (mMessage.type)
+        switch (thruMessage.type)
         {
                 // Real Time and 1 byte
             case Clock:
@@ -1462,24 +1403,24 @@ void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
             case ActiveSensing:
             case SystemReset:
             case TuneRequest:
-                sendRealTime(mMessage.type);
+                sendRealTime(thruMessage.type);
                 break;
 
             case SystemExclusive:
                 // Send SysEx (0xf0 and 0xf7 are included in the buffer)
-                sendSysEx(getSysExArrayLength(), getSysExArray(), true);
+                sendSysEx(thruMessage.getSysExSize(), thruMessage.sysexArray, true);
                 break;
 
             case SongSelect:
-                sendSongSelect(mMessage.data1);
+                sendSongSelect(thruMessage.data1);
                 break;
 
             case SongPosition:
-                sendSongPosition(mMessage.data1 | ((unsigned)mMessage.data2 << 7));
+                sendSongPosition(thruMessage.data1 | ((unsigned)thruMessage.data2 << 7));
                 break;
 
             case TimeCodeQuarterFrame:
-                sendTimeCodeQuarterFrame(mMessage.data1,mMessage.data2);
+                sendTimeCodeQuarterFrame(thruMessage.data1,thruMessage.data2);
                 break;
 
             default:
