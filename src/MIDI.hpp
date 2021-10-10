@@ -1453,7 +1453,7 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
 {
     // If the feature is disabled, don't do anything.
     if (!mThruActivated || (mThruFilterMode == Thru::Off))
-        return;
+        return *this;
 
     // First, check if the received message is Channel
     if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
