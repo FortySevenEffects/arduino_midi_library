@@ -62,94 +62,94 @@ public:
     inline ~MidiInterface();
 
 public:
-    void begin(Channel inChannel = 1);
+    MidiInterface& begin(Channel inChannel = 1);
 
     // -------------------------------------------------------------------------
     // MIDI Output
 
 public:
-    inline void sendNoteOn(DataByte inNoteNumber,
+    inline MidiInterface& sendNoteOn(DataByte inNoteNumber,
                            DataByte inVelocity,
                            Channel inChannel);
 
-    inline void sendNoteOff(DataByte inNoteNumber,
+    inline MidiInterface& sendNoteOff(DataByte inNoteNumber,
                             DataByte inVelocity,
                             Channel inChannel);
 
-    inline void sendProgramChange(DataByte inProgramNumber,
+    inline MidiInterface& sendProgramChange(DataByte inProgramNumber,
                                   Channel inChannel);
 
-    inline void sendControlChange(DataByte inControlNumber,
+    inline MidiInterface& sendControlChange(DataByte inControlNumber,
                                   DataByte inControlValue,
                                   Channel inChannel);
 
-    inline void sendPitchBend(int inPitchValue,    Channel inChannel);
-    inline void sendPitchBend(double inPitchValue, Channel inChannel);
+    inline MidiInterface& sendPitchBend(int inPitchValue,    Channel inChannel);
+    inline MidiInterface& sendPitchBend(double inPitchValue, Channel inChannel);
 
-    inline void sendPolyPressure(DataByte inNoteNumber,
+    inline MidiInterface& sendPolyPressure(DataByte inNoteNumber,
                                  DataByte inPressure,
                                  Channel inChannel) __attribute__ ((deprecated));
 
-    inline void sendAfterTouch(DataByte inPressure,
+    inline MidiInterface& sendAfterTouch(DataByte inPressure,
                                Channel inChannel);
-    inline void sendAfterTouch(DataByte inNoteNumber,
+    inline MidiInterface& sendAfterTouch(DataByte inNoteNumber,
                                DataByte inPressure,
                                Channel inChannel);
 
-    inline void sendSysEx(unsigned inLength,
+    inline MidiInterface& sendSysEx(unsigned inLength,
                           const byte* inArray,
                           bool inArrayContainsBoundaries = false);
 
-    inline void sendTimeCodeQuarterFrame(DataByte inTypeNibble,
+    inline MidiInterface& sendTimeCodeQuarterFrame(DataByte inTypeNibble,
                                          DataByte inValuesNibble);
-    inline void sendTimeCodeQuarterFrame(DataByte inData);
+    inline MidiInterface& sendTimeCodeQuarterFrame(DataByte inData);
 
-    inline void sendSongPosition(unsigned inBeats);
-    inline void sendSongSelect(DataByte inSongNumber);
-    inline void sendTuneRequest();
+    inline MidiInterface& sendSongPosition(unsigned inBeats);
+    inline MidiInterface& sendSongSelect(DataByte inSongNumber);
+    inline MidiInterface& sendTuneRequest();
 
-    inline void sendCommon(MidiType inType, unsigned = 0);
+    inline MidiInterface& sendCommon(MidiType inType, unsigned = 0);
 
-    inline void sendClock()         { sendRealTime(Clock); };
-    inline void sendStart()         { sendRealTime(Start); };
-    inline void sendStop()          { sendRealTime(Stop);  };
-    inline void sendTick()          { sendRealTime(Tick);  };
-    inline void sendContinue()      { sendRealTime(Continue);  };
-    inline void sendActiveSensing() { sendRealTime(ActiveSensing);  };
-    inline void sendSystemReset()   { sendRealTime(SystemReset);  };
+    inline MidiInterface& sendClock()         { sendRealTime(Clock); };
+    inline MidiInterface& sendStart()         { sendRealTime(Start); };
+    inline MidiInterface& sendStop()          { sendRealTime(Stop);  };
+    inline MidiInterface& sendTick()          { sendRealTime(Tick);  };
+    inline MidiInterface& sendContinue()      { sendRealTime(Continue);  };
+    inline MidiInterface& sendActiveSensing() { sendRealTime(ActiveSensing);  };
+    inline MidiInterface& sendSystemReset()   { sendRealTime(SystemReset);  };
 
-    inline void sendRealTime(MidiType inType);
+    inline MidiInterface& sendRealTime(MidiType inType);
 
-    inline void beginRpn(unsigned inNumber,
+    inline MidiInterface& beginRpn(unsigned inNumber,
                          Channel inChannel);
-    inline void sendRpnValue(unsigned inValue,
+    inline MidiInterface& sendRpnValue(unsigned inValue,
                              Channel inChannel);
-    inline void sendRpnValue(byte inMsb,
+    inline MidiInterface& sendRpnValue(byte inMsb,
                              byte inLsb,
                              Channel inChannel);
-    inline void sendRpnIncrement(byte inAmount,
+    inline MidiInterface& sendRpnIncrement(byte inAmount,
                                  Channel inChannel);
-    inline void sendRpnDecrement(byte inAmount,
+    inline MidiInterface& sendRpnDecrement(byte inAmount,
                                  Channel inChannel);
-    inline void endRpn(Channel inChannel);
+    inline MidiInterface& endRpn(Channel inChannel);
 
-    inline void beginNrpn(unsigned inNumber,
+    inline MidiInterface& beginNrpn(unsigned inNumber,
                           Channel inChannel);
-    inline void sendNrpnValue(unsigned inValue,
+    inline MidiInterface& sendNrpnValue(unsigned inValue,
                               Channel inChannel);
-    inline void sendNrpnValue(byte inMsb,
+    inline MidiInterface& sendNrpnValue(byte inMsb,
                               byte inLsb,
                               Channel inChannel);
-    inline void sendNrpnIncrement(byte inAmount,
+    inline MidiInterface& sendNrpnIncrement(byte inAmount,
                                   Channel inChannel);
-    inline void sendNrpnDecrement(byte inAmount,
+    inline MidiInterface& sendNrpnDecrement(byte inAmount,
                                   Channel inChannel);
-    inline void endNrpn(Channel inChannel);
+    inline MidiInterface& endNrpn(Channel inChannel);
 
-    inline void send(const MidiMessage&);
+    inline MidiInterface& send(const MidiMessage&);
 
 public:
-    void send(MidiType inType,
+    MidiInterface& send(MidiType inType,
               DataByte inData1,
               DataByte inData2,
               Channel inChannel);
@@ -172,7 +172,7 @@ public:
 
 public:
     inline Channel getInputChannel() const;
-    inline void setInputChannel(Channel inChannel);
+    inline MidiInterface& setInputChannel(Channel inChannel);
 
 public:
     static inline MidiType getTypeFromStatusByte(byte inStatus);
@@ -183,29 +183,29 @@ public:
     // Input Callbacks
 
 public:
-    inline void setHandleMessage(void (*fptr)(const MidiMessage&)) { mMessageCallback = fptr; };
-    inline void setHandleError(ErrorCallback fptr) { mErrorCallback = fptr; }
-    inline void setHandleNoteOff(NoteOffCallback fptr) { mNoteOffCallback = fptr; }
-    inline void setHandleNoteOn(NoteOnCallback fptr) { mNoteOnCallback = fptr; }
-    inline void setHandleAfterTouchPoly(AfterTouchPolyCallback fptr) { mAfterTouchPolyCallback = fptr; }
-    inline void setHandleControlChange(ControlChangeCallback fptr) { mControlChangeCallback = fptr; }
-    inline void setHandleProgramChange(ProgramChangeCallback fptr) { mProgramChangeCallback = fptr; }
-    inline void setHandleAfterTouchChannel(AfterTouchChannelCallback fptr) { mAfterTouchChannelCallback = fptr; }
-    inline void setHandlePitchBend(PitchBendCallback fptr) { mPitchBendCallback = fptr; }
-    inline void setHandleSystemExclusive(SystemExclusiveCallback fptr) { mSystemExclusiveCallback = fptr; }
-    inline void setHandleTimeCodeQuarterFrame(TimeCodeQuarterFrameCallback fptr) { mTimeCodeQuarterFrameCallback = fptr; }
-    inline void setHandleSongPosition(SongPositionCallback fptr) { mSongPositionCallback = fptr; }
-    inline void setHandleSongSelect(SongSelectCallback fptr) { mSongSelectCallback = fptr; }
-    inline void setHandleTuneRequest(TuneRequestCallback fptr) { mTuneRequestCallback = fptr; }
-    inline void setHandleClock(ClockCallback fptr) { mClockCallback = fptr; }
-    inline void setHandleStart(StartCallback fptr) { mStartCallback = fptr; }
-    inline void setHandleTick(TickCallback fptr) { mTickCallback = fptr; }
-    inline void setHandleContinue(ContinueCallback fptr) { mContinueCallback = fptr; }
-    inline void setHandleStop(StopCallback fptr) { mStopCallback = fptr; }
-    inline void setHandleActiveSensing(ActiveSensingCallback fptr) { mActiveSensingCallback = fptr; }
-    inline void setHandleSystemReset(SystemResetCallback fptr) { mSystemResetCallback = fptr; }
+    inline MidiInterface& setHandleMessage(void (*fptr)(const MidiMessage&)) { mMessageCallback = fptr; return *this; };
+    inline MidiInterface& setHandleError(ErrorCallback fptr) { mErrorCallback = fptr; return *this; };
+    inline MidiInterface& setHandleNoteOff(NoteOffCallback fptr) { mNoteOffCallback = fptr; return *this; };
+    inline MidiInterface& setHandleNoteOn(NoteOnCallback fptr) { mNoteOnCallback = fptr; return *this; };
+    inline MidiInterface& setHandleAfterTouchPoly(AfterTouchPolyCallback fptr) { mAfterTouchPolyCallback = fptr; return *this; };
+    inline MidiInterface& setHandleControlChange(ControlChangeCallback fptr) { mControlChangeCallback = fptr; return *this; };
+    inline MidiInterface& setHandleProgramChange(ProgramChangeCallback fptr) { mProgramChangeCallback = fptr; return *this; };
+    inline MidiInterface& setHandleAfterTouchChannel(AfterTouchChannelCallback fptr) { mAfterTouchChannelCallback = fptr; return *this; };
+    inline MidiInterface& setHandlePitchBend(PitchBendCallback fptr) { mPitchBendCallback = fptr; return *this; };
+    inline MidiInterface& setHandleSystemExclusive(SystemExclusiveCallback fptr) { mSystemExclusiveCallback = fptr; return *this; };
+    inline MidiInterface& setHandleTimeCodeQuarterFrame(TimeCodeQuarterFrameCallback fptr) { mTimeCodeQuarterFrameCallback = fptr; return *this; };
+    inline MidiInterface& setHandleSongPosition(SongPositionCallback fptr) { mSongPositionCallback = fptr; return *this; };
+    inline MidiInterface& setHandleSongSelect(SongSelectCallback fptr) { mSongSelectCallback = fptr; return *this; };
+    inline MidiInterface& setHandleTuneRequest(TuneRequestCallback fptr) { mTuneRequestCallback = fptr; return *this; };
+    inline MidiInterface& setHandleClock(ClockCallback fptr) { mClockCallback = fptr; return *this; };
+    inline MidiInterface& setHandleStart(StartCallback fptr) { mStartCallback = fptr; return *this; };
+    inline MidiInterface& setHandleTick(TickCallback fptr) { mTickCallback = fptr; return *this; };
+    inline MidiInterface& setHandleContinue(ContinueCallback fptr) { mContinueCallback = fptr; return *this; };
+    inline MidiInterface& setHandleStop(StopCallback fptr) { mStopCallback = fptr; return *this; };
+    inline MidiInterface& setHandleActiveSensing(ActiveSensingCallback fptr) { mActiveSensingCallback = fptr; return *this; };
+    inline MidiInterface& setHandleSystemReset(SystemResetCallback fptr) { mSystemResetCallback = fptr; return *this; };
 
-    inline void disconnectCallbackFromType(MidiType inType);
+    inline MidiInterface& disconnectCallbackFromType(MidiType inType);
 
 private:
     void launchCallback();
@@ -239,9 +239,9 @@ public:
     inline Thru::Mode getFilterMode() const;
     inline bool getThruState() const;
 
-    inline void turnThruOn(Thru::Mode inThruFilterMode = Thru::Full);
-    inline void turnThruOff();
-    inline void setThruFilterMode(Thru::Mode inThruFilterMode);
+    inline MidiInterface& turnThruOn(Thru::Mode inThruFilterMode = Thru::Full);
+    inline MidiInterface& turnThruOff();
+    inline MidiInterface& setThruFilterMode(Thru::Mode inThruFilterMode);
 
 private:
     void thruFilter(byte inChannel);
