@@ -114,6 +114,18 @@ struct Message
         const unsigned size = unsigned(data2) << 8 | data1;
         return size > sSysExMaxSize ? sSysExMaxSize : size;
     }
+    inline bool isSysRT () const
+    {
+          return (type & 0xf8) == 0xf8;
+    }
+    inline bool isSysCommon () const
+    {
+          return (type & 0xf8) == 0xf0;
+    }
+    inline bool isChannelMessage () const
+    {
+          return (type & 0xf0) != 0xf0;
+    }
 };
 
 END_MIDI_NAMESPACE

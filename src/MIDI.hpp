@@ -124,22 +124,25 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
 
     if (mTransport.beginTransmission(inMessage.type))
     {
-        const StatusByte status = getStatus(inMessage.type, inMessage.channel);
-        mTransport.write(status);
-
-        if (inMessage.type != MidiType::SystemExclusive)
+        if (inMessage.isSysRT())
         {
+            mTransport.write(inMessage.type);
+        } else if (inMessage.isChannelMessage())
+        {
+            const StatusByte status = getStatus(inMessage.type, inMessage.channel);
+            mTransport.write(status);
             if (inMessage.length > 1) mTransport.write(inMessage.data1);
             if (inMessage.length > 2) mTransport.write(inMessage.data2);
-        } else
+        } else if (inMessage.type == MidiType::SystemExclusive)
         {
-            // sysexArray does not contain the start and end tags
-            mTransport.write(MidiType::SystemExclusiveStart);
-
-            for (size_t i = 0; i < inMessage.getSysExSize(); i++)
+            const unsigned size = inMessage.getSysExSize();
+            for (size_t i = 0; i < size; i++)
                 mTransport.write(inMessage.sysexArray[i]);
-
-            mTransport.write(MidiType::SystemExclusiveEnd);
+        } else // at this point, it it assumed to be a system common message
+        {
+            mTransport.write(inMessage.type);
+            if (inMessage.length > 1) mTransport.write(inMessage.data1);
+            if (inMessage.length > 2) mTransport.write(inMessage.data2);
         }
     }
     mTransport.endTransmission();
@@ -1083,6 +1086,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.data1 = mPendingMessage[1];
             // Save data2 only if applicable
             mMessage.data2 = mPendingMessageExpectedLength == 3 ? mPendingMessage[2] : 0;
+            mMessage.length = mPendingMessageExpectedLength;
 
             // Reset local variables
             mPendingMessageIndex = 0;
