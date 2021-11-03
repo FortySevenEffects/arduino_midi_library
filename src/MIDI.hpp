@@ -124,7 +124,7 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
 
     if (mTransport.beginTransmission(inMessage.type))
     {
-        if (inMessage.isSysRT())
+        if (inMessage.isSystemRealTime())
         {
             mTransport.write(inMessage.type);
         } else if (inMessage.isChannelMessage())

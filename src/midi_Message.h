@@ -114,11 +114,11 @@ struct Message
         const unsigned size = unsigned(data2) << 8 | data1;
         return size > sSysExMaxSize ? sSysExMaxSize : size;
     }
-    inline bool isSysRT () const
+    inline bool isSystemRealTime () const
     {
           return (type & 0xf8) == 0xf8;
     }
-    inline bool isSysCommon () const
+    inline bool isSystemCommon () const
     {
           return (type & 0xf8) == 0xf0;
     }
