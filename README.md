@@ -132,6 +132,7 @@ Special thanks to all who have contributed to this open-source project !
 -   [@DavidMenting](https://github.com/DavidMenting)
 -   [@Rolel](https://github.com/Rolel)
 -   [@kant](https://github.com/kant)
+-   [@paul-emile-element](https://github.com/paul-emile-element)
 
 You want to help ? Check out the [contribution guidelines](./CONTRIBUTING.md).
 
