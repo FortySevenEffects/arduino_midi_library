@@ -175,7 +175,7 @@ enum MidiControlChangeNumber: uint8_t
     ChannelVolumeLSB            = 39,
     BalanceLSB                  = 40,
     // CC41 undefined
-    PortamentoTimeLSB           = 42,
+    PanLSB                      = 42,
     ExpressionControllerLSB     = 43,
     EffectControl1LSB           = 44,
     EffectControl2LSB           = 45,
