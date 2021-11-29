@@ -164,8 +164,22 @@ enum MidiControlChangeNumber: uint8_t
     GeneralPurposeController2   = 17,
     GeneralPurposeController3   = 18,
     GeneralPurposeController4   = 19,
-
+    // CC20 to CC31 undefined
+    BankSelectLSB               = 32,
+    ModulationWheelLSB          = 33,
+    BreathControllerLSB         = 34,
+    // CC35 undefined
+    FootControllerLSB           = 36,
+    PortamentoTimeLSB           = 37,
     DataEntryLSB                = 38,
+    ChannelVolumeLSB            = 39,
+    BalanceLSB                  = 40,
+    // CC41 undefined
+    PanLSB                      = 42,
+    ExpressionControllerLSB     = 43,
+    EffectControl1LSB           = 44,
+    EffectControl2LSB           = 45,
+    // CC46 to CC63 undefined
 
     // Switches ----------------------------------------------------------------
     Sustain                     = 64,
@@ -203,6 +217,7 @@ enum MidiControlChangeNumber: uint8_t
     NRPNMSB                     = 99,   ///< Non-Registered Parameter Number (MSB)
     RPNLSB                      = 100,  ///< Registered Parameter Number (LSB)
     RPNMSB                      = 101,  ///< Registered Parameter Number (MSB)
+    // CC102 to CC119 undefined
 
     // Channel Mode messages ---------------------------------------------------
     AllSoundOff                 = 120,
