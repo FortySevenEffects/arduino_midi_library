@@ -133,6 +133,7 @@ Special thanks to all who have contributed to this open-source project !
 -   [@Rolel](https://github.com/Rolel)
 -   [@kant](https://github.com/kant)
 -   [@paul-emile-element](https://github.com/paul-emile-element)
+-   [@muxa](https://github.com/muxa)
 
 You want to help ? Check out the [contribution guidelines](./CONTRIBUTING.md).
 
