@@ -23,6 +23,7 @@ jobs:
           - Input
           - RPN_NRPN
           - SimpleSynth
+          - CustomBaudRate
         board:
           - uno
           - due
