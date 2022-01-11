@@ -12,7 +12,7 @@
 // Examples
 
 /*!
- \example MIDI_Basic_IO.ino
+ \example Basic_IO.ino
  This example shows how to perform simple input and output MIDI. \n
  \n
  When any message arrives to the Arduino, the LED is turned on,
@@ -29,15 +29,15 @@
  */
 
 /*!
- \example MIDI_Callbacks.ino
+ \example Callbacks.ino
  This example shows how to use callbacks for easier MIDI input handling. \n
  */
 
 /*!
- \example MIDI_Bench.ino
- \example MIDI_DualMerger.ino
- \example MIDI_Input.ino
- \example MIDI_SimpleSynth.ino
+ \example Bench.ino
+ \example DualMerger.ino
+ \example Input.ino
+ \example SimpleSynth.ino
  */
 
 // -----------------------------------------------------------------------------
