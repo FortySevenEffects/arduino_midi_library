@@ -7,7 +7,12 @@ struct CustomBaudRate : public MIDI_NAMESPACE::DefaultSettings {
   static const long BaudRate = 115200;
 };
 
-MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial, MIDI, CustomBaudRate);
+#if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
+    // Leonardo, Due and other USB boards use Serial1 by default.
+    MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial1, MIDI, CustomBaudRate);
+#else
+    MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial,  MIDI, CustomBaudRate);
+#endif
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
