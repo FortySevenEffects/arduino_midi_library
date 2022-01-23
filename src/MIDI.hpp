@@ -1095,24 +1095,33 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.valid = true;
 
             // Activate running status (if enabled for the received type)
-            switch (mMessage.type)
-            {
-                case NoteOff:
-                case NoteOn:
-                case AfterTouchPoly:
-                case ControlChange:
-                case ProgramChange:
-                case AfterTouchChannel:
-                case PitchBend:
-                    // Running status enabled: store it from received message
-                    mRunningStatus_RX = mPendingMessage[0];
-                    break;
+            if (Settings::UseRunningStatus) {
 
-                default:
+                switch (mMessage.type)
+                {
+                    case NoteOff:
+                    case NoteOn:
+                    case AfterTouchPoly:
+                    case ControlChange:
+                    case ProgramChange:
+                    case AfterTouchChannel:
+                    case PitchBend:
+	                    // Running status enabled: store it from received message
+	                    mRunningStatus_RX = mPendingMessage[0];
+	                    break;
+
+                    default:
                     // No running status
-                    mRunningStatus_RX = InvalidType;
-                    break;
+	                    mRunningStatus_RX = InvalidType;
+	                    break;
+                }
             }
+
+            else {
+
+                mRunningStatus_RX = InvalidType;
+            }
+
             return true;
         }
         else
