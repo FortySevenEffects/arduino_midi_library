@@ -8,11 +8,9 @@ struct CustomBaudRateSettings : public MIDI_NAMESPACE::DefaultSerialSettings {
 
 #if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     // Leonardo, Due and other USB boards use Serial1 by default.
-    MIDI_NAMESPACE::SerialMIDI<HardwareSerial, CustomBaudRateSettings> serialMIDI(Serial1);
-    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<HardwareSerial, CustomBaudRateSettings>> MIDI((MIDI_NAMESPACE::SerialMIDI<HardwareSerial, CustomBaudRateSettings>&)serialMIDI);
+    MIDI_CREATE_CUSTOMSERIAL_INSTANCE(HardwareSerial, Serial1,  MIDI, CustomBaudRateSettings)
 #else
-    MIDI_NAMESPACE::SerialMIDI<HardwareSerial, CustomBaudRateSettings> serialMIDI(Serial);
-    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<HardwareSerial, CustomBaudRateSettings>> MIDI((MIDI_NAMESPACE::SerialMIDI<HardwareSerial, CustomBaudRateSettings>&)serialMIDI);
+    MIDI_CREATE_CUSTOMSERIAL_INSTANCE(HardwareSerial, Serial,  MIDI, CustomBaudRateSettings)
 #endif
 
 void setup() {
