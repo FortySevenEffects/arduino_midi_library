@@ -98,14 +98,19 @@ private:
 
 END_MIDI_NAMESPACE
 
+/*! \brief Create an instance of the library attached to a serial port with overwritten Settings.
+ */
+#define MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, CustomSettings)  \
+    MIDI_NAMESPACE::SerialMIDI<Type, CustomSettings> serial##Name(SerialPort); \
+    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type, CustomSettings>> Name((MIDI_NAMESPACE::SerialMIDI<Type, CustomSettings>&)serial##Name);
+
 /*! \brief Create an instance of the library attached to a serial port.
  You can use HardwareSerial or SoftwareSerial for the serial port.
  Example: MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, midi2);
  Then call midi2.begin(), midi2.read() etc..
  */
 #define MIDI_CREATE_INSTANCE(Type, SerialPort, Name)  \
-    MIDI_NAMESPACE::SerialMIDI<Type> serial##Name(SerialPort);\
-    MIDI_NAMESPACE::MidiInterface<MIDI_NAMESPACE::SerialMIDI<Type>> Name((MIDI_NAMESPACE::SerialMIDI<Type>&)serial##Name);
+    MIDI_CREATE_CUSTOM_INSTANCE(Type, SerialPort, Name, MIDI_NAMESPACE::DefaultSettings)
 
 #if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     // Leonardo, Due and other USB boards use Serial1 by default.
