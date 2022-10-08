@@ -31,6 +31,8 @@ jobs:
           - leonardo
           - micro
           - nanoatmega328
+          - nano_every
+          - nano33ble
           - megaatmega2560
           - teensy2
           - teensy30
