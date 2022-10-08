@@ -383,7 +383,9 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
    }
 
     if (Settings::UseRunningStatus)
+    {
         mRunningStatus_TX = InvalidType;
+    }
 
     return *this;
 }
@@ -465,9 +467,9 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
 
     if (mTransport.beginTransmission(inType))
     {
-            mTransport.write((byte)inType);
-            switch (inType)
-            {
+        mTransport.write((byte)inType);
+        switch (inType)
+        {
             case TimeCodeQuarterFrame:
                 mTransport.write(inData1);
                 break;
@@ -490,7 +492,9 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
     }
 
     if (Settings::UseRunningStatus)
+    {
         mRunningStatus_TX = InvalidType;
+    }
 
     return *this;
 }
