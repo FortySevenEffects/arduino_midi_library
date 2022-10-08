@@ -42,9 +42,9 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mCurrentNrpnNumber(0xffff)
     , mLastMessageSentTime(0)
     , mLastMessageReceivedTime(0)
+    , mSenderActiveSensingPeriodicity(Settings::SenderActiveSensingPeriodicity)
     , mReceiverActiveSensingActive(false)
     , mLastError(0)
-    , mSenderActiveSensingPeriodicity(Settings::SenderActiveSensingPeriodicity)
 {
     static_assert(!(Settings::UseSenderActiveSensing && Settings::UseReceiverActiveSensing), "UseSenderActiveSensing and UseReceiverActiveSensing can't be both set to true.");
 }
@@ -82,7 +82,7 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
 
-    mLastMessageSentTime = 
+    mLastMessageSentTime =
     mLastMessageReceivedTime = Platform::now();
 
     mMessage.valid   = false;
@@ -769,10 +769,10 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
             sendActiveSensing();
     }
 
-    // Once an Active Sensing message is received, the unit will begin monitoring 
-    // the intervalbetween all subsequent messages. If there is an interval of 420 ms 
-    // or longer betweenmessages while monitoring is active, the same processing 
-    // as when All Sound Off, All Notes Off,and Reset All Controllers messages are 
+    // Once an Active Sensing message is received, the unit will begin monitoring
+    // the intervalbetween all subsequent messages. If there is an interval of 420 ms
+    // or longer betweenmessages while monitoring is active, the same processing
+    // as when All Sound Off, All Notes Off,and Reset All Controllers messages are
     // received will be carried out. The unit will then stopmonitoring the message interval.
     if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActive)
     {
@@ -1396,7 +1396,7 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
  */
 
 template<class Transport, class Settings, class Platform>
-inline void MidiInterface<Transport, Settings, Platform>::turnThruOn(ThruFilterCallback fptr)
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::turnThruOn(ThruFilterCallback fptr)
 {
     mThruFilterCallback = fptr;
     return *this;
