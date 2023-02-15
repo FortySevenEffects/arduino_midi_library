@@ -2,6 +2,7 @@
 
 #include "test-mocks.h"
 #include <inttypes.h>
+#include <cstring>
 
 BEGIN_TEST_MOCKS_NAMESPACE
 
