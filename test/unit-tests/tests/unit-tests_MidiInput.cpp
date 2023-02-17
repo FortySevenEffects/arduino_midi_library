@@ -14,11 +14,11 @@ BEGIN_UNNAMED_NAMESPACE
 using namespace testing;
 USING_NAMESPACE_UNIT_TESTS
 typedef test_mocks::SerialMock<32> SerialMock;
-typedef midi::SerialMIDI<SerialMock> Transport;
-typedef midi::MidiInterface<Transport> MidiInterface;
+typedef MIDI_NAMESPACE::SerialMIDI<SerialMock> Transport;
+typedef MIDI_NAMESPACE::MidiInterface<Transport> MidiInterface;
 
 template<unsigned Size>
-struct VariableSysExSettings : midi::DefaultSettings
+struct VariableSysExSettings : MIDI_NAMESPACE::DefaultSettings
 {
     static const unsigned SysExMaxSize = Size;
 };
@@ -26,35 +26,35 @@ struct VariableSysExSettings : midi::DefaultSettings
 TEST(MidiInput, getTypeFromStatusByte)
 {
     // Channel Messages
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0x81), midi::NoteOff);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0x92), midi::NoteOn);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xa3), midi::AfterTouchPoly);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xb4), midi::ControlChange);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xc5), midi::ProgramChange);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xd6), midi::AfterTouchChannel);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xe7), midi::PitchBend);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0x81), MIDI_NAMESPACE::NoteOff);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0x92), MIDI_NAMESPACE::NoteOn);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xa3), MIDI_NAMESPACE::AfterTouchPoly);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xb4), MIDI_NAMESPACE::ControlChange);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xc5), MIDI_NAMESPACE::ProgramChange);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xd6), MIDI_NAMESPACE::AfterTouchChannel);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xe7), MIDI_NAMESPACE::PitchBend);
 
     // System Messages
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf0), midi::SystemExclusive);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf1), midi::TimeCodeQuarterFrame);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf2), midi::SongPosition);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf3), midi::SongSelect);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf6), midi::TuneRequest);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf8), midi::Clock);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfa), midi::Start);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfb), midi::Continue);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfc), midi::Stop);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfe), midi::ActiveSensing);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xff), midi::SystemReset);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf0), MIDI_NAMESPACE::SystemExclusive);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf1), MIDI_NAMESPACE::TimeCodeQuarterFrame);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf2), MIDI_NAMESPACE::SongPosition);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf3), MIDI_NAMESPACE::SongSelect);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf6), MIDI_NAMESPACE::TuneRequest);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf8), MIDI_NAMESPACE::Clock);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfa), MIDI_NAMESPACE::Start);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfb), MIDI_NAMESPACE::Continue);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfc), MIDI_NAMESPACE::Stop);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfe), MIDI_NAMESPACE::ActiveSensing);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xff), MIDI_NAMESPACE::SystemReset);
 
     // Invalid Messages
     for (int i = 0; i < 0x80; ++i)
     {
-        EXPECT_EQ(MidiInterface::getTypeFromStatusByte(i), midi::InvalidType);
+        EXPECT_EQ(MidiInterface::getTypeFromStatusByte(i), MIDI_NAMESPACE::InvalidType);
     }
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf4), midi::InvalidType);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf5), midi::InvalidType);
-    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfd), midi::InvalidType);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf4), MIDI_NAMESPACE::InvalidType);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xf5), MIDI_NAMESPACE::InvalidType);
+    EXPECT_EQ(MidiInterface::getTypeFromStatusByte(0xfd), MIDI_NAMESPACE::InvalidType);
 }
 
 TEST(MidiInput, getChannelFromStatusByte)
@@ -67,25 +67,25 @@ TEST(MidiInput, getChannelFromStatusByte)
 
 TEST(MidiInput, isChannelMessage)
 {
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::InvalidType),           false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::NoteOff),               true);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::NoteOn),                true);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::AfterTouchPoly),        true);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::ControlChange),         true);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::ProgramChange),         true);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::AfterTouchChannel),     true);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::PitchBend),             true);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SystemExclusive),       false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::TimeCodeQuarterFrame),  false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SongPosition),          false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SongSelect),            false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::TuneRequest),           false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Clock),                 false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Start),                 false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Continue),              false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::Stop),                  false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::ActiveSensing),         false);
-    EXPECT_EQ(MidiInterface::isChannelMessage(midi::SystemReset),           false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::InvalidType),           false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::NoteOff),               true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::NoteOn),                true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::AfterTouchPoly),        true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::ControlChange),         true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::ProgramChange),         true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::AfterTouchChannel),     true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::PitchBend),             true);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::SystemExclusive),       false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::TimeCodeQuarterFrame),  false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::SongPosition),          false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::SongSelect),            false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::TuneRequest),           false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::Clock),                 false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::Start),                 false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::Continue),              false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::Stop),                  false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::ActiveSensing),         false);
+    EXPECT_EQ(MidiInterface::isChannelMessage(MIDI_NAMESPACE::SystemReset),           false);
 }
 
 // --
@@ -124,7 +124,7 @@ TEST(MidiInput, initMessage)
     Transport transport(serial);
     MidiInterface midi((Transport&)transport);
 
-    EXPECT_EQ(midi.getType(),               midi::InvalidType);
+    EXPECT_EQ(midi.getType(),               MIDI_NAMESPACE::InvalidType);
     EXPECT_EQ(midi.getChannel(),            0);
     EXPECT_EQ(midi.getData1(),              0);
     EXPECT_EQ(midi.getData2(),              0);
@@ -175,7 +175,7 @@ TEST(MidiInput, inputDisabled)
 TEST(MidiInput, multiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
-    typedef midi::MidiInterface<Transport, Settings> MultiByteMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -210,7 +210,7 @@ TEST(MidiInput, noteOn)
     EXPECT_EQ(midi.read(), true);
 
     // First NoteOn
-    EXPECT_EQ(midi.getType(),       midi::NoteOn);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOn);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -219,7 +219,7 @@ TEST(MidiInput, noteOn)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::NoteOn);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOn);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      78);
@@ -227,7 +227,7 @@ TEST(MidiInput, noteOn)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::NoteOn);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOn);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -235,7 +235,7 @@ TEST(MidiInput, noteOn)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOff);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      0);
@@ -262,7 +262,7 @@ TEST(MidiInput, noteOff)
     EXPECT_EQ(midi.read(), true);
 
     // First NoteOn
-    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOff);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -271,7 +271,7 @@ TEST(MidiInput, noteOff)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOff);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      78);
@@ -279,7 +279,7 @@ TEST(MidiInput, noteOff)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::NoteOff);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOff);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -303,14 +303,14 @@ TEST(MidiInput, programChange)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ProgramChange);
     EXPECT_EQ(midi.getChannel(),    4);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ProgramChange);
     EXPECT_EQ(midi.getChannel(),    4);
     EXPECT_EQ(midi.getData1(),      34);
     EXPECT_EQ(midi.getData2(),      0);
@@ -318,14 +318,14 @@ TEST(MidiInput, programChange)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ProgramChange);
     EXPECT_EQ(midi.getChannel(),    5);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::ProgramChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ProgramChange);
     EXPECT_EQ(midi.getChannel(),    5);
     EXPECT_EQ(midi.getData1(),      78);
     EXPECT_EQ(midi.getData2(),      0);
@@ -352,7 +352,7 @@ TEST(MidiInput, controlChange)
     EXPECT_EQ(midi.read(), true);
 
     // First NoteOn
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -361,7 +361,7 @@ TEST(MidiInput, controlChange)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      78);
@@ -369,7 +369,7 @@ TEST(MidiInput, controlChange)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -396,7 +396,7 @@ TEST(MidiInput, pitchBend)
     EXPECT_EQ(midi.read(), true);
 
     // First NoteOn
-    EXPECT_EQ(midi.getType(),       midi::PitchBend);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::PitchBend);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -405,7 +405,7 @@ TEST(MidiInput, pitchBend)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::PitchBend);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::PitchBend);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      78);
@@ -413,7 +413,7 @@ TEST(MidiInput, pitchBend)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::PitchBend);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::PitchBend);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -440,7 +440,7 @@ TEST(MidiInput, afterTouchPoly)
     EXPECT_EQ(midi.read(), true);
 
     // First NoteOn
-    EXPECT_EQ(midi.getType(),       midi::AfterTouchPoly);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::AfterTouchPoly);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -449,7 +449,7 @@ TEST(MidiInput, afterTouchPoly)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::AfterTouchPoly);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::AfterTouchPoly);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      78);
@@ -457,7 +457,7 @@ TEST(MidiInput, afterTouchPoly)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::AfterTouchPoly);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::AfterTouchPoly);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -481,14 +481,14 @@ TEST(MidiInput, afterTouchChannel)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::AfterTouchChannel);
     EXPECT_EQ(midi.getChannel(),    4);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::AfterTouchChannel);
     EXPECT_EQ(midi.getChannel(),    4);
     EXPECT_EQ(midi.getData1(),      34);
     EXPECT_EQ(midi.getData2(),      0);
@@ -496,14 +496,14 @@ TEST(MidiInput, afterTouchChannel)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::AfterTouchChannel);
     EXPECT_EQ(midi.getChannel(),    5);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::AfterTouchChannel);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::AfterTouchChannel);
     EXPECT_EQ(midi.getChannel(),    5);
     EXPECT_EQ(midi.getData1(),      78);
     EXPECT_EQ(midi.getData2(),      0);
@@ -513,8 +513,8 @@ TEST(MidiInput, sysExWithinBufferSize)
 {
     typedef VariableSysExSettings<1024> Settings;
     typedef test_mocks::SerialMock<2048> LargerSerialMock;
-    typedef midi::SerialMIDI<LargerSerialMock> LargerTransport;
-    typedef midi::MidiInterface<LargerTransport, Settings> LargerMidiInterface;
+    typedef MIDI_NAMESPACE::SerialMIDI<LargerSerialMock> LargerTransport;
+    typedef MIDI_NAMESPACE::MidiInterface<LargerTransport, Settings> LargerMidiInterface;
 
     LargerSerialMock serial;
     LargerTransport transport(serial);
@@ -581,7 +581,7 @@ TEST(MidiInput, sysExWithinBufferSize)
 TEST(MidiInput, sysExOverBufferSize)
 {
     typedef VariableSysExSettings<8> Settings;
-    typedef midi::MidiInterface<Transport, Settings> SmallMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> SmallMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -630,7 +630,7 @@ TEST(MidiInput, mtcQuarterFrame)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::TimeCodeQuarterFrame);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::TimeCodeQuarterFrame);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      0);
@@ -638,7 +638,7 @@ TEST(MidiInput, mtcQuarterFrame)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::TimeCodeQuarterFrame);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::TimeCodeQuarterFrame);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      42);
     EXPECT_EQ(midi.getData2(),      0);
@@ -663,7 +663,7 @@ TEST(MidiInput, songPosition)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::SongPosition);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::SongPosition);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
@@ -672,7 +672,7 @@ TEST(MidiInput, songPosition)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::SongPosition);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::SongPosition);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      56);
     EXPECT_EQ(midi.getData2(),      78);
@@ -696,7 +696,7 @@ TEST(MidiInput, songSelect)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::SongSelect);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::SongSelect);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      0);
@@ -704,7 +704,7 @@ TEST(MidiInput, songSelect)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
 
-    EXPECT_EQ(midi.getType(),       midi::SongSelect);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::SongSelect);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      42);
     EXPECT_EQ(midi.getData2(),      0);
@@ -724,7 +724,7 @@ TEST(MidiInput, tuneRequest)
     serial.mRxBuffer.write(rxData, rxSize);
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::TuneRequest);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::TuneRequest);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
@@ -744,31 +744,31 @@ TEST(MidiInput, realTime)
     serial.mRxBuffer.write(rxData, rxSize);
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::Clock);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Clock);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true); 
-    EXPECT_EQ(midi.getType(),       midi::Tick);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Tick);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::Start);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Start);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::Continue);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Continue);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::Stop);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Stop);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
@@ -776,13 +776,13 @@ TEST(MidiInput, realTime)
     EXPECT_EQ(midi.read(), false); // 0xfd = undefined
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::ActiveSensing);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ActiveSensing);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::SystemReset);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::SystemReset);
     EXPECT_EQ(midi.getChannel(),    0);
     EXPECT_EQ(midi.getData1(),      0);
     EXPECT_EQ(midi.getData2(),      0);
@@ -813,52 +813,52 @@ TEST(MidiInput, interleavedRealTime)
         EXPECT_EQ(midi.read(), false);
 
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::Clock);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Clock);
         EXPECT_EQ(midi.getChannel(),    0);
         EXPECT_EQ(midi.getData1(),      0);
         EXPECT_EQ(midi.getData2(),      0);
 
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::NoteOn);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOn);
         EXPECT_EQ(midi.getChannel(),    12);
         EXPECT_EQ(midi.getData1(),      12);
         EXPECT_EQ(midi.getData2(),      34);
 
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::NoteOff);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOff);
         EXPECT_EQ(midi.getChannel(),    12);
         EXPECT_EQ(midi.getData1(),      12);
         EXPECT_EQ(midi.getData2(),      0);
 
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::Clock);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Clock);
         EXPECT_EQ(midi.getChannel(),    0);
         EXPECT_EQ(midi.getData1(),      0);
         EXPECT_EQ(midi.getData2(),      0);
 
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::NoteOn);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOn);
         EXPECT_EQ(midi.getChannel(),    12);
         EXPECT_EQ(midi.getData1(),      42);
         EXPECT_EQ(midi.getData2(),      127);
 
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::Clock);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Clock);
         EXPECT_EQ(midi.getChannel(),    0);
         EXPECT_EQ(midi.getData1(),      0);
         EXPECT_EQ(midi.getData2(),      0);
 
         EXPECT_EQ(midi.read(), false);
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::Clock);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::Clock);
         EXPECT_EQ(midi.getChannel(),    0);
         EXPECT_EQ(midi.getData1(),      0);
         EXPECT_EQ(midi.getData2(),      0);
 
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::NoteOff);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::NoteOff);
         EXPECT_EQ(midi.getChannel(),    12);
         EXPECT_EQ(midi.getData1(),      42);
         EXPECT_EQ(midi.getData2(),      0);
@@ -877,7 +877,7 @@ TEST(MidiInput, interleavedRealTime)
         EXPECT_EQ(midi.read(), false);
 
         EXPECT_EQ(midi.read(), true);
-        EXPECT_EQ(midi.getType(),       midi::ActiveSensing);
+        EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ActiveSensing);
         EXPECT_EQ(midi.getChannel(),    0);
         EXPECT_EQ(midi.getData1(),      0);
         EXPECT_EQ(midi.getData2(),      0);
@@ -935,14 +935,14 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
     EXPECT_EQ(midi.read(), false); // Invalid, should not reset parser
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);
 
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      0);
@@ -950,7 +950,7 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      42);
     EXPECT_EQ(midi.getData2(),      127);
@@ -959,7 +959,7 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), false);
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      42);
     EXPECT_EQ(midi.getData2(),      0);
@@ -968,7 +968,7 @@ TEST(MidiInput, strayUndefinedOneByteParsing)
 TEST(MidiInput, strayUndefinedMultiByteParsing)
 {
     typedef VariableSettings<false, false> Settings;
-    typedef midi::MidiInterface<Transport, Settings> MultiByteMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> MultiByteMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -982,7 +982,7 @@ TEST(MidiInput, strayUndefinedMultiByteParsing)
     serial.mRxBuffer.write(rxData, rxSize);
 
     EXPECT_EQ(midi.read(), true);
-    EXPECT_EQ(midi.getType(),       midi::ControlChange);
+    EXPECT_EQ(midi.getType(),       MIDI_NAMESPACE::ControlChange);
     EXPECT_EQ(midi.getChannel(),    12);
     EXPECT_EQ(midi.getData1(),      12);
     EXPECT_EQ(midi.getData2(),      34);

@@ -15,10 +15,10 @@ BEGIN_UNNAMED_NAMESPACE
 
 TEST(Settings, hasTheRightDefaultValues)
 {
-    EXPECT_EQ(midi::DefaultSettings::UseRunningStatus,                   false);
-    EXPECT_EQ(midi::DefaultSettings::HandleNullVelocityNoteOnAsNoteOff,  true);
-    EXPECT_EQ(midi::DefaultSettings::Use1ByteParsing,                    true);
-    EXPECT_EQ(midi::DefaultSettings::SysExMaxSize,                       unsigned(128));
+    EXPECT_EQ(MIDI_NAMESPACE::DefaultSettings::UseRunningStatus,                   false);
+    EXPECT_EQ(MIDI_NAMESPACE::DefaultSettings::HandleNullVelocityNoteOnAsNoteOff,  true);
+    EXPECT_EQ(MIDI_NAMESPACE::DefaultSettings::Use1ByteParsing,                    true);
+    EXPECT_EQ(MIDI_NAMESPACE::DefaultSettings::SysExMaxSize,                       unsigned(128));
 }
 
 END_UNNAMED_NAMESPACE

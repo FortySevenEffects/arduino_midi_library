@@ -42,11 +42,11 @@ static const byte myData[12] = {
 };
 
 byte encoded[16];
-const unsigned encodedSize = midi::encodeSysEx(myData, encoded, 12);
+const unsigned encodedSize = MIDI_NAMESPACE::encodeSysEx(myData, encoded, 12);
 // Encoded hex dump: 07 4a 7e 3a 3e 3a 2d 70 07 0d 7a 4a 5e 42
 
 byte decoded[12];
-const unsigned decoded = midi::decodeSysEx(encoded, decoded, encodedSize);
+const unsigned decoded = MIDI_NAMESPACE::decodeSysEx(encoded, decoded, encodedSize);
 ```
 
 ## Special case for Korg devices

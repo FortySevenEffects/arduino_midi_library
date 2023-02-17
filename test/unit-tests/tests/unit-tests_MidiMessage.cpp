@@ -17,7 +17,7 @@ BEGIN_UNNAMED_NAMESPACE
 
 TEST(MidiMessage, hasTheRightProperties)
 {
-    typedef midi::Message<42> Message;
+    typedef MIDI_NAMESPACE::Message<42> Message;
     const Message message = Message();
     EXPECT_EQ(message.channel,  0);
     EXPECT_EQ(message.type,     0);
@@ -38,7 +38,7 @@ TEST(MidiMessage, getSysExSize)
 {
     // Small message
     {
-        typedef midi::Message<32> Message;
+        typedef MIDI_NAMESPACE::Message<32> Message;
         ASSERT_EQ(Message::sSysExMaxSize, unsigned(32));
         Message message = Message();
 
@@ -52,7 +52,7 @@ TEST(MidiMessage, getSysExSize)
     }
     // Medium message
     {
-        typedef midi::Message<256> Message;
+        typedef MIDI_NAMESPACE::Message<256> Message;
         ASSERT_EQ(Message::sSysExMaxSize, unsigned(256));
         Message message = Message();
 
@@ -66,7 +66,7 @@ TEST(MidiMessage, getSysExSize)
     }
     // Large message
     {
-        typedef midi::Message<1024> Message;
+        typedef MIDI_NAMESPACE::Message<1024> Message;
         ASSERT_EQ(Message::sSysExMaxSize, unsigned(1024));
         Message message = Message();
 

@@ -15,8 +15,8 @@ using namespace testing;
 USING_NAMESPACE_UNIT_TESTS;
 
 typedef test_mocks::SerialMock<32> SerialMock;
-typedef midi::SerialMIDI<SerialMock> Transport;
-typedef midi::MidiInterface<Transport> MidiInterface;
+typedef MIDI_NAMESPACE::SerialMIDI<SerialMock> Transport;
+typedef MIDI_NAMESPACE::MidiInterface<Transport> MidiInterface;
 
 typedef std::vector<uint8_t> Buffer;
 
@@ -29,13 +29,13 @@ TEST(MidiOutput, sendInvalid)
     MidiInterface midi((Transport&)transport);
 
     midi.begin();
-    midi.send(midi::NoteOn, 42, 42, 42);                // Invalid channel > OFF
+    midi.send(MIDI_NAMESPACE::NoteOn, 42, 42, 42);                // Invalid channel > OFF
     EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
 
-    midi.send(midi::InvalidType, 0, 0, 12);             // Invalid type
+    midi.send(MIDI_NAMESPACE::InvalidType, 0, 0, 12);             // Invalid type
     EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
 
-    midi.send(midi::NoteOn, 12, 42, MIDI_CHANNEL_OMNI); // OMNI not allowed
+    midi.send(MIDI_NAMESPACE::NoteOn, 12, 42, MIDI_CHANNEL_OMNI); // OMNI not allowed
     EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
 }
 
@@ -49,7 +49,7 @@ TEST(MidiOutput, sendGenericSingle)
     buffer.resize(3);
 
     midi.begin();
-    midi.send(midi::NoteOn, 47, 42, 12);
+    midi.send(MIDI_NAMESPACE::NoteOn, 47, 42, 12);
     EXPECT_EQ(serial.mTxBuffer.getLength(), 3);
     serial.mTxBuffer.read(&buffer[0], 3);
     EXPECT_THAT(buffer, ElementsAreArray({0x9b, 47, 42}));
@@ -58,7 +58,7 @@ TEST(MidiOutput, sendGenericSingle)
 TEST(MidiOutput, sendGenericWithRunningStatus)
 {
     typedef VariableSettings<true, false> Settings;
-    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -70,8 +70,8 @@ TEST(MidiOutput, sendGenericWithRunningStatus)
     midi.begin();
     EXPECT_EQ(RsMidiInterface::Settings::UseRunningStatus, true);
     EXPECT_EQ(serial.mTxBuffer.isEmpty(), true);
-    midi.send(midi::NoteOn, 47, 42, 12);
-    midi.send(midi::NoteOn, 42, 47, 12);
+    midi.send(MIDI_NAMESPACE::NoteOn, 47, 42, 12);
+    midi.send(MIDI_NAMESPACE::NoteOn, 42, 47, 12);
     EXPECT_EQ(serial.mTxBuffer.getLength(), 5);
     serial.mTxBuffer.read(&buffer[0], 5);
     EXPECT_THAT(buffer, ElementsAreArray({0x9b, 47, 42, 42, 47}));
@@ -80,7 +80,7 @@ TEST(MidiOutput, sendGenericWithRunningStatus)
 TEST(MidiOutput, sendGenericWithoutRunningStatus)
 {
     typedef VariableSettings<false, true> Settings; // No running status
-    typedef midi::MidiInterface<Transport, Settings> NoRsMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> NoRsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -93,16 +93,16 @@ TEST(MidiOutput, sendGenericWithoutRunningStatus)
     midi.begin();
     EXPECT_EQ(MidiInterface::Settings::UseRunningStatus, false);
     EXPECT_EQ(serial.mTxBuffer.isEmpty(), true);
-    midi.send(midi::NoteOn, 47, 42, 12);
-    midi.send(midi::NoteOn, 42, 47, 12);
+    midi.send(MIDI_NAMESPACE::NoteOn, 47, 42, 12);
+    midi.send(MIDI_NAMESPACE::NoteOn, 42, 47, 12);
     EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
     serial.mTxBuffer.read(&buffer[0], 6);
     EXPECT_THAT(buffer, ElementsAreArray({0x9b, 47, 42, 0x9b, 42, 47}));
 
     // Different status byte
     midi.begin();
-    midi.send(midi::NoteOn,  47, 42, 12);
-    midi.send(midi::NoteOff, 47, 42, 12);
+    midi.send(MIDI_NAMESPACE::NoteOn,  47, 42, 12);
+    midi.send(MIDI_NAMESPACE::NoteOff, 47, 42, 12);
     EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
     serial.mTxBuffer.read(&buffer[0], 6);
     EXPECT_THAT(buffer, ElementsAreArray({0x9b, 47, 42, 0x8b, 47, 42}));
@@ -118,8 +118,8 @@ TEST(MidiOutput, sendGenericBreakingRunningStatus)
     buffer.resize(6);
 
     midi.begin();
-    midi.send(midi::NoteOn,  47, 42, 12);
-    midi.send(midi::NoteOff, 47, 42, 12);
+    midi.send(MIDI_NAMESPACE::NoteOn,  47, 42, 12);
+    midi.send(MIDI_NAMESPACE::NoteOff, 47, 42, 12);
     EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
     serial.mTxBuffer.read(&buffer[0], 6);
     EXPECT_THAT(buffer, ElementsAreArray({0x9b, 47, 42, 0x8b, 47, 42}));
@@ -135,12 +135,12 @@ TEST(MidiOutput, sendGenericRealTimeShortcut)
     buffer.resize(6);
 
     midi.begin();
-    midi.send(midi::Clock,          47, 42, 12);
-    midi.send(midi::Start,          47, 42, 12);
-    midi.send(midi::Continue,       47, 42, 12);
-    midi.send(midi::Stop,           47, 42, 12);
-    midi.send(midi::ActiveSensing,  47, 42, 12);
-    midi.send(midi::SystemReset,    47, 42, 12);
+    midi.send(MIDI_NAMESPACE::Clock,          47, 42, 12);
+    midi.send(MIDI_NAMESPACE::Start,          47, 42, 12);
+    midi.send(MIDI_NAMESPACE::Continue,       47, 42, 12);
+    midi.send(MIDI_NAMESPACE::Stop,           47, 42, 12);
+    midi.send(MIDI_NAMESPACE::ActiveSensing,  47, 42, 12);
+    midi.send(MIDI_NAMESPACE::SystemReset,    47, 42, 12);
 
     EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
     serial.mTxBuffer.read(&buffer[0], 6);
@@ -330,8 +330,8 @@ TEST(MidiOutput, sendAfterTouchPoly)
 TEST(MidiOutput, sendSysEx)
 {
     typedef test_mocks::SerialMock<1024> LargeSerialMock;
-    typedef midi::SerialMIDI<LargeSerialMock> LargeTransport;
-    typedef midi::MidiInterface<LargeTransport> LargeMidiInterface;
+    typedef MIDI_NAMESPACE::SerialMIDI<LargeSerialMock> LargeTransport;
+    typedef MIDI_NAMESPACE::MidiInterface<LargeTransport> LargeMidiInterface;
 
     LargeSerialMock serial;
     LargeTransport transport(serial);
@@ -513,12 +513,12 @@ TEST(MidiOutput, sendRealTime)
         buffer.resize(6);
 
         midi.begin();
-        midi.sendRealTime(midi::Clock);
-        midi.sendRealTime(midi::Start);
-        midi.sendRealTime(midi::Continue);
-        midi.sendRealTime(midi::Stop);
-        midi.sendRealTime(midi::ActiveSensing);
-        midi.sendRealTime(midi::SystemReset);
+        midi.sendRealTime(MIDI_NAMESPACE::Clock);
+        midi.sendRealTime(MIDI_NAMESPACE::Start);
+        midi.sendRealTime(MIDI_NAMESPACE::Continue);
+        midi.sendRealTime(MIDI_NAMESPACE::Stop);
+        midi.sendRealTime(MIDI_NAMESPACE::ActiveSensing);
+        midi.sendRealTime(MIDI_NAMESPACE::SystemReset);
 
         EXPECT_EQ(serial.mTxBuffer.getLength(), 6);
         serial.mTxBuffer.read(&buffer[0], 6);
@@ -529,19 +529,19 @@ TEST(MidiOutput, sendRealTime)
     // Test invalid messages
     {
         midi.begin();
-        midi.sendRealTime(midi::InvalidType);
-        midi.sendRealTime(midi::NoteOff);
-        midi.sendRealTime(midi::NoteOn);
-        midi.sendRealTime(midi::AfterTouchPoly);
-        midi.sendRealTime(midi::ControlChange);
-        midi.sendRealTime(midi::ProgramChange);
-        midi.sendRealTime(midi::AfterTouchChannel);
-        midi.sendRealTime(midi::PitchBend);
-        midi.sendRealTime(midi::SystemExclusive);
-        midi.sendRealTime(midi::TimeCodeQuarterFrame);
-        midi.sendRealTime(midi::SongPosition);
-        midi.sendRealTime(midi::SongSelect);
-        midi.sendRealTime(midi::TuneRequest);
+        midi.sendRealTime(MIDI_NAMESPACE::InvalidType);
+        midi.sendRealTime(MIDI_NAMESPACE::NoteOff);
+        midi.sendRealTime(MIDI_NAMESPACE::NoteOn);
+        midi.sendRealTime(MIDI_NAMESPACE::AfterTouchPoly);
+        midi.sendRealTime(MIDI_NAMESPACE::ControlChange);
+        midi.sendRealTime(MIDI_NAMESPACE::ProgramChange);
+        midi.sendRealTime(MIDI_NAMESPACE::AfterTouchChannel);
+        midi.sendRealTime(MIDI_NAMESPACE::PitchBend);
+        midi.sendRealTime(MIDI_NAMESPACE::SystemExclusive);
+        midi.sendRealTime(MIDI_NAMESPACE::TimeCodeQuarterFrame);
+        midi.sendRealTime(MIDI_NAMESPACE::SongPosition);
+        midi.sendRealTime(MIDI_NAMESPACE::SongSelect);
+        midi.sendRealTime(MIDI_NAMESPACE::TuneRequest);
 
         EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
     }
@@ -550,7 +550,7 @@ TEST(MidiOutput, sendRealTime)
 TEST(MidiOutput, RPN)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -668,7 +668,7 @@ TEST(MidiOutput, RPN)
 TEST(MidiOutput, NRPN)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -786,7 +786,7 @@ TEST(MidiOutput, NRPN)
 TEST(MidiOutput, runningStatusCancellation)
 {
     typedef VariableSettings<true, false> Settings;
-    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -812,7 +812,7 @@ TEST(MidiOutput, runningStatusCancellation)
         0x90, 12, 34, 56, 78
     }));
 
-    midi.sendRealTime(midi::Clock);     // Should not reset running status.
+    midi.sendRealTime(MIDI_NAMESPACE::Clock);     // Should not reset running status.
     midi.sendNoteOn(12, 34, 1);
     EXPECT_EQ(serial.mTxBuffer.getLength(), 3);
     buffer.clear();

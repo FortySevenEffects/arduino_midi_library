@@ -14,12 +14,12 @@ BEGIN_UNNAMED_NAMESPACE
 using namespace testing;
 USING_NAMESPACE_UNIT_TESTS
 typedef test_mocks::SerialMock<32> SerialMock;
-typedef midi::SerialMIDI<SerialMock> Transport;
-typedef midi::MidiInterface<Transport> MidiInterface;
+typedef MIDI_NAMESPACE::SerialMIDI<SerialMock> Transport;
+typedef MIDI_NAMESPACE::MidiInterface<Transport> MidiInterface;
 typedef std::vector<byte> Buffer;
 
 template<unsigned Size>
-struct VariableSysExSettings : midi::DefaultSettings
+struct VariableSysExSettings : MIDI_NAMESPACE::DefaultSettings
 {
     static const unsigned SysExMaxSize = Size;
 };
@@ -33,10 +33,10 @@ TEST(MidiThru, defaultValues)
     MidiInterface midi((Transport&)transport);
 
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Full);
     midi.begin(); // Should not change the state
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Full);
 }
 
 TEST(MidiThru, beginEnablesThru)
@@ -47,10 +47,10 @@ TEST(MidiThru, beginEnablesThru)
 
     midi.turnThruOff();
     EXPECT_EQ(midi.getThruState(),  false);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Off);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Off);
     midi.begin();
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Full);
 }
 
 TEST(MidiThru, setGet)
@@ -61,30 +61,30 @@ TEST(MidiThru, setGet)
 
     midi.turnThruOff();
     EXPECT_EQ(midi.getThruState(),  false);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Off);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Off);
 
     midi.turnThruOn();
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
-    midi.turnThruOn(midi::Thru::SameChannel);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Full);
+    midi.turnThruOn(MIDI_NAMESPACE::Thru::SameChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::SameChannel);
-    midi.turnThruOn(midi::Thru::DifferentChannel);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::SameChannel);
+    midi.turnThruOn(MIDI_NAMESPACE::Thru::DifferentChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::DifferentChannel);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::DifferentChannel);
 
-    midi.setThruFilterMode(midi::Thru::Full);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::Full);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Full);
-    midi.setThruFilterMode(midi::Thru::SameChannel);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Full);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::SameChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::SameChannel);
-    midi.setThruFilterMode(midi::Thru::DifferentChannel);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::SameChannel);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::DifferentChannel);
     EXPECT_EQ(midi.getThruState(),  true);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::DifferentChannel);
-    midi.setThruFilterMode(midi::Thru::Off);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::DifferentChannel);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::Off);
     EXPECT_EQ(midi.getThruState(),  false);
-    EXPECT_EQ(midi.getFilterMode(), midi::Thru::Off);
+    EXPECT_EQ(midi.getFilterMode(), MIDI_NAMESPACE::Thru::Off);
 }
 
 TEST(MidiThru, off)
@@ -117,7 +117,7 @@ TEST(MidiThru, full)
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
-    midi.setThruFilterMode(midi::Thru::Full);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::Full);
 
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
@@ -161,7 +161,7 @@ TEST(MidiThru, sameChannel)
     Buffer buffer;
 
     midi.begin(12);
-    midi.setThruFilterMode(midi::Thru::SameChannel);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::SameChannel);
 
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
@@ -192,7 +192,7 @@ TEST(MidiThru, sameChannelOmni) // Acts like full
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
-    midi.setThruFilterMode(midi::Thru::SameChannel);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::SameChannel);
 
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
@@ -236,7 +236,7 @@ TEST(MidiThru, differentChannel)
     Buffer buffer;
 
     midi.begin(12);
-    midi.setThruFilterMode(midi::Thru::DifferentChannel);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::DifferentChannel);
 
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
@@ -267,7 +267,7 @@ TEST(MidiThru, differentChannelOmni) // Acts like off
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
-    midi.setThruFilterMode(midi::Thru::DifferentChannel);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::DifferentChannel);
 
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };
@@ -291,7 +291,7 @@ TEST(MidiThru, differentChannelOmni) // Acts like off
 TEST(MidiThru, multiByteThru)
 {
     typedef VariableSettings<false, false> MultiByteParsing;
-    typedef midi::MidiInterface<Transport, MultiByteParsing> MultiByteMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, MultiByteParsing> MultiByteMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -300,7 +300,7 @@ TEST(MidiThru, multiByteThru)
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
-    midi.setThruFilterMode(midi::Thru::Full);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::Full);
 
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 56, 78 };
@@ -322,7 +322,7 @@ TEST(MidiThru, multiByteThru)
 TEST(MidiThru, withTxRunningStatus)
 {
     typedef VariableSettings<true, true> Settings;
-    typedef midi::MidiInterface<Transport, Settings> RsMidiInterface;
+    typedef MIDI_NAMESPACE::MidiInterface<Transport, Settings> RsMidiInterface;
 
     SerialMock serial;
     Transport transport(serial);
@@ -331,7 +331,7 @@ TEST(MidiThru, withTxRunningStatus)
     Buffer buffer;
 
     midi.begin(MIDI_CHANNEL_OMNI);
-    midi.setThruFilterMode(midi::Thru::Full);
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::Full);
 
     static const unsigned rxSize = 5;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 56, 78 };
@@ -371,7 +371,7 @@ TEST(MidiThru, invalidMode)
     MidiInterface midi((Transport&)transport);
 
     midi.begin(MIDI_CHANNEL_OMNI);
-    midi.setThruFilterMode(midi::Thru::Mode(42));
+    midi.setThruFilterMode(MIDI_NAMESPACE::Thru::Mode(42));
 
     static const unsigned rxSize = 6;
     static const byte rxData[rxSize] = { 0x9b, 12, 34, 0x9c, 56, 78 };

@@ -70,7 +70,7 @@ Migration has been made as easy as possible: only the declaration of the MIDI ob
 #include <midi_UsbTransport.h>
 
 static const unsigned sUsbTransportBufferSize = 16;
-typedef midi::UsbTransport<sUsbTransportBufferSize> UsbTransport;
+typedef MIDI_NAMESPACE::UsbTransport<sUsbTransportBufferSize> UsbTransport;
 
 UsbTransport sUsbTransport;
 

@@ -62,7 +62,7 @@ struct Message
         , valid(inOther.valid)
         , length(inOther.length)
     {
-        if (type == midi::SystemExclusive)
+        if (type == MIDI_NAMESPACE::SystemExclusive)
         {
             memcpy(sysexArray, inOther.sysexArray, sSysExMaxSize * sizeof(DataByte));
         }
