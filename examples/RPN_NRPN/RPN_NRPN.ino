@@ -51,7 +51,7 @@ public:
                 }
                 break;
 
-            case midi::DataIncrement:
+            case MIDI_NAMESPACE::DataIncrement:
                 if (mSelected)
                 {
                     Value& currentValue = getCurrentValue();
@@ -59,7 +59,7 @@ public:
                     return true;
                 }
                 break;
-            case midi::DataDecrement:
+            case MIDI_NAMESPACE::DataDecrement:
                 if (mSelected)
                 {
                     Value& currentValue = getCurrentValue();
@@ -68,7 +68,7 @@ public:
                 }
                 break;
 
-            case midi::DataEntryMSB:
+            case MIDI_NAMESPACE::DataEntryMSB:
                 if (mSelected)
                 {
                     Value& currentValue = getCurrentValue();
@@ -77,7 +77,7 @@ public:
                     return true;
                 }
                 break;
-            case midi::DataEntryLSB:
+            case MIDI_NAMESPACE::DataEntryLSB:
                 if (mSelected)
                 {
                     Value& currentValue = getCurrentValue();
@@ -113,8 +113,8 @@ public:
 
 typedef State<2> RpnState;  // We'll listen to 2 RPN
 typedef State<4> NrpnState; // and 4 NRPN
-typedef ParameterNumberParser<RpnState,  midi::RPNMSB,  midi::RPNLSB>  RpnParser;
-typedef ParameterNumberParser<NrpnState, midi::NRPNMSB, midi::NRPNLSB> NrpnParser;
+typedef ParameterNumberParser<RpnState,  MIDI_NAMESPACE::RPNMSB,  MIDI_NAMESPACE::RPNLSB>  RpnParser;
+typedef ParameterNumberParser<NrpnState, MIDI_NAMESPACE::NRPNMSB, MIDI_NAMESPACE::NRPNLSB> NrpnParser;
 
 struct ChannelSetup
 {
@@ -131,8 +131,8 @@ struct ChannelSetup
     }
     inline void setup()
     {
-        mRpnState.enable(midi::RPN::PitchBendSensitivity);
-        mRpnState.enable(midi::RPN::ModulationDepthRange);
+        mRpnState.enable(MIDI_NAMESPACE::RPN::PitchBendSensitivity);
+        mRpnState.enable(MIDI_NAMESPACE::RPN::ModulationDepthRange);
 
         // Enable a few random NRPNs
         mNrpnState.enable(12);
@@ -160,13 +160,13 @@ void handleControlChange(byte inChannel, byte inNumber, byte inValue)
         const Value& value    = channel.mRpnParser.getCurrentValue();
         const unsigned number = channel.mRpnParser.mCurrentNumber.as14bits();
 
-        if (number == midi::RPN::PitchBendSensitivity)
+        if (number == MIDI_NAMESPACE::RPN::PitchBendSensitivity)
         {
             // Here, we use the LSB and MSB separately as they have different meaning.
             const byte semitones    = value.mMsb;
             const byte cents        = value.mLsb;
         }
-        else if (number == midi::RPN::ModulationDepthRange)
+        else if (number == MIDI_NAMESPACE::RPN::ModulationDepthRange)
         {
             // But here, we want the full 14 bit value.
             const unsigned range = value.as14bits();
@@ -198,10 +198,10 @@ void loop()
 
     // Send a RPN sequence (Pitch Bend sensitivity) on channel 1
     {
-        const midi::Channel channel = 1;
+        const MIDI_NAMESPACE::Channel channel = 1;
         const byte semitones = 12;
         const byte cents     = 42;
-        MIDI.beginRpn(midi::RPN::PitchBendSensitivity, channel);
+        MIDI.beginRpn(MIDI_NAMESPACE::RPN::PitchBendSensitivity, channel);
         MIDI.sendRpnValue(semitones, cents, channel);
         MIDI.endRpn(channel);
     }

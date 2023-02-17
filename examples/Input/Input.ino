@@ -36,7 +36,7 @@ void loop()
     {
         switch(MIDI.getType())      // Get the type of the message we caught
         {
-            case midi::ProgramChange:       // If it is a Program Change,
+            case MIDI_NAMESPACE::ProgramChange:       // If it is a Program Change,
                 BlinkLed(MIDI.getData1());  // blink the LED a number of times
                                             // correponding to the program number
                                             // (0 to 127, it can last a while..)

@@ -6,7 +6,7 @@
 BEGIN_UNIT_TESTS_NAMESPACE
 
 template<bool RunningStatus, bool OneByteParsing>
-struct VariableSettings : public midi::DefaultSettings
+struct VariableSettings : public MIDI_NAMESPACE::DefaultSettings
 {
     static const bool UseRunningStatus = RunningStatus;
     static const bool Use1ByteParsing  = OneByteParsing;
