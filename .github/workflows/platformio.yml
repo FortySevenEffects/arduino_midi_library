@@ -24,6 +24,8 @@ jobs:
           - RPN_NRPN
           - SimpleSynth
           - CustomBaudRate
+          - CustomMIDIsettings
+          - CustomMIDIandSerial
         board:
           - uno
           - due
