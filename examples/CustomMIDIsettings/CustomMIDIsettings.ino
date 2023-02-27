@@ -1,16 +1,15 @@
 #include <MIDI.h>
 
-// Override the default MIDI baudrate to
-// a decoding program such as Hairless MIDI (set baudrate to 115200)
-struct CustomSerialSettings : public MIDI_NAMESPACE::DefaultSerialSettings {
-  static const long BaudRate = 115200;
+// Disable the default Use1ByteParsing
+struct CustomMIDISettings : public MIDI_NAMESPACE::DefaultSettings {
+  static const bool Use1ByteParsing = false;
 };
 
 #if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     // Leonardo, Due and other USB boards use Serial1 by default.
-    MIDI_CREATE_CUSTOMSERIAL_INSTANCE(HardwareSerial, Serial1,  MIDI, CustomSerialSettings)
+    MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial1,  MIDI, CustomMIDISettings)
 #else
-    MIDI_CREATE_CUSTOMSERIAL_INSTANCE(HardwareSerial, Serial,  MIDI, CustomSerialSettings)
+    MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial,  MIDI, CustomMIDISettings)
 #endif
 
 void setup() {

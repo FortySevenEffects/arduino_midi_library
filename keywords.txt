@@ -10,6 +10,7 @@ MIDI	KEYWORD1
 MIDI.h	KEYWORD1
 MidiInterface	KEYWORD1
 DefaultSettings	KEYWORD1
+DefaultSerialSettings	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
