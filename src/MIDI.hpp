@@ -893,6 +893,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 mMessage.data1   = 0;
                 mMessage.data2   = 0;
                 mMessage.valid   = true;
+                mMessage.length  = 1;
 
                 // Do not reset all input attributes, Running Status must remain unchanged.
                 // We still need to reset these
