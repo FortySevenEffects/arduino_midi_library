@@ -5,7 +5,7 @@
 // Here, when receiving any message on channel 4, the Arduino
 // will blink a led and play back a note for 1 second.
 
-#if defined(ARDUINO_SAM_DUE) || defined(SAMD_SERIES) || defined(_VARIANT_ARDUINO_ZERO_)
+#if defined(ARDUINO_SAM_DUE) || defined(SAMD_SERIES) || defined(_VARIANT_ARDUINO_ZERO_) || defined(ARDUINO_ARDUINO_NANO33BLE) || defined(ESP32)
    /* example not relevant for this hardware (SoftwareSerial not supported) */
    MIDI_CREATE_DEFAULT_INSTANCE();
 #else
@@ -16,6 +16,11 @@
    SoftwareSerial mySerial = SoftwareSerial(rxPin, txPin);
    Transport serialMIDI(mySerial);
    MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport&)serialMIDI);
+#endif
+
+// Some boards don't have this set (ESP32)
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 0
 #endif
 
 void setup()

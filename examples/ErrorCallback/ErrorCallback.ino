@@ -5,6 +5,11 @@
 
 MIDI_CREATE_DEFAULT_INSTANCE();
 
+// Some boards don't have this set (ESP32)
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 0
+#endif
+
 void handleError(int8_t err)
 {
   digitalWrite(LED_BUILTIN, (err == 0)? LOW : HIGH);

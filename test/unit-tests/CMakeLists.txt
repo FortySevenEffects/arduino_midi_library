@@ -23,6 +23,8 @@ add_executable(unit-tests
     tests/unit-tests_MidiThru.cpp
 )
 
+set_source_files_properties(tests/unit-tests_MidiThru.cpp PROPERTIES COMPILE_FLAGS -Wno-shadow)
+
 target_link_libraries(unit-tests
     gtest
     gmock

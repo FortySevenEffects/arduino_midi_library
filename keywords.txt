@@ -55,14 +55,12 @@ getData1	KEYWORD2
 getData2	KEYWORD2
 getSysExArray	KEYWORD2
 getSysExArrayLength	KEYWORD2
-getFilterMode	KEYWORD2
 getThruState	KEYWORD2
 getInputChannel	KEYWORD2
 check	KEYWORD2
 setInputChannel	KEYWORD2
 turnThruOn	KEYWORD2
 turnThruOff	KEYWORD2
-setThruFilterMode	KEYWORD2
 disconnectCallbackFromType	KEYWORD2
 setHandleNoteOff	KEYWORD2
 setHandleNoteOn	KEYWORD2

@@ -40,15 +40,13 @@ inline MidiInterface<Transport, Settings, Platform>::MidiInterface(Transport& in
     , mPendingMessageIndex(0)
     , mCurrentRpnNumber(0xffff)
     , mCurrentNrpnNumber(0xffff)
-    , mThruActivated(true)
-    , mThruFilterMode(Thru::Full)
     , mLastMessageSentTime(0)
     , mLastMessageReceivedTime(0)
-    , mSenderActiveSensingPeriodicity(0)
-    , mReceiverActiveSensingActivated(false)
+    , mSenderActiveSensingPeriodicity(Settings::SenderActiveSensingPeriodicity)
+    , mReceiverActiveSensingActive(false)
     , mLastError(0)
 {
-    mSenderActiveSensingPeriodicity = Settings::SenderActiveSensingPeriodicity;
+    static_assert(!(Settings::UseSenderActiveSensing && Settings::UseReceiverActiveSensing), "UseSenderActiveSensing and UseReceiverActiveSensing can't be both set to true.");
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -84,7 +82,8 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
     mCurrentRpnNumber  = 0xffff;
     mCurrentNrpnNumber = 0xffff;
 
-    mLastMessageSentTime = Platform::now();
+    mLastMessageSentTime =
+    mLastMessageReceivedTime = Platform::now();
 
     mMessage.valid   = false;
     mMessage.type    = InvalidType;
@@ -93,9 +92,8 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
     mMessage.data2   = 0;
     mMessage.length  = 0;
 
-    mThruFilterMode = Thru::Full;
-    mThruActivated  = mTransport.thruActivated;
-
+    mThruFilterCallback = Transport::thruActivated ? thruOn : thruOff;
+    mThruMapCallback = thruEcho;
     return *this;
 }
 
@@ -385,7 +383,9 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
    }
 
     if (Settings::UseRunningStatus)
+    {
         mRunningStatus_TX = InvalidType;
+    }
 
     return *this;
 }
@@ -467,9 +467,9 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
 
     if (mTransport.beginTransmission(inType))
     {
-            mTransport.write((byte)inType);
-            switch (inType)
-            {
+        mTransport.write((byte)inType);
+        switch (inType)
+        {
             case TimeCodeQuarterFrame:
                 mTransport.write(inData1);
                 break;
@@ -492,7 +492,9 @@ MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings,
     }
 
     if (Settings::UseRunningStatus)
+    {
         mRunningStatus_TX = InvalidType;
+    }
 
     return *this;
 }
@@ -760,27 +762,32 @@ template<class Transport, class Settings, class Platform>
 inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel)
 {
     #ifndef RegionActiveSending
+
     // Active Sensing. This message is intended to be sent
     // repeatedly to tell the receiver that a connection is alive. Use
-    // of this message is optional. When initially received, the
-    // receiver will expect to receive another Active Sensing
-    // message each 300ms (max), and if it does not then it will
-    // assume that the connection has been terminated. At
-    // termination, the receiver will turn off all voices and return to
-    // normal (non- active sensing) operation.
-    if (Settings::UseSenderActiveSensing && (mSenderActiveSensingPeriodicity > 0) && (Platform::now() - mLastMessageSentTime) > mSenderActiveSensingPeriodicity)
+    // of this message is optional.
+    if (Settings::UseSenderActiveSensing)
     {
-        sendActiveSensing();
-        mLastMessageSentTime = Platform::now();
+        // Send ActiveSensing <Settings::ActiveSensingPeriodicity> ms after the last command
+        if ((Platform::now() - mLastMessageSentTime) > Settings::SenderActiveSensingPeriodicity)
+            sendActiveSensing();
     }
 
-    if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActivated && (mLastMessageReceivedTime + ActiveSensingTimeout < Platform::now()))
+    // Once an Active Sensing message is received, the unit will begin monitoring
+    // the intervalbetween all subsequent messages. If there is an interval of 420 ms
+    // or longer betweenmessages while monitoring is active, the same processing
+    // as when All Sound Off, All Notes Off,and Reset All Controllers messages are
+    // received will be carried out. The unit will then stopmonitoring the message interval.
+    if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActive)
     {
-        mReceiverActiveSensingActivated = false;
+        if ((Platform::now() - mLastMessageReceivedTime > Settings::ReceiverActiveSensingTimeout))
+        {
+            mReceiverActiveSensingActive = false;
 
-        mLastError |= 1UL << ErrorActiveSensingTimeout; // set the ErrorActiveSensingTimeout bit
-        if (mErrorCallback)
-            mErrorCallback(mLastError);
+            // its up to the handler to send the stop processing messages
+            // (also, no clue what the channel is on which to send them)
+            mActiveSensingTimeoutCallback(mReceiverActiveSensingActive);
+        }
     }
     #endif
 
@@ -792,24 +799,17 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
 
     #ifndef RegionActiveSending
 
-    if (Settings::UseReceiverActiveSensing && mMessage.type == ActiveSensing)
+    if (Settings::UseReceiverActiveSensing)
     {
-        // When an ActiveSensing message is received, the time keeping is activated.
-        // When a timeout occurs, an error message is send and time keeping ends.
-        mReceiverActiveSensingActivated = true;
+        mLastMessageReceivedTime = Platform::now();
 
-        // is ErrorActiveSensingTimeout bit in mLastError on
-        if (mLastError & (1 << (ErrorActiveSensingTimeout - 1)))
+        if  (mMessage.type == ActiveSensing && !mReceiverActiveSensingActive)
         {
-            mLastError &= ~(1UL << ErrorActiveSensingTimeout); // clear the ErrorActiveSensingTimeout bit
-            if (mErrorCallback)
-                mErrorCallback(mLastError);
+            mReceiverActiveSensingActive = true;
+
+            mActiveSensingTimeoutCallback(mReceiverActiveSensingActive);
         }
     }
-
-    // Keep the time of the last received message, so we can check for the timeout
-    if (Settings::UseReceiverActiveSensing && mReceiverActiveSensingActivated)
-        mLastMessageReceivedTime = Platform::now();
 
     #endif
 
@@ -819,7 +819,7 @@ inline bool MidiInterface<Transport, Settings, Platform>::read(Channel inChannel
     if (channelMatch)
         launchCallback();
 
-    thruFilter(inChannel);
+    processThru();
 
     return channelMatch;
 }
@@ -1399,50 +1399,23 @@ void MidiInterface<Transport, Settings, Platform>::launchCallback()
  @{
  */
 
-/*! \brief Set the filter for thru mirroring
- \param inThruFilterMode a filter mode
-
- @see Thru::Mode
- */
 template<class Transport, class Settings, class Platform>
-inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::setThruFilterMode(Thru::Mode inThruFilterMode)
+inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::turnThruOn(ThruFilterCallback fptr)
 {
-    mThruFilterMode = inThruFilterMode;
-    mThruActivated  = mThruFilterMode != Thru::Off;
-
-    return *this;
-}
-
-template<class Transport, class Settings, class Platform>
-inline Thru::Mode MidiInterface<Transport, Settings, Platform>::getFilterMode() const
-{
-    return mThruFilterMode;
-}
-
-template<class Transport, class Settings, class Platform>
-inline bool MidiInterface<Transport, Settings, Platform>::getThruState() const
-{
-    return mThruActivated;
-}
-
-template<class Transport, class Settings, class Platform>
-inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::turnThruOn(Thru::Mode inThruFilterMode)
-{
-    mThruActivated = true;
-    mThruFilterMode = inThruFilterMode;
-
+    mThruFilterCallback = fptr;
     return *this;
 }
 
 template<class Transport, class Settings, class Platform>
 inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Settings, Platform>::turnThruOff()
 {
-    mThruActivated = false;
-    mThruFilterMode = Thru::Off;
-
+    mThruFilterCallback = thruOff;
+    if (Settings::UseSenderActiveSensing)
+    {
+        mLastMessageSentTime = Platform::now();
+    }
     return *this;
 }
-
 
 /*! @} */ // End of doc group MIDI Thru
 
@@ -1453,56 +1426,25 @@ inline MidiInterface<Transport, Settings, Platform>& MidiInterface<Transport, Se
 // - Channel messages are passed to the output whether their channel
 //   is matching the input channel and the filter setting
 template<class Transport, class Settings, class Platform>
-void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
+void MidiInterface<Transport, Settings, Platform>::processThru()
 {
-    // If the feature is disabled, don't do anything.
-    if (!mThruActivated || (mThruFilterMode == Thru::Off))
-        return;
+   if (!Transport::thruActivated || !mThruFilterCallback(mMessage))
+      return;
+
+   MidiMessage thruMessage = mThruMapCallback(mMessage);
 
     // First, check if the received message is Channel
-    if (mMessage.type >= NoteOff && mMessage.type <= PitchBend)
+    if (thruMessage.type >= NoteOff && thruMessage.type <= PitchBend)
     {
-        const bool filter_condition = ((mMessage.channel == inChannel) ||
-                                       (inChannel == MIDI_CHANNEL_OMNI));
-
-        // Now let's pass it to the output
-        switch (mThruFilterMode)
-        {
-            case Thru::Full:
-                send(mMessage.type,
-                     mMessage.data1,
-                     mMessage.data2,
-                     mMessage.channel);
-                break;
-
-            case Thru::SameChannel:
-                if (filter_condition)
-                {
-                    send(mMessage.type,
-                         mMessage.data1,
-                         mMessage.data2,
-                         mMessage.channel);
-                }
-                break;
-
-            case Thru::DifferentChannel:
-                if (!filter_condition)
-                {
-                    send(mMessage.type,
-                         mMessage.data1,
-                         mMessage.data2,
-                         mMessage.channel);
-                }
-                break;
-
-            default:
-                break;
-        }
+       send(thruMessage.type,
+            thruMessage.data1,
+            thruMessage.data2,
+            thruMessage.channel);
     }
     else
     {
         // Send the message to the output
-        switch (mMessage.type)
+        switch (thruMessage.type)
         {
                 // Real Time and 1 byte
             case Clock:
@@ -1512,24 +1454,24 @@ void MidiInterface<Transport, Settings, Platform>::thruFilter(Channel inChannel)
             case ActiveSensing:
             case SystemReset:
             case TuneRequest:
-                sendRealTime(mMessage.type);
+                sendRealTime(thruMessage.type);
                 break;
 
             case SystemExclusive:
                 // Send SysEx (0xf0 and 0xf7 are included in the buffer)
-                sendSysEx(getSysExArrayLength(), getSysExArray(), true);
+                sendSysEx(thruMessage.getSysExSize(), thruMessage.sysexArray, true);
                 break;
 
             case SongSelect:
-                sendSongSelect(mMessage.data1);
+                sendSongSelect(thruMessage.data1);
                 break;
 
             case SongPosition:
-                sendSongPosition(mMessage.data1 | ((unsigned)mMessage.data2 << 7));
+                sendSongPosition(thruMessage.data1 | ((unsigned)thruMessage.data2 << 7));
                 break;
 
             case TimeCodeQuarterFrame:
-                sendTimeCodeQuarterFrame(mMessage.data1,mMessage.data2);
+                sendTimeCodeQuarterFrame(thruMessage.data1,thruMessage.data2);
                 break;
 
             default:

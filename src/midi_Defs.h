@@ -46,28 +46,23 @@ BEGIN_MIDI_NAMESPACE
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
 
-/*! Receiving Active Sensing 
-*/
-static const uint16_t ActiveSensingTimeout = 300;
-
 // -----------------------------------------------------------------------------
 // Type definitions
 
 typedef byte StatusByte;
 typedef byte DataByte;
 typedef byte Channel;
-typedef byte FilterMode;
 
 // -----------------------------------------------------------------------------
 // Errors
 static const uint8_t ErrorParse = 0;
-static const uint8_t ErrorActiveSensingTimeout = 1;
 static const uint8_t WarningSplitSysEx = 2;
 
 // -----------------------------------------------------------------------------
 // Aliasing
 
 using ErrorCallback                = void (*)(int8_t);
+using ActiveSensingTimeoutCallback = void (*)(bool);
 using NoteOffCallback              = void (*)(Channel channel, byte note, byte velocity);
 using NoteOnCallback               = void (*)(Channel channel, byte note, byte velocity);
 using AfterTouchPolyCallback       = void (*)(Channel channel, byte note, byte velocity);
@@ -119,20 +114,6 @@ enum MidiType: uint8_t
     Undefined_FD          = 0xFD,
     ActiveSensing         = 0xFE,    ///< System Real Time - Active Sensing
     SystemReset           = 0xFF,    ///< System Real Time - System Reset
-};
-
-// -----------------------------------------------------------------------------
-
-/*! Enumeration of Thru filter modes */
-struct Thru
-{
-    enum Mode
-    {
-        Off                   = 0,  ///< Thru disabled (nothing passes through).
-        Full                  = 1,  ///< Fully enabled Thru (every incoming message is sent back).
-        SameChannel           = 2,  ///< Only the messages on the Input Channel will be sent back.
-        DifferentChannel      = 3,  ///< All the messages but the ones on the Input Channel will be sent back.
-    };
 };
 
 // -----------------------------------------------------------------------------

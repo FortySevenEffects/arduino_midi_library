@@ -63,7 +63,7 @@ TEST(MidiOutput, sendGenericWithRunningStatus)
     SerialMock serial;
     Transport transport(serial);
     RsMidiInterface midi((Transport&)transport);
-    
+
     Buffer buffer;
     buffer.resize(5);
 
@@ -85,7 +85,7 @@ TEST(MidiOutput, sendGenericWithoutRunningStatus)
     SerialMock serial;
     Transport transport(serial);
     NoRsMidiInterface midi((Transport&)transport);
-    
+
     Buffer buffer;
     buffer.resize(6);
 
@@ -336,7 +336,7 @@ TEST(MidiOutput, sendSysEx)
     LargeSerialMock serial;
     LargeTransport transport(serial);
     LargeMidiInterface midi((LargeTransport&)transport);
-    
+
     Buffer buffer;
 
     // Short frame
@@ -547,6 +547,41 @@ TEST(MidiOutput, sendRealTime)
     }
 }
 
+TEST(MidiOutput, sendCommon)
+{
+    SerialMock serial;
+    Transport transport(serial);
+    MidiInterface midi((Transport&)transport);
+
+    Buffer buffer;
+
+    // Test valid Common messages
+    {
+        buffer.clear();
+        buffer.resize(8);
+
+        midi.begin();
+        midi.sendCommon(midi::TimeCodeQuarterFrame, 1);
+        midi.sendCommon(midi::SongPosition, 0x5555);
+        midi.sendCommon(midi::SongSelect, 3);
+        midi.sendCommon(midi::TuneRequest, 4);
+
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 8);
+        serial.mTxBuffer.read(&buffer[0], 8);
+        EXPECT_THAT(buffer, ElementsAreArray({
+            0xf1, 0x01, 0xf2, 0x55, 0x2a, 0xf3, 0x03, 0xf6
+        }));
+    }
+    // Test invalid messages
+    {
+        midi.begin();
+        midi.sendCommon(midi::Undefined_F4, 0);
+        midi.sendCommon(midi::Undefined_F5, 0);
+        midi.sendCommon(midi::InvalidType, 0);
+        EXPECT_EQ(serial.mTxBuffer.getLength(), 0);
+    }
+}
+
 TEST(MidiOutput, RPN)
 {
     typedef VariableSettings<true, true> Settings;
@@ -555,7 +590,7 @@ TEST(MidiOutput, RPN)
     SerialMock serial;
     Transport transport(serial);
     RsMidiInterface midi((Transport&)transport);
-    
+
     Buffer buffer;
 
     // 14-bit Value Single Frame
@@ -673,7 +708,7 @@ TEST(MidiOutput, NRPN)
     SerialMock serial;
     Transport transport(serial);
     RsMidiInterface midi((Transport&)transport);
-    
+
     Buffer buffer;
 
     // 14-bit Value Single Frame
@@ -791,7 +826,7 @@ TEST(MidiOutput, runningStatusCancellation)
     SerialMock serial;
     Transport transport(serial);
     RsMidiInterface midi((Transport&)transport);
-    
+
     Buffer buffer;
 
     static const unsigned sysExLength = 13;

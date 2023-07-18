@@ -7,7 +7,7 @@
 // All other Arduinos:                              Connect pins 2 and 3.
 // The program will then wait for 100 loops and print the results.
 
-#if defined(ARDUINO_SAM_DUE) || defined(USBCON)
+#if defined(ARDUINO_SAM_DUE) || defined(USBCON) || defined(ARDUINO_ARDUINO_NANO33BLE) || defined(ESP32)
     // Print through USB and bench with Hardware serial
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, midiBench);
 #else

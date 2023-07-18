@@ -72,17 +72,14 @@ struct DefaultSettings
     */
     static const unsigned SysExMaxSize = 128;
 
-    /*! Global switch to turn on/off sender ActiveSensing
-    Set to true to send ActiveSensing
-    Set to false will not send ActiveSensing message (will also save memory)
+    /*! Global switch to turn on/off sending and receiving ActiveSensing
+    Set to true to activate ActiveSensing
+    Set to false will not send/receive ActiveSensing message (will also save 236 bytes of memory)
+
+    When setting UseActiveSensing to true, MIDI.read() *must* be called
+    as often as possible (1000 / ActiveSensingPeriodicity per second).
     */
     static const bool UseSenderActiveSensing = false;
-
-    /*! Global switch to turn on/off receiver ActiveSensing
-    Set to true to check for message timeouts (via ErrorCallback)
-    Set to false will not check if chained device are still alive (if they use ActiveSensing) (will also save memory)
-    */
-    static const bool UseReceiverActiveSensing = false;
 
     /*! Active Sensing is intended to be sent
     repeatedly by the sender to tell the receiver that a connection is alive. Use
@@ -94,11 +91,20 @@ struct DefaultSettings
     normal (non- active sensing) operation.
 
     Typical value is 250 (ms) - an Active Sensing command is send every 250ms.
-    (All Roland devices send Active Sensing every 250ms)
-
-    Setting this field to 0 will disable sending MIDI active sensing.
+    (Most Roland devices send Active Sensing every 250ms)
     */
-    static const uint16_t SenderActiveSensingPeriodicity = 0;
+    static const uint16_t SenderActiveSensingPeriodicity = 300;
+
+    /*! Once an Active Sensing message is received, the unit will begin monitoring 
+    the intervalbetween all subsequent messages. If there is an interval of ActiveSensingPeriodicity ms 
+    or longer betweenmessages while monitoring is active, the same processing 
+    as when All Sound Off, All Notes Off,and Reset All Controllers messages are 
+    received will be carried out. The unit will then stopmonitoring the message interval.
+    */
+    static const bool UseReceiverActiveSensing = false;
+
+    static const uint16_t ReceiverActiveSensingTimeout = 300;
+
 };
 
 END_MIDI_NAMESPACE
