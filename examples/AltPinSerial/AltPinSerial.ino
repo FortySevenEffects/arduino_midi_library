@@ -5,7 +5,7 @@
 // Here, when receiving any message on channel 4, the Arduino
 // will blink a led and play back a note for 1 second.
 
-#if defined(ARDUINO_SAM_DUE) || defined(SAMD_SERIES) || defined(_VARIANT_ARDUINO_ZERO_) || defined(ARDUINO_NANO33BLE)
+#if defined(ARDUINO_SAM_DUE) || defined(SAMD_SERIES) || defined(_VARIANT_ARDUINO_ZERO_) || defined(ARDUINO_ARDUINO_NANO33BLE)
    /* example not relevant for this hardware (SoftwareSerial not supported) */
    MIDI_CREATE_DEFAULT_INSTANCE();
 #else
