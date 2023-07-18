@@ -9,7 +9,7 @@
 #if defined(ARDUINO_SAM_DUE)
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial,     midiA);
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
-#elif defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_NANO33BLE)
+#elif defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_ARDUINO_NANO33BLE) || defined(ESP32)
     MIDI_CREATE_INSTANCE(Serial_, SerialUSB,  midiA);
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
 #elif defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
