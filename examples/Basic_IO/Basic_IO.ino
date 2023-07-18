@@ -4,6 +4,11 @@
 // Here, when receiving any message on channel 4, the Arduino
 // will blink a led and play back a note for 1 second.
 
+// Some boards don't have this set (ESP32)
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 0
+#endif
+
 MIDI_CREATE_DEFAULT_INSTANCE();
 
 void setup()
