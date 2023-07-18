@@ -1,6 +1,11 @@
 #include <MIDI.h>
 USING_NAMESPACE_MIDI
 
+// Some boards don't have this set (ESP32)
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 0
+#endif
+
 struct MyMIDISettings : public MIDI_NAMESPACE::DefaultSettings
 {
   // When setting UseReceiverActiveSensing to true, MIDI.read() *must* be called

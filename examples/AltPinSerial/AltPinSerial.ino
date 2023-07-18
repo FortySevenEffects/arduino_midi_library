@@ -18,6 +18,11 @@
    MIDI_NAMESPACE::MidiInterface<Transport> MIDI((Transport&)serialMIDI);
 #endif
 
+// Some boards don't have this set (ESP32)
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 0
+#endif
+
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
