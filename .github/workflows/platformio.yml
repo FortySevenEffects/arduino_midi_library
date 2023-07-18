@@ -25,6 +25,7 @@ jobs:
           - SimpleSynth
           - CustomBaudRate
         board:
+          # Arduino
           - uno
           - due
           - zero
@@ -34,10 +35,14 @@ jobs:
           - nano_every
           - nano33ble
           - megaatmega2560
+          # Teensy
           - teensy2
           - teensy30
           - teensy31
           - teensylc
+          # ESP-32
+          - featheresp32
+          - pico32
     steps:
     - uses: actions/checkout@v2
     - name: Cache pip
