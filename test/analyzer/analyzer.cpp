@@ -10,7 +10,7 @@
 
 USING_NAMESPACE_ANALYZER
 
-int main(int argc, char **argv) {
+int main(int, char**) {
     MIDIAnalyzer analyzer;
     analyzer.setup();
 
