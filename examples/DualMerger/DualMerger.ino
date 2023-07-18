@@ -6,16 +6,16 @@
 // A out = A in + B in
 // B out = B in + A in
 
-#if defined(ARDUINO_SAM_DUE)
+#if defined(ARDUINO_SAM_DUE) || defined(ARDUINO_ARDUINO_NANO33BLE) || defined(ESP32)
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial,     midiA);
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
-#elif defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_ARDUINO_NANO33BLE) || defined(ESP32)
+#elif defined(ARDUINO_SAMD_ZERO)
     MIDI_CREATE_INSTANCE(Serial_, SerialUSB,  midiA);
     MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiB);
 #elif defined(USBCON) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
     #include <SoftwareSerial.h>
     SoftwareSerial softSerial(2,3);
-    MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,     midiA);
+    MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,    midiA);
     MIDI_CREATE_INSTANCE(SoftwareSerial, softSerial, midiB);
 #else
     #include <SoftwareSerial.h>
