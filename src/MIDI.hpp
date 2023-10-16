@@ -893,6 +893,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
                 mMessage.data1   = 0;
                 mMessage.data2   = 0;
                 mMessage.valid   = true;
+                mMessage.length  = 1;
 
                 // Do not reset all input attributes, Running Status must remain unchanged.
                 // We still need to reset these
@@ -948,7 +949,7 @@ bool MidiInterface<Transport, Settings, Platform>::parse()
             mMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
             mMessage.data1   = mPendingMessage[1];
             mMessage.data2   = 0; // Completed new message has 1 data byte
-            mMessage.length  = 1;
+            mMessage.length  = 2; // Shouldn't be 1, send() checks if length > 1 to send data1, thus length needs to be 2
 
             mPendingMessageIndex = 0;
             mPendingMessageExpectedLength = 0;
